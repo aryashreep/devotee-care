@@ -69,7 +69,7 @@ class User extends BaseModel {
      */
     public function update($id, $data) {
         // Whitelist of columns that can be updated
-        $allowedColumns = ['full_name', 'mobile_number', 'email', 'password', 'bhakti_sadan_id'];
+        $allowedColumns = ['full_name', 'mobile_number', 'email', 'password', 'bhakti_sadan_id', 'role_id'];
 
         $fields = [];
         $updateData = [];
@@ -109,5 +109,11 @@ class User extends BaseModel {
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['bhakti_sadan_id' => $bhaktiSadanId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function delete($id) {
+        $sql = "DELETE FROM {$this->table} WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute(['id' => $id]);
     }
 }

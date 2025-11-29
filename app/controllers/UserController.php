@@ -6,6 +6,7 @@ namespace App\Controllers;
 use App\Core\BaseController;
 use App\Models\User;
 use App\Models\BhaktiSadan;
+use App\Models\Role;
 
 class UserController extends BaseController {
 
@@ -59,6 +60,54 @@ class UserController extends BaseController {
                 showError('Failed to update Bhakti Sadan.', 500);
             }
         }
+    }
+
+    public function delete($id) {
+        if ($_SESSION['user_role'] !== 'Admin') {
+            showError('Forbidden: You do not have permission to access this page.', 403);
+        }
+
+        if ($this->userModel->delete($id)) {
+            header('Location: ' . url('users'));
+            exit;
+        } else {
+            showError('Failed to delete user.', 500);
+        }
+    }
+
+    public function edit($id) {
+        if ($_SESSION['user_role'] !== 'Admin') {
+            showError('Forbidden: You do not have permission to access this page.', 403);
+        }
+
+        $user = $this->userModel->findById($id);
+        $roleModel = new Role();
+        $roles = $roleModel->getAll();
+        $bhaktiSadanModel = new BhaktiSadan();
+        $bhaktiSadans = $bhaktiSadanModel->getAll();
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $data = [
+                'full_name' => trim($_POST['full_name']),
+                'mobile_number' => trim($_POST['mobile_number']),
+                'email' => trim($_POST['email']),
+                'role_id' => $_POST['role_id'],
+                'bhakti_sadan_id' => $_POST['bhakti_sadan_id']
+            ];
+
+            if ($this->userModel->update($id, $data)) {
+                header('Location: ' . url('users'));
+                exit;
+            } else {
+                $data['error'] = 'Failed to update user.';
+            }
+        }
+
+        $data['user'] = $user;
+        $data['roles'] = $roles;
+        $data['bhaktiSadans'] = $bhaktiSadans;
+
+        echo $this->view('dashboard/user_edit', $data);
     }
 
     /**

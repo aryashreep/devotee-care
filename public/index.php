@@ -41,6 +41,8 @@ $routes = [
     'profile' => 'App\\Controllers\\UserController@profile',
     'users' => 'App\\Controllers\\UserController@index',
     'user/update-bhakti-sadan' => 'App\\Controllers\\UserController@updateBhaktiSadan',
+    'user/delete/(\d+)' => 'App\\Controllers\\UserController@delete',
+    'user/edit/(\d+)' => 'App\\Controllers\\UserController@edit',
 
     // Bhakti Sadan
     'bhakti-sadan' => 'App\\Controllers\\BhaktiSadanController@index',

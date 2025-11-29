@@ -26,18 +26,8 @@
                 <td><?php echo htmlspecialchars($user['role_name']); ?></td>
                 <td><?php echo htmlspecialchars($user['bhakti_sadan_name'] ?? 'N/A'); ?></td>
                 <td>
-                    <form method="POST" action="<?php echo url('user/update-bhakti-sadan'); ?>" class="d-inline">
-                        <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                        <select class="form-control d-inline w-50" name="bhakti_sadan_id">
-                            <option value="">None</option>
-                            <?php foreach ($data['bhaktiSadans'] as $bhaktiSadan): ?>
-                                <option value="<?php echo $bhaktiSadan['id']; ?>" <?php echo ($user['bhakti_sadan_id'] == $bhaktiSadan['id']) ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($bhaktiSadan['name']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <button type="submit" class="btn btn-sm btn-primary">Save</button>
-                    </form>
+                    <a href="<?php echo url('user/edit/' . $user['id']); ?>" class="btn btn-sm btn-info">Edit</a>
+                    <a href="<?php echo url('user/delete/' . $user['id']); ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
                 </td>
             </tr>
         <?php endforeach; ?>

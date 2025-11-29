@@ -9,7 +9,8 @@ INSERT INTO roles (role_name) VALUES
 ('Admin'),
 ('Management'),
 ('Finance'),
-('Editor');
+('Editor'),
+('End User');
 
 -- Create the users table
 CREATE TABLE users (

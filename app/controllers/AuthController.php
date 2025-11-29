@@ -70,7 +70,7 @@ class AuthController extends BaseController {
                 'mobile_number' => trim($_POST['mobile_number']),
                 'email' => trim($_POST['email']),
                 'password' => $_POST['password'],
-                'role_id' => 4 // Default to 'Editor' role on registration
+                'role_id' => 5 // Default to 'End User' role on registration
             ];
 
             if ($userModel->create($data)) {

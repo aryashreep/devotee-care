@@ -32,6 +32,12 @@ require_once __DIR__ . '/../config/database.php';
 // A simple regex-based router
 $route = isset($_GET['route']) ? $_GET['route'] : 'login';
 
+// Redirect to login if user is not authenticated and the route is not login or register
+if (!isset($_SESSION['user_id']) && !in_array($route, ['login', 'register'])) {
+    header('Location: ' . url('login'));
+    exit;
+}
+
 // Whitelist of allowed routes and their corresponding controllers
 $routes = [
     'login' => 'App\\Controllers\\AuthController@login',

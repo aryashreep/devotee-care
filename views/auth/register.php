@@ -11,6 +11,7 @@
                     <div class="alert alert-danger"><?php echo $data['error']; ?></div>
                 <?php endif; ?>
                 <form action="<?php echo url('register'); ?>" method="POST">
+                    <input type="hidden" name="csrf_token" value="<?php echo $data['csrf_token']; ?>">
                     <div class="mb-3">
                         <label for="full_name" class="form-label">Full Name</label>
                         <input type="text" class="form-control" id="full_name" name="full_name" required>

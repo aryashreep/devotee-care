@@ -42,14 +42,14 @@ class AuthController extends BaseController {
      * Handles user registration.
      */
     public function register() {
-        if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'Admin') {
-            showError('Forbidden: You do not have permission to access this page.', 403);
-        }
-
         $bhaktiSadanModel = new BhaktiSadan();
         $data['bhaktiSadans'] = $bhaktiSadanModel->getAll();
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            if (!validate_csrf_token($_POST['csrf_token'])) {
+                showError('Invalid CSRF token.', 403);
+            }
+
             // Basic input validation
             $errors = [];
             if (empty($_POST['full_name'])) {
@@ -93,6 +93,7 @@ class AuthController extends BaseController {
             }
         } else {
             // Show the registration form
+            $data['csrf_token'] = csrf_token();
             echo $this->view('auth/register', $data);
         }
     }

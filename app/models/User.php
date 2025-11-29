@@ -11,17 +11,59 @@ class User extends BaseModel {
 
     /**
      * Creates a new user in the database.
-     * @param array $data User data (full_name, mobile_number, email, password, role_id, bhakti_sadan_id)
-     * @return bool True on success, false on failure.
+     * @param array $data User data
+     * @return mixed The ID of the new user on success, false on failure.
      */
     public function create($data) {
-        $sql = "INSERT INTO {$this->table} (full_name, mobile_number, email, password, role_id, bhakti_sadan_id) VALUES (:full_name, :mobile_number, :email, :password, :role_id, :bhakti_sadan_id)";
+        $sql = "INSERT INTO {$this->table} (
+                    full_name, initiated_name, gender, photo, date_of_birth, marital_status, marriage_anniversary_date,
+                    email, mobile_number, address, city, state, pincode, country, education_id, profession_id,
+                    bhakti_sadan_id, life_member_no, life_member_temple, password, role_id
+                ) VALUES (
+                    :full_name, :initiated_name, :gender, :photo, :date_of_birth, :marital_status, :marriage_anniversary_date,
+                    :email, :mobile_number, :address, :city, :state, :pincode, :country, :education_id, :profession_id,
+                    :bhakti_sadan_id, :life_member_no, :life_member_temple, :password, :role_id
+                )";
         $stmt = $this->db->prepare($sql);
 
         // Hash the password before storing it
         $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
+        $data['role_id'] = 5; // Default to 'End User'
 
-        return $stmt->execute($data);
+        if ($stmt->execute($data)) {
+            return $this->db->lastInsertId();
+        }
+        return false;
+    }
+
+    public function assignLanguages($userId, $languageIds) {
+        $sql = "INSERT INTO user_languages (user_id, language_id) VALUES (:user_id, :language_id)";
+        $stmt = $this->db->prepare($sql);
+        foreach ($languageIds as $languageId) {
+            $stmt->execute(['user_id' => $userId, 'language_id' => $languageId]);
+        }
+    }
+
+    public function assignSevas($userId, $sevaIds) {
+        $sql = "INSERT INTO user_sevas (user_id, seva_id) VALUES (:user_id, :seva_id)";
+        $stmt = $this->db->prepare($sql);
+        foreach ($sevaIds as $sevaId) {
+            $stmt->execute(['user_id' => $userId, 'seva_id' => $sevaId]);
+        }
+    }
+
+    public function addDependants($userId, $dependants) {
+        $sql = "INSERT INTO dependants (user_id, name, age, gender, date_of_birth) VALUES (:user_id, :name, :age, :gender, :date_of_birth)";
+        $stmt = $this->db->prepare($sql);
+        foreach ($dependants as $dependant) {
+            $stmt->execute([
+                'user_id' => $userId,
+                'name' => $dependant['name'],
+                'age' => $dependant['age'],
+                'gender' => $dependant['gender'],
+                'date_of_birth' => $dependant['date_of_birth'],
+            ]);
+        }
     }
 
     /**

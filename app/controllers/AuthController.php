@@ -42,60 +42,77 @@ class AuthController extends BaseController {
      * Handles user registration.
      */
     public function register() {
-        $bhaktiSadanModel = new BhaktiSadan();
-        $data['bhaktiSadans'] = $bhaktiSadanModel->getAll();
+        $step = isset($_GET['step']) ? (int)$_GET['step'] : 1;
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (!validate_csrf_token($_POST['csrf_token'])) {
                 showError('Invalid CSRF token.', 403);
             }
 
-            // Basic input validation
-            $errors = [];
-            if (empty($_POST['full_name'])) {
-                $errors[] = 'Full name is required.';
-            }
-            if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
-                $errors[] = 'A valid email is required.';
-            }
-            if (empty($_POST['mobile_number'])) {
-                $errors[] = 'Mobile number is required.';
-            }
-            if (strlen($_POST['password']) < 8) {
-                $errors[] = 'Password must be at least 8 characters long.';
-            }
+            $_SESSION['registration_data'] = array_merge($_SESSION['registration_data'] ?? [], $_POST);
 
-            if (!empty($errors)) {
-                $data['error'] = implode('<br>', $errors);
-                echo $this->view('auth/register', $data);
-                return;
-            }
-
-            $userModel = new User();
-
-            $userData = [
-                'full_name' => trim($_POST['full_name']),
-                'mobile_number' => trim($_POST['mobile_number']),
-                'email' => trim($_POST['email']),
-                'password' => $_POST['password'],
-                'role_id' => 5, // Default to 'End User' role on registration
-                'bhakti_sadan_id' => $_POST['bhakti_sadan_id']
-            ];
-
-            if ($userModel->create($userData)) {
-                // Redirect to login page with a success message
-                header("Location: ". url('login', ['success' => 1]));
-                exit;
+            $nextStep = $step + 1;
+            if ($nextStep > 3) {
+                // Final step, process the data
+                $this->processRegistration();
             } else {
-                // Show registration form with an error
-                $data['error'] = 'Registration failed. The mobile number or email may already be in use.';
-                echo $this->view('auth/register', $data);
+                header('Location: ' . url('register', ['step' => $nextStep]));
+                exit;
             }
         } else {
-            // Show the registration form
+            $data = $this->_get_registration_data();
+            $data['step'] = $step;
             $data['csrf_token'] = csrf_token();
             echo $this->view('auth/register', $data);
         }
+    }
+
+    private function processRegistration() {
+        $userModel = new User();
+        $data = $_SESSION['registration_data'];
+
+        // Handle file upload
+        if (isset($_FILES['photo']) && $_FILES['photo']['error'] == 0) {
+            $targetDir = "uploads/photos/";
+            $fileName = basename($_FILES["photo"]["name"]);
+            $targetFilePath = $targetDir . $fileName;
+            move_uploaded_file($_FILES["photo"]["tmp_name"], $targetFilePath);
+            $data['photo'] = $targetFilePath;
+        }
+
+        $userId = $userModel->create($data);
+
+        if ($userId) {
+            // Handle multiple selections
+            $userModel->assignLanguages($userId, $data['languages']);
+            $userModel->assignSevas($userId, $data['sevas']);
+            $userModel->addDependants($userId, $data['dependants']);
+
+            unset($_SESSION['registration_data']);
+            header("Location: " . url('login', ['success' => 1]));
+            exit;
+        } else {
+            $data = $this->_get_registration_data();
+            $data['error'] = 'Registration failed. The mobile number or email may already be in use.';
+            $data['step'] = 3; // Go back to the last step
+            echo $this->view('auth/register', $data);
+        }
+    }
+
+    private function _get_registration_data() {
+        $bhaktiSadanModel = new BhaktiSadan();
+        $educationModel = new Lookup('educations');
+        $professionModel = new Lookup('professions');
+        $languageModel = new Lookup('languages');
+        $sevaModel = new Lookup('sevas');
+
+        return [
+            'bhaktiSadans' => $bhaktiSadanModel->getAll(),
+            'educations' => $educationModel->getAll(),
+            'professions' => $professionModel->getAll(),
+            'languages' => $languageModel->getAll(),
+            'sevas' => $sevaModel->getAll(),
+        ];
     }
 
     /**

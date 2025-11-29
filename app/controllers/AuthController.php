@@ -6,6 +6,7 @@ namespace App\Controllers;
 use App\Core\BaseController;
 use App\Models\User;
 use App\Models\BhaktiSadan;
+use App\Models\Lookup;
 
 class AuthController extends BaseController {
 

@@ -5,6 +5,7 @@ namespace App\Controllers;
 
 use App\Core\BaseController;
 use App\Models\User;
+use App\Models\BhaktiSadan;
 
 class UserController extends BaseController {
 
@@ -23,14 +24,41 @@ class UserController extends BaseController {
      * Display the user management page (Admin only).
      */
     public function index() {
-        // RBAC Check: Allow only 'Admin'
+        $isLeader = $this->userModel->isBhaktiSadanLeader($_SESSION['user_id']);
+
+        if ($_SESSION['user_role'] === 'Admin') {
+            $users = $this->userModel->getAll();
+        } elseif ($isLeader) {
+            $user = $this->userModel->findById($_SESSION['user_id']);
+            $users = $this->userModel->getUsersByBhaktiSadan($user['bhakti_sadan_id']);
+        } else {
+            showError('Forbidden: You do not have permission to access this page.', 403);
+        }
+
+        $bhaktiSadanModel = new BhaktiSadan();
+        $bhaktiSadans = $bhaktiSadanModel->getAll();
+
+        $data['users'] = $users;
+        $data['bhaktiSadans'] = $bhaktiSadans;
+        echo $this->view('dashboard/users', $data);
+    }
+
+    public function updateBhaktiSadan() {
         if ($_SESSION['user_role'] !== 'Admin') {
             showError('Forbidden: You do not have permission to access this page.', 403);
         }
 
-        $users = $this->userModel->getAll();
-        $data['users'] = $users;
-        echo $this->view('dashboard/users', $data);
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $userId = $_POST['user_id'];
+            $bhaktiSadanId = $_POST['bhakti_sadan_id'];
+
+            if ($this->userModel->update($userId, ['bhakti_sadan_id' => $bhaktiSadanId])) {
+                header('Location: ' . url('users'));
+                exit;
+            } else {
+                showError('Failed to update Bhakti Sadan.', 500);
+            }
+        }
     }
 
     /**

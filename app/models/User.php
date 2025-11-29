@@ -11,11 +11,11 @@ class User extends BaseModel {
 
     /**
      * Creates a new user in the database.
-     * @param array $data User data (full_name, mobile_number, email, password, role_id)
+     * @param array $data User data (full_name, mobile_number, email, password, role_id, bhakti_sadan_id)
      * @return bool True on success, false on failure.
      */
     public function create($data) {
-        $sql = "INSERT INTO {$this->table} (full_name, mobile_number, email, password, role_id) VALUES (:full_name, :mobile_number, :email, :password, :role_id)";
+        $sql = "INSERT INTO {$this->table} (full_name, mobile_number, email, password, role_id, bhakti_sadan_id) VALUES (:full_name, :mobile_number, :email, :password, :role_id, :bhakti_sadan_id)";
         $stmt = $this->db->prepare($sql);
 
         // Hash the password before storing it
@@ -53,7 +53,10 @@ class User extends BaseModel {
      * @return array An array of all users.
      */
     public function getAll() {
-        $sql = "SELECT u.*, r.role_name FROM {$this->table} u JOIN roles r ON u.role_id = r.id";
+        $sql = "SELECT u.*, r.role_name, bs.name as bhakti_sadan_name
+                FROM {$this->table} u
+                JOIN roles r ON u.role_id = r.id
+                LEFT JOIN bhakti_sadans bs ON u.bhakti_sadan_id = bs.id";
         $stmt = $this->db->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -66,7 +69,7 @@ class User extends BaseModel {
      */
     public function update($id, $data) {
         // Whitelist of columns that can be updated
-        $allowedColumns = ['full_name', 'mobile_number', 'email', 'password'];
+        $allowedColumns = ['full_name', 'mobile_number', 'email', 'password', 'bhakti_sadan_id'];
 
         $fields = [];
         $updateData = [];
@@ -88,5 +91,23 @@ class User extends BaseModel {
 
         $stmt = $this->db->prepare($sql);
         return $stmt->execute($updateData);
+    }
+
+    public function isBhaktiSadanLeader($userId) {
+        $sql = "SELECT COUNT(*) FROM bhakti_sadan_leaders WHERE user_id = :user_id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['user_id' => $userId]);
+        return $stmt->fetchColumn() > 0;
+    }
+
+    public function getUsersByBhaktiSadan($bhaktiSadanId) {
+        $sql = "SELECT u.*, r.role_name, bs.name as bhakti_sadan_name
+                FROM {$this->table} u
+                JOIN roles r ON u.role_id = r.id
+                LEFT JOIN bhakti_sadans bs ON u.bhakti_sadan_id = bs.id
+                WHERE u.bhakti_sadan_id = :bhakti_sadan_id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['bhakti_sadan_id' => $bhaktiSadanId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

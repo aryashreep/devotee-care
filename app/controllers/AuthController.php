@@ -5,6 +5,7 @@ namespace App\Controllers;
 
 use App\Core\BaseController;
 use App\Models\User;
+use App\Models\BhaktiSadan;
 
 class AuthController extends BaseController {
 
@@ -41,6 +42,13 @@ class AuthController extends BaseController {
      * Handles user registration.
      */
     public function register() {
+        if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'Admin') {
+            showError('Forbidden: You do not have permission to access this page.', 403);
+        }
+
+        $bhaktiSadanModel = new BhaktiSadan();
+        $data['bhaktiSadans'] = $bhaktiSadanModel->getAll();
+
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Basic input validation
             $errors = [];
@@ -65,17 +73,18 @@ class AuthController extends BaseController {
 
             $userModel = new User();
 
-            $data = [
+            $userData = [
                 'full_name' => trim($_POST['full_name']),
                 'mobile_number' => trim($_POST['mobile_number']),
                 'email' => trim($_POST['email']),
                 'password' => $_POST['password'],
-                'role_id' => 5 // Default to 'End User' role on registration
+                'role_id' => 5, // Default to 'End User' role on registration
+                'bhakti_sadan_id' => $_POST['bhakti_sadan_id']
             ];
 
-            if ($userModel->create($data)) {
+            if ($userModel->create($userData)) {
                 // Redirect to login page with a success message
-                header("Location: " . url('login', ['success' => 1]));
+                header("Location: ". url('login', ['success' => 1]));
                 exit;
             } else {
                 // Show registration form with an error
@@ -84,7 +93,7 @@ class AuthController extends BaseController {
             }
         } else {
             // Show the registration form
-            echo $this->view('auth/register');
+            echo $this->view('auth/register', $data);
         }
     }
 

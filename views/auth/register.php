@@ -27,6 +27,17 @@
                         <label for="password" class="form-label">Password</label>
                         <input type="password" class="form-control" id="password" name="password" required>
                     </div>
+                    <div class="mb-3">
+                        <label for="bhakti_sadan_id" class="form-label">Bhakti Sadan</label>
+                        <select class="form-control" id="bhakti_sadan_id" name="bhakti_sadan_id">
+                            <option value="">Select a Bhakti Sadan</option>
+                            <?php if (isset($data['bhaktiSadans'])): ?>
+                                <?php foreach ($data['bhaktiSadans'] as $bhaktiSadan): ?>
+                                    <option value="<?php echo $bhaktiSadan['id']; ?>"><?php echo htmlspecialchars($bhaktiSadan['name']); ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
                     <button type="submit" class="btn btn-primary">Register</button>
                     <a href="<?php echo url('login'); ?>" class="btn btn-link">Already have an account? Login</a>
                 </form>

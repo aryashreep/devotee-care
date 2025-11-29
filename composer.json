@@ -1,0 +1,9 @@
+{
+    "name": "jules/admin-panel",
+    "description": "A simple PHP admin panel.",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    }
+}

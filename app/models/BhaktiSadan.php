@@ -10,9 +10,9 @@ class BhaktiSadan extends BaseModel {
     protected $table = 'bhakti_sadans';
 
     public function create($data) {
-        $sql = "INSERT INTO {$this->table} (name, address) VALUES (:name, :address)";
+        $sql = "INSERT INTO {$this->table} (name) VALUES (:name)";
         $stmt = $this->db->prepare($sql);
-        if ($stmt->execute(['name' => $data['name'], 'address' => $data['address']])) {
+        if ($stmt->execute(['name' => $data['name']])) {
             return $this->db->lastInsertId();
         }
         return false;
@@ -32,9 +32,9 @@ class BhaktiSadan extends BaseModel {
     }
 
     public function update($id, $data) {
-        $sql = "UPDATE {$this->table} SET name = :name, address = :address WHERE id = :id";
+        $sql = "UPDATE {$this->table} SET name = :name WHERE id = :id";
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute(['id' => $id, 'name' => $data['name'], 'address' => $data['address']]);
+        return $stmt->execute(['id' => $id, 'name' => $data['name']]);
     }
 
     public function getLeaders($bhaktiSadanId) {

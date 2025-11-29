@@ -13,10 +13,6 @@ include_once __DIR__ . '/../../includes/dashboard_header.php';
             <input type="text" class="form-control" id="name" name="name" required>
         </div>
         <div class="mb-3">
-            <label for="address" class="form-label">Address</label>
-            <textarea class="form-control" id="address" name="address" rows="3"></textarea>
-        </div>
-        <div class="mb-3">
             <label for="leader_ids" class="form-label">Bhakti Sadan Leaders</label>
             <select class="form-control" id="leader_ids" name="leader_ids[]" multiple>
                 <?php foreach ($data['users'] as $user): ?>

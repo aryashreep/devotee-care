@@ -12,7 +12,6 @@ include_once __DIR__ . '/../../includes/dashboard_header.php';
         <thead>
             <tr>
                 <th>Name</th>
-                <th>Address</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -20,7 +19,6 @@ include_once __DIR__ . '/../../includes/dashboard_header.php';
             <?php foreach ($data['bhaktiSadans'] as $bhaktiSadan): ?>
                 <tr>
                     <td><?php echo htmlspecialchars($bhaktiSadan['name']); ?></td>
-                    <td><?php echo htmlspecialchars($bhaktiSadan['address']); ?></td>
                     <td>
                         <a href="<?php echo url('bhakti-sadan/edit/' . $bhaktiSadan['id']); ?>" class="btn btn-sm btn-info">Edit</a>
                         <a href="<?php echo url('bhakti-sadan/delete/' . $bhaktiSadan['id']); ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>

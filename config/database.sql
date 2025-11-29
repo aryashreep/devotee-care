@@ -30,8 +30,7 @@ CREATE TABLE users (
 -- Create the bhakti_sadans table
 CREATE TABLE bhakti_sadans (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    address TEXT
+    name VARCHAR(255) NOT NULL
 );
 
 -- Create the bhakti_sadan_leaders table

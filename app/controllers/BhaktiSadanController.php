@@ -37,19 +37,22 @@ class BhaktiSadanController extends BaseController {
         }
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $data = [
-                'name' => trim($_POST['name']),
-                'address' => trim($_POST['address']),
-                'leader_ids' => $_POST['leader_ids'] ?? []
-            ];
-
-            $bhaktiSadanId = $this->bhaktiSadanModel->create($data);
-            if ($bhaktiSadanId) {
-                $this->bhaktiSadanModel->assignLeaders($bhaktiSadanId, $data['leader_ids']);
-                header('Location: ' . url('bhakti-sadan'));
-                exit;
+            if (empty(trim($_POST['name']))) {
+                $data['error'] = 'Name is a required field.';
             } else {
-                $data['error'] = 'Failed to create Bhakti Sadan.';
+                $data = [
+                    'name' => trim($_POST['name']),
+                    'leader_ids' => $_POST['leader_ids'] ?? []
+                ];
+
+                $bhaktiSadanId = $this->bhaktiSadanModel->create($data);
+                if ($bhaktiSadanId) {
+                    $this->bhaktiSadanModel->assignLeaders($bhaktiSadanId, $data['leader_ids']);
+                    header('Location: ' . url('bhakti-sadan'));
+                    exit;
+                } else {
+                    $data['error'] = 'Failed to create Bhakti Sadan.';
+                }
             }
         }
 
@@ -63,18 +66,21 @@ class BhaktiSadanController extends BaseController {
         }
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $data = [
-                'name' => trim($_POST['name']),
-                'address' => trim($_POST['address']),
-                'leader_ids' => $_POST['leader_ids'] ?? []
-            ];
-
-            if ($this->bhaktiSadanModel->update($id, $data)) {
-                $this->bhaktiSadanModel->assignLeaders($id, $data['leader_ids']);
-                header('Location: ' . url('bhakti-sadan'));
-                exit;
+            if (empty(trim($_POST['name']))) {
+                $data['error'] = 'Name is a required field.';
             } else {
-                $data['error'] = 'Failed to update Bhakti Sadan.';
+                $data = [
+                    'name' => trim($_POST['name']),
+                    'leader_ids' => $_POST['leader_ids'] ?? []
+                ];
+
+                if ($this->bhaktiSadanModel->update($id, $data)) {
+                    $this->bhaktiSadanModel->assignLeaders($id, $data['leader_ids']);
+                    header('Location: ' . url('bhakti-sadan'));
+                    exit;
+                } else {
+                    $data['error'] = 'Failed to update Bhakti Sadan.';
+                }
             }
         }
 

@@ -62,6 +62,17 @@
                             <input type="date" class="form-control" id="marriage_anniversary_date" name="marriage_anniversary_date">
                         </div>
 
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="confirm_password" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                            </div>
+                        </div>
+
                     <?php elseif ($data['step'] == 2): ?>
 
                         <div class="row">

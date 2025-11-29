@@ -72,28 +72,70 @@ class AuthController extends BaseController {
         $userModel = new User();
         $data = $_SESSION['registration_data'];
 
+        // Validate passwords
+        if ($data['password'] !== $data['confirm_password']) {
+            $data = array_merge($data, $this->_get_registration_data());
+            $data['error'] = 'Passwords do not match.';
+            $data['step'] = 1; // Go back to the first step
+            echo $this->view('auth/register', $data);
+            return;
+        }
+
         // Handle file upload
         if (isset($_FILES['photo']) && $_FILES['photo']['error'] == 0) {
             $targetDir = "uploads/photos/";
-            $fileName = basename($_FILES["photo"]["name"]);
+            if (!is_dir($targetDir)) {
+                mkdir($targetDir, 0777, true);
+            }
+            $fileName = uniqid() . '_' . basename($_FILES["photo"]["name"]);
             $targetFilePath = $targetDir . $fileName;
             move_uploaded_file($_FILES["photo"]["tmp_name"], $targetFilePath);
             $data['photo'] = $targetFilePath;
         }
 
-        $userId = $userModel->create($data);
+        // Prepare data for insertion
+        $userData = [
+            'full_name' => $data['full_name'],
+            'initiated_name' => $data['initiated_name'] ?? null,
+            'gender' => $data['gender'],
+            'photo' => $data['photo'] ?? null,
+            'date_of_birth' => $data['date_of_birth'],
+            'marital_status' => $data['marital_status'],
+            'marriage_anniversary_date' => $data['marriage_anniversary_date'] ?? null,
+            'email' => $data['email'] ?? null,
+            'mobile_number' => $data['mobile_number'],
+            'address' => $data['address'],
+            'city' => $data['city'],
+            'state' => $data['state'],
+            'pincode' => $data['pincode'],
+            'country' => $data['country'],
+            'education_id' => $data['education_id'],
+            'profession_id' => $data['profession_id'],
+            'bhakti_sadan_id' => $data['bhakti_sadan_id'],
+            'life_member_no' => $data['life_member_no'] ?? null,
+            'life_member_temple' => $data['life_member_temple'] ?? null,
+            'password' => $data['password'],
+        ];
+
+        $userId = $userModel->create($userData);
 
         if ($userId) {
             // Handle multiple selections
-            $userModel->assignLanguages($userId, $data['languages']);
-            $userModel->assignSevas($userId, $data['sevas']);
-            $userModel->addDependants($userId, $data['dependants']);
+            if (!empty($data['languages'])) {
+                $userModel->assignLanguages($userId, $data['languages']);
+            }
+            if (!empty($data['sevas'])) {
+                $userModel->assignSevas($userId, $data['sevas']);
+            }
+            if (!empty($data['dependants'])) {
+                $userModel->addDependants($userId, $data['dependants']);
+            }
 
             unset($_SESSION['registration_data']);
             header("Location: " . url('login', ['success' => 1]));
             exit;
         } else {
-            $data = $this->_get_registration_data();
+            $data = array_merge($data, $this->_get_registration_data());
             $data['error'] = 'Registration failed. The mobile number or email may already be in use.';
             $data['step'] = 3; // Go back to the last step
             echo $this->view('auth/register', $data);

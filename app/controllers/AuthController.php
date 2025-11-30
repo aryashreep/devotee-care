@@ -37,11 +37,21 @@ class AuthController extends BaseController {
                 showError('Invalid CSRF token.', 403);
             }
 
-            // Handle file upload separately and merge it into the POST data
-            if (isset($_FILES['photo']) && $_FILES['photo']['error'] == 0) {
-                $_SESSION['registration_files']['photo'] = $_FILES['photo'];
-            }
+            // --- START: IMMEDIATE FILE UPLOAD FIX ---
             $_SESSION['registration_data'] = array_merge($_SESSION['registration_data'] ?? [], $_POST);
+
+            // If a photo is uploaded in this step, process it immediately
+            if (isset($_FILES['photo']) && $_FILES['photo']['error'] == 0) {
+                $photoPath = $this->handlePhotoUpload($_FILES['photo']);
+                if ($photoPath) {
+                    // Store the permanent path in the session
+                    $_SESSION['registration_data']['photo'] = $photoPath;
+                } else {
+                    // If upload fails, the handlePhotoUpload method will show the error and stop execution
+                    return;
+                }
+            }
+            // --- END: IMMEDIATE FILE UPLOAD FIX ---
 
             $nextStep = $step + 1;
             if ($nextStep > 5) {
@@ -61,7 +71,6 @@ class AuthController extends BaseController {
     private function processRegistration() {
         $userModel = new User();
         $data = $_SESSION['registration_data'];
-        $files = $_SESSION['registration_files'] ?? [];
 
         // --- VALIDATION ---
         if ($data['password'] !== $data['confirm_password']) {
@@ -74,21 +83,11 @@ class AuthController extends BaseController {
             $this->returnWithError('Mobile number must be exactly 10 digits.', 2);
         }
 
-        // --- PHOTO UPLOAD ---
-        $photoPath = null;
-        if (isset($files['photo']) && $files['photo']['error'] == 0) {
-            $photoPath = $this->handlePhotoUpload($files['photo']);
-            if (!$photoPath) {
-                // Error is handled in handlePhotoUpload
-                return;
-            }
-        }
-
         // --- PREPARE USER DATA ---
         $userData = [
             'full_name' => $data['full_name'],
             'gender' => $data['gender'],
-            'photo' => $photoPath,
+            'photo' => $data['photo'] ?? null, // Get the permanent path from session data
             'date_of_birth' => $data['date_of_birth'],
             'marital_status' => $data['marital_status'],
             'marriage_anniversary_date' => !empty($data['marriage_anniversary_date']) ? $data['marriage_anniversary_date'] : null,

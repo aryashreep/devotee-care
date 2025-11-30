@@ -1,64 +1,58 @@
--- Drop tables if they exist
-DROP TABLE IF EXISTS bhakti_sadan_leaders, user_languages, user_sevas, dependants, users, roles, educations, professions, spiritual_masters, blood_groups, languages, sevas, bhakti_sadans;
+-- This script is for setting up the database for a fresh installation.
+-- It uses `CREATE TABLE IF NOT EXISTS` to avoid errors if the database is already partially set up.
 
 -- Create the roles table
-CREATE TABLE roles (
+CREATE TABLE IF NOT EXISTS roles (
     id INT AUTO_INCREMENT PRIMARY KEY,
     role_name VARCHAR(50) NOT NULL UNIQUE
 );
 
--- Insert the predefined roles
-INSERT INTO roles (role_name) VALUES
+-- Insert the predefined roles only if they don't exist
+INSERT IGNORE INTO roles (role_name) VALUES
 ('Admin'),
 ('Management'),
 ('Finance'),
 ('Editor'),
 ('End User');
 
--- Create the educations table
-CREATE TABLE educations (
+-- Create the lookup tables
+CREATE TABLE IF NOT EXISTS educations (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
 
--- Create the professions table
-CREATE TABLE professions (
+CREATE TABLE IF NOT EXISTS professions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
 
--- Create the spiritual_masters table
-CREATE TABLE spiritual_masters (
+CREATE TABLE IF NOT EXISTS spiritual_masters (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
 
--- Create the blood_groups table
-CREATE TABLE blood_groups (
+CREATE TABLE IF NOT EXISTS blood_groups (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
 
--- Create the languages table
-CREATE TABLE languages (
+CREATE TABLE IF NOT EXISTS languages (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
 
--- Create the sevas table
-CREATE TABLE sevas (
+CREATE TABLE IF NOT EXISTS sevas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
 
--- Create the bhakti_sadans table
-CREATE TABLE bhakti_sadans (
+CREATE TABLE IF NOT EXISTS bhakti_sadans (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
 
 -- Create the users table
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     full_name VARCHAR(100) NOT NULL,
     initiated_name VARCHAR(100),
@@ -87,8 +81,8 @@ CREATE TABLE users (
     FOREIGN KEY (bhakti_sadan_id) REFERENCES bhakti_sadans(id)
 );
 
--- Insert a default admin user
-INSERT INTO users (
+-- Insert a default admin user if one doesn't exist
+INSERT IGNORE INTO users (
     full_name, gender, date_of_birth, marital_status, mobile_number,
     address, city, state, pincode, password, role_id
 ) VALUES (
@@ -98,7 +92,7 @@ INSERT INTO users (
 );
 
 -- Create the user_languages table
-CREATE TABLE user_languages (
+CREATE TABLE IF NOT EXISTS user_languages (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
     language_id INT,
@@ -107,7 +101,7 @@ CREATE TABLE user_languages (
 );
 
 -- Create the user_sevas table
-CREATE TABLE user_sevas (
+CREATE TABLE IF NOT EXISTS user_sevas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
     seva_id INT,
@@ -116,7 +110,7 @@ CREATE TABLE user_sevas (
 );
 
 -- Create the dependants table
-CREATE TABLE dependants (
+CREATE TABLE IF NOT EXISTS dependants (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
     name VARCHAR(100) NOT NULL,
@@ -127,7 +121,7 @@ CREATE TABLE dependants (
 );
 
 -- Create the bhakti_sadan_leaders table
-CREATE TABLE bhakti_sadan_leaders (
+CREATE TABLE IF NOT EXISTS bhakti_sadan_leaders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
     bhakti_sadan_id INT,

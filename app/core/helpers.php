@@ -8,10 +8,11 @@
  * @param array $params Optional query parameters.
  * @return string The generated URL.
  */
-function url($route, $params = []) {
-    $url = '/index.php?route=' . $route;
+function url($path, $params = []) {
+    // Ensure the path starts with a slash
+    $url = '/' . ltrim($path, '/');
     if (!empty($params)) {
-        $url .= '&' . http_build_query($params);
+        $url .= '?' . http_build_query($params);
     }
     return $url;
 }

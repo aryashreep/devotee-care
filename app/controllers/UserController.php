@@ -44,24 +44,6 @@ class UserController extends BaseController {
         echo $this->view('dashboard/users', $data);
     }
 
-    public function updateBhaktiSadan() {
-        if ($_SESSION['user_role'] !== 'Admin') {
-            showError('Forbidden: You do not have permission to access this page.', 403);
-        }
-
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $userId = $_POST['user_id'];
-            $bhaktiSadanId = $_POST['bhakti_sadan_id'];
-
-            if ($this->userModel->update($userId, ['bhakti_sadan_id' => $bhaktiSadanId])) {
-                header('Location: ' . url('users'));
-                exit;
-            } else {
-                showError('Failed to update Bhakti Sadan.', 500);
-            }
-        }
-    }
-
     public function delete($id) {
         if ($_SESSION['user_role'] !== 'Admin') {
             showError('Forbidden: You do not have permission to access this page.', 403);

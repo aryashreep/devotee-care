@@ -83,14 +83,54 @@ class AuthController extends BaseController {
 
         // Handle file upload
         if (isset($_FILES['photo']) && $_FILES['photo']['error'] == 0) {
-            $targetDir = "uploads/photos/";
-            if (!is_dir($targetDir)) {
-                mkdir($targetDir, 0777, true);
+            // --- START OF SECURITY FIX ---
+
+            // 1. File Size Validation (Max 2MB)
+            $maxFileSize = 2 * 1024 * 1024; // 2 MB in bytes
+            if ($_FILES['photo']['size'] > $maxFileSize) {
+                $data = array_merge($data, $this->_get_registration_data());
+                $data['error'] = 'Error: File size is larger than the allowed limit of 2MB.';
+                $data['step'] = 1; // Photo upload is on Step 1
+                $data['csrf_token'] = csrf_token(); // Refresh token
+                echo $this->view('auth/register', $data);
+                return;
             }
+
+            // 2. File Type Validation (Allow only jpg, jpeg, png)
+            $targetDir = "uploads/photos/";
             $fileName = uniqid() . '_' . basename($_FILES["photo"]["name"]);
             $targetFilePath = $targetDir . $fileName;
-            move_uploaded_file($_FILES["photo"]["tmp_name"], $targetFilePath);
-            $data['photo'] = $targetFilePath;
+            $fileType = strtolower(pathinfo($targetFilePath, PATHINFO_EXTENSION));
+            $allowedTypes = ['jpg', 'jpeg', 'png'];
+
+            if (!in_array($fileType, $allowedTypes)) {
+                $data = array_merge($data, $this->_get_registration_data());
+                $data['error'] = 'Error: Only JPG, JPEG, and PNG files are allowed.';
+                $data['step'] = 1; // Photo upload is on Step 1
+                $data['csrf_token'] = csrf_token(); // Refresh token
+                echo $this->view('auth/register', $data);
+                return;
+            }
+
+            // 3. Secure Directory Creation
+            if (!is_dir($targetDir)) {
+                // Use more secure permissions
+                mkdir($targetDir, 0755, true);
+            }
+
+            // Move the validated file
+            if (move_uploaded_file($_FILES["photo"]["tmp_name"], $targetFilePath)) {
+                 $data['photo'] = $targetFilePath;
+            } else {
+                 // Handle potential upload failure
+                $data = array_merge($data, $this->-get_registration_data());
+                $data['error'] = 'Error: There was a problem uploading your file.';
+                $data['step'] = 1; // Photo upload is on Step 1
+                $data['csrf_token'] = csrf_token(); // Refresh token
+                echo $this->view('auth/register', $data);
+                return;
+            }
+            // --- END OF SECURITY FIX ---
         }
 
         // Prepare data for insertion

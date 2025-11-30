@@ -29,14 +29,24 @@ function showError($message, $httpCode = 500) {
 require_once __DIR__ . '/../config/database.php';
 
 
-// A simple regex-based router
-$route = isset($_GET['route']) ? $_GET['route'] : 'login';
+// --- START: Improved Router ---
+// Get the requested URI and remove query string
+$requestUri = strtok($_SERVER['REQUEST_URI'], '?');
+// Remove the base path if the app is in a subdirectory (optional, but good practice)
+$basePath = ''; // If your app is at http://localhost/yourapp, set this to '/yourapp'
+$route = trim(str_replace($basePath, '', $requestUri), '/');
+// Default to 'login' if the route is empty
+if (empty($route)) {
+    $route = 'login';
+}
 
-// Redirect to login if user is not authenticated and the route is not login or register
-if (!isset($_SESSION['user_id']) && !in_array($route, ['login', 'register'])) {
+// Redirect to login if user is not authenticated and the route is not public
+$publicRoutes = ['login', 'register'];
+if (!isset($_SESSION['user_id']) && !in_array($route, $publicRoutes)) {
     header('Location: ' . url('login'));
     exit;
 }
+// --- END: Improved Router ---
 
 // Whitelist of allowed routes and their corresponding controllers
 $routes = [

@@ -118,19 +118,48 @@ class AuthController extends BaseController {
                 mkdir($targetDir, 0755, true);
             }
 
-            // Move the validated file
-            if (move_uploaded_file($_FILES["photo"]["tmp_name"], $targetFilePath)) {
-                 $data['photo'] = $targetFilePath;
-            } else {
-                 // Handle potential upload failure
-                $data = array_merge($data, $this->-get_registration_data());
-                $data['error'] = 'Error: There was a problem uploading your file.';
-                $data['step'] = 1; // Photo upload is on Step 1
-                $data['csrf_token'] = csrf_token(); // Refresh token
-                echo $this->view('auth/register', $data);
-                return;
+            // --- START: Image Compression ---
+            $source_image = $_FILES["photo"]["tmp_name"];
+            $quality = 75; // Compression quality (0-100)
+
+            // Create image resource from source
+            $image_info = getimagesize($source_image);
+            $image_mime = $image_info['mime'];
+
+            $image = null;
+            if ($image_mime == 'image/jpeg') {
+                $image = imagecreatefromjpeg($source_image);
+            } elseif ($image_mime == 'image/png') {
+                $image = imagecreatefrompng($source_image);
             }
-            // --- END OF SECURITY FIX ---
+
+            if ($image) {
+                // Compress and save the image
+                if ($image_mime == 'image/jpeg') {
+                    imagejpeg($image, $targetFilePath, $quality);
+                } elseif ($image_mime == 'image/png') {
+                    // PNG compression is a bit different (0-9)
+                    $png_quality = floor($quality / 10);
+                    imagepng($image, $targetFilePath, $png_quality);
+                }
+                imagedestroy($image);
+                $data['photo'] = $targetFilePath;
+
+            } else {
+                // Fallback to simple move if not a supported image type for compression
+                if (move_uploaded_file($source_image, $targetFilePath)) {
+                    $data['photo'] = $targetFilePath;
+                } else {
+                    // Handle potential upload failure
+                    $data = array_merge($data, $this->_get_registration_data());
+                    $data['error'] = 'Error: There was a problem uploading your file.';
+                    $data['step'] = 1;
+                    $data['csrf_token'] = csrf_token();
+                    echo $this->view('auth/register', $data);
+                    return;
+                }
+            }
+             // --- END: Image Compression ---
         }
 
         // Prepare data for insertion

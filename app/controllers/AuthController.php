@@ -72,14 +72,39 @@ class AuthController extends BaseController {
         $userModel = new User();
         $data = $_SESSION['registration_data'];
 
+        // --- START: Additional Validation ---
+
         // Validate passwords
         if ($data['password'] !== $data['confirm_password']) {
             $data = array_merge($data, $this->_get_registration_data());
             $data['error'] = 'Passwords do not match.';
             $data['step'] = 1; // Go back to the first step
+            $data['csrf_token'] = csrf_token();
             echo $this->view('auth/register', $data);
             return;
         }
+
+        // Validate Email
+        if (!empty($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            $data = array_merge($data, $this->_get_registration_data());
+            $data['error'] = 'Please enter a valid email address.';
+            $data['step'] = 2; // Email is on step 2
+            $data['csrf_token'] = csrf_token();
+            echo $this->view('auth/register', $data);
+            return;
+        }
+
+        // Validate Mobile Number (must be 10 digits)
+        if (!preg_match('/^[0-9]{10}$/', $data['mobile_number'])) {
+            $data = array_merge($data, $this->_get_registration_data());
+            $data['error'] = 'Mobile number must be exactly 10 digits.';
+            $data['step'] = 2; // Mobile number is on step 2
+            $data['csrf_token'] = csrf_token();
+            echo $this->view('auth/register', $data);
+            return;
+        }
+
+        // --- END: Additional Validation ---
 
         // Handle file upload
         if (isset($_FILES['photo']) && $_FILES['photo']['error'] == 0) {
@@ -170,7 +195,8 @@ class AuthController extends BaseController {
             'photo' => $data['photo'] ?? null,
             'date_of_birth' => $data['date_of_birth'],
             'marital_status' => $data['marital_status'],
-            'marriage_anniversary_date' => $data['marriage_anniversary_date'] ?? null,
+            // --- BUG FIX: Coalesce empty string to null for DB ---
+            'marriage_anniversary_date' => !empty($data['marriage_anniversary_date']) ? $data['marriage_anniversary_date'] : null,
             'email' => $data['email'] ?? null,
             'mobile_number' => $data['mobile_number'],
             'address' => $data['address'],

@@ -23,6 +23,7 @@ ALTER TABLE `users` ADD COLUMN `profession_id` INT NULL;
 ALTER TABLE `users` ADD COLUMN `bhakti_sadan_id` INT NULL;
 ALTER TABLE `users` ADD COLUMN `life_member_no` VARCHAR(100) NULL;
 ALTER TABLE `users` ADD COLUMN `life_member_temple` VARCHAR(100) NULL;
+ALTER TABLE `users` ADD COLUMN `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- Create new lookup tables if they don't exist
 CREATE TABLE IF NOT EXISTS `spiritual_masters` (

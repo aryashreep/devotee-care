@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS users (
     life_member_temple VARCHAR(100),
     password VARCHAR(255) NOT NULL,
     role_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (role_id) REFERENCES roles(id),
     FOREIGN KEY (education_id) REFERENCES educations(id),
     FOREIGN KEY (profession_id) REFERENCES professions(id),

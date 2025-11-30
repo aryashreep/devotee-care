@@ -145,6 +145,7 @@
                                     <option value="<?php echo $language['id']; ?>"><?php echo htmlspecialchars($language['name']); ?></option>
                                 <?php endforeach; ?>
                             </select>
+                            <div class="form-text">To select multiple, hold down Ctrl (or Cmd on Mac) and click. On mobile, tap each option.</div>
                         </div>
 
                         <div class="mb-3">

@@ -30,10 +30,19 @@ class User extends BaseModel {
         $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
         $data['role_id'] = 5; // Default to 'End User'
 
-        if ($stmt->execute($data)) {
-            return $this->db->lastInsertId();
+        try {
+            if ($stmt->execute($data)) {
+                return $this->db->lastInsertId();
+            }
+            return false;
+        } catch (\PDOException $e) {
+            // Check for duplicate entry error code
+            if ($e->getCode() == 23000) { // Integrity constraint violation
+                return false;
+            }
+            // For other errors, you might want to log them or handle differently
+            throw $e; // Re-throw the exception if it's not a duplicate entry error
         }
-        return false;
     }
 
     public function assignLanguages($userId, $languageIds) {

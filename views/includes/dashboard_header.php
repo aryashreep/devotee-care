@@ -53,7 +53,6 @@
                     <li><a class="dropdown-item" href="<?php echo url('bhakti-sadan'); ?>">Bhakti Sadan</a></li>
                     <li><a class="dropdown-item" href="<?php echo url('lookup/educations'); ?>">Education</a></li>
                     <li><a class="dropdown-item" href="<?php echo url('lookup/professions'); ?>">Profession</a></li>
-                    <li><a class="dropdown-item" href="<?php echo url('lookup/spiritual_masters'); ?>">Spiritual Master</a></li>
                     <li><a class="dropdown-item" href="<?php echo url('lookup/blood_groups'); ?>">Blood Group</a></li>
                     <li><a class="dropdown-item" href="<?php echo url('lookup/languages'); ?>">Languages</a></li>
                     <li><a class="dropdown-item" href="<?php echo url('lookup/sevas'); ?>">Seva</a></li>

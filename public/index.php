@@ -76,11 +76,6 @@ $routes = [
     'lookup/professions/edit/(\d+)' => 'App\\Controllers\\LookupController@edit@professions@Profession',
     'lookup/professions/delete/(\d+)' => 'App\\Controllers\\LookupController@delete@professions@Profession',
 
-    'lookup/spiritual_masters' => 'App\\Controllers\\LookupController@index@spiritual_masters@Spiritual Master',
-    'lookup/spiritual_masters/create' => 'App\\Controllers\\LookupController@create@spiritual_masters@Spiritual Master',
-    'lookup/spiritual_masters/edit/(\d+)' => 'App\\Controllers\\LookupController@edit@spiritual_masters@Spiritual Master',
-    'lookup/spiritual_masters/delete/(\d+)' => 'App\\Controllers\\LookupController@delete@spiritual_masters@Spiritual Master',
-
     'lookup/blood_groups' => 'App\\Controllers\\LookupController@index@blood_groups@Blood Group',
     'lookup/blood_groups/create' => 'App\\Controllers\\LookupController@create@blood_groups@Blood Group',
     'lookup/blood_groups/edit/(\d+)' => 'App\\Controllers\\LookupController@edit@blood_groups@Blood Group',

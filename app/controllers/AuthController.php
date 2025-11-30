@@ -10,38 +10,25 @@ use App\Models\Lookup;
 
 class AuthController extends BaseController {
 
-    // No constructor needed now
-
-    /**
-     * Handles user login.
-     */
     public function login() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $userModel = new User();
             $user = $userModel->findByMobile($_POST['mobile_number']);
 
             if ($user && password_verify($_POST['password'], $user['password'])) {
-                // Store user data in session
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_role'] = $user['role_name'];
-
-                // Redirect to dashboard
                 header("Location: " . url('dashboard'));
                 exit;
             } else {
-                // Show login form with an error message
                 $data['error'] = 'Invalid mobile number or password.';
                 echo $this->view('auth/login', $data);
             }
         } else {
-            // Show the login form
             echo $this->view('auth/login');
         }
     }
 
-    /**
-     * Handles user registration.
-     */
     public function register() {
         $step = isset($_GET['step']) ? (int)$_GET['step'] : 1;
 
@@ -50,11 +37,14 @@ class AuthController extends BaseController {
                 showError('Invalid CSRF token.', 403);
             }
 
+            // Handle file upload separately and merge it into the POST data
+            if (isset($_FILES['photo']) && $_FILES['photo']['error'] == 0) {
+                $_SESSION['registration_files']['photo'] = $_FILES['photo'];
+            }
             $_SESSION['registration_data'] = array_merge($_SESSION['registration_data'] ?? [], $_POST);
 
             $nextStep = $step + 1;
-            if ($nextStep > 3) {
-                // Final step, process the data
+            if ($nextStep > 5) {
                 $this->processRegistration();
             } else {
                 header('Location: ' . url('register', ['step' => $nextStep]));
@@ -71,191 +61,134 @@ class AuthController extends BaseController {
     private function processRegistration() {
         $userModel = new User();
         $data = $_SESSION['registration_data'];
+        $files = $_SESSION['registration_files'] ?? [];
 
-        // --- START: Additional Validation ---
-
-        // Validate passwords
+        // --- VALIDATION ---
         if ($data['password'] !== $data['confirm_password']) {
-            $data = array_merge($data, $this->_get_registration_data());
-            $data['error'] = 'Passwords do not match.';
-            $data['step'] = 1; // Go back to the first step
-            $data['csrf_token'] = csrf_token();
-            echo $this->view('auth/register', $data);
-            return;
+            $this->returnWithError('Passwords do not match.', 1);
         }
-
-        // Validate Email
         if (!empty($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            $data = array_merge($data, $this->_get_registration_data());
-            $data['error'] = 'Please enter a valid email address.';
-            $data['step'] = 2; // Email is on step 2
-            $data['csrf_token'] = csrf_token();
-            echo $this->view('auth/register', $data);
-            return;
+            $this->returnWithError('Please enter a valid email address.', 2);
         }
-
-        // Validate Mobile Number (must be 10 digits)
         if (!preg_match('/^[0-9]{10}$/', $data['mobile_number'])) {
-            $data = array_merge($data, $this->_get_registration_data());
-            $data['error'] = 'Mobile number must be exactly 10 digits.';
-            $data['step'] = 2; // Mobile number is on step 2
-            $data['csrf_token'] = csrf_token();
-            echo $this->view('auth/register', $data);
-            return;
+            $this->returnWithError('Mobile number must be exactly 10 digits.', 2);
         }
 
-        // --- END: Additional Validation ---
-
-        // Handle file upload
-        if (isset($_FILES['photo']) && $_FILES['photo']['error'] == 0) {
-            // --- START OF SECURITY FIX ---
-
-            // 1. File Size Validation (Max 2MB)
-            $maxFileSize = 2 * 1024 * 1024; // 2 MB in bytes
-            if ($_FILES['photo']['size'] > $maxFileSize) {
-                $data = array_merge($data, $this->_get_registration_data());
-                $data['error'] = 'Error: File size is larger than the allowed limit of 2MB.';
-                $data['step'] = 1; // Photo upload is on Step 1
-                $data['csrf_token'] = csrf_token(); // Refresh token
-                echo $this->view('auth/register', $data);
+        // --- PHOTO UPLOAD ---
+        $photoPath = null;
+        if (isset($files['photo']) && $files['photo']['error'] == 0) {
+            $photoPath = $this->handlePhotoUpload($files['photo']);
+            if (!$photoPath) {
+                // Error is handled in handlePhotoUpload
                 return;
             }
-
-            // 2. File Type Validation (Allow only jpg, jpeg, png)
-            $targetDir = "uploads/photos/";
-            $fileName = uniqid() . '_' . basename($_FILES["photo"]["name"]);
-            $targetFilePath = $targetDir . $fileName;
-            $fileType = strtolower(pathinfo($targetFilePath, PATHINFO_EXTENSION));
-            $allowedTypes = ['jpg', 'jpeg', 'png'];
-
-            if (!in_array($fileType, $allowedTypes)) {
-                $data = array_merge($data, $this->_get_registration_data());
-                $data['error'] = 'Error: Only JPG, JPEG, and PNG files are allowed.';
-                $data['step'] = 1; // Photo upload is on Step 1
-                $data['csrf_token'] = csrf_token(); // Refresh token
-                echo $this->view('auth/register', $data);
-                return;
-            }
-
-            // 3. Secure Directory Creation
-            if (!is_dir($targetDir)) {
-                // Use more secure permissions
-                mkdir($targetDir, 0755, true);
-            }
-
-            // --- START: Image Compression ---
-            $source_image = $_FILES["photo"]["tmp_name"];
-            $quality = 75; // Compression quality (0-100)
-
-            // Create image resource from source
-            $image_info = getimagesize($source_image);
-            $image_mime = $image_info['mime'];
-
-            $image = null;
-            if ($image_mime == 'image/jpeg') {
-                $image = imagecreatefromjpeg($source_image);
-            } elseif ($image_mime == 'image/png') {
-                $image = imagecreatefrompng($source_image);
-            }
-
-            if ($image) {
-                // Compress and save the image
-                if ($image_mime == 'image/jpeg') {
-                    imagejpeg($image, $targetFilePath, $quality);
-                } elseif ($image_mime == 'image/png') {
-                    // PNG compression is a bit different (0-9)
-                    $png_quality = floor($quality / 10);
-                    imagepng($image, $targetFilePath, $png_quality);
-                }
-                imagedestroy($image);
-                $data['photo'] = $targetFilePath;
-
-            } else {
-                // Fallback to simple move if not a supported image type for compression
-                if (move_uploaded_file($source_image, $targetFilePath)) {
-                    $data['photo'] = $targetFilePath;
-                } else {
-                    // Handle potential upload failure
-                    $data = array_merge($data, $this->_get_registration_data());
-                    $data['error'] = 'Error: There was a problem uploading your file.';
-                    $data['step'] = 1;
-                    $data['csrf_token'] = csrf_token();
-                    echo $this->view('auth/register', $data);
-                    return;
-                }
-            }
-             // --- END: Image Compression ---
         }
 
-        // Prepare data for insertion
+        // --- PREPARE USER DATA ---
         $userData = [
             'full_name' => $data['full_name'],
-            'initiated_name' => $data['initiated_name'] ?? null,
             'gender' => $data['gender'],
-            'photo' => $data['photo'] ?? null,
+            'photo' => $photoPath,
             'date_of_birth' => $data['date_of_birth'],
             'marital_status' => $data['marital_status'],
-            // --- BUG FIX: Coalesce empty string to null for DB ---
             'marriage_anniversary_date' => !empty($data['marriage_anniversary_date']) ? $data['marriage_anniversary_date'] : null,
+            'password' => $data['password'],
             'email' => $data['email'] ?? null,
             'mobile_number' => $data['mobile_number'],
             'address' => $data['address'],
             'city' => $data['city'],
             'state' => $data['state'],
             'pincode' => $data['pincode'],
-            'country' => $data['country'],
+            'country' => $data['country'] ?? 'India',
             'education_id' => $data['education_id'],
             'profession_id' => $data['profession_id'],
+            'is_initiated' => $data['is_initiated'] ?? null,
+            'spiritual_master_name' => ($data['is_initiated'] === 'Yes') ? ($data['spiritual_master_name'] ?? null) : null,
+            'chanting_rounds' => ($data['is_initiated'] === 'No') ? ($data['chanting_rounds'] ?? null) : null,
+            'second_initiation' => $data['second_initiation'] ?? null,
             'bhakti_sadan_id' => $data['bhakti_sadan_id'],
-            'life_member_no' => $data['life_member_no'] ?? null,
-            'life_member_temple' => $data['life_member_temple'] ?? null,
-            'password' => $data['password'],
+            'has_life_membership' => $data['has_life_membership'] ?? null,
+            'life_member_no' => ($data['has_life_membership'] === 'Yes') ? ($data['life_member_no'] ?? null) : null,
+            'life_member_temple' => ($data['has_life_membership'] === 'Yes') ? ($data['life_member_temple'] ?? null) : null,
         ];
 
         $userId = $userModel->create($userData);
 
         if ($userId) {
-            // Handle multiple selections
-            if (!empty($data['languages'])) {
-                $userModel->assignLanguages($userId, $data['languages']);
-            }
-            if (!empty($data['sevas'])) {
-                $userModel->assignSevas($userId, $data['sevas']);
-            }
-            if (!empty($data['dependants'])) {
-                $userModel->addDependants($userId, $data['dependants']);
-            }
+            if (!empty($data['languages'])) $userModel->assignLanguages($userId, $data['languages']);
+            if (!empty($data['sevas'])) $userModel->assignSevas($userId, $data['sevas']);
+            if (!empty($data['shiksha_levels'])) $userModel->assignShikshaLevels($userId, $data['shiksha_levels']);
+            if (!empty($data['dependants'])) $userModel->addDependants($userId, $data['dependants']);
 
-            unset($_SESSION['registration_data']);
+            unset($_SESSION['registration_data'], $_SESSION['registration_files']);
             header("Location: " . url('login', ['success' => 1]));
             exit;
         } else {
-            $data = array_merge($data, $this->_get_registration_data());
-            $data['error'] = 'Registration failed. The mobile number or email may already be in use.';
-            $data['step'] = 3; // Go back to the last step
-            echo $this->view('auth/register', $data);
+            $this->returnWithError('Registration failed. The mobile number or email may already be in use.', 5);
         }
     }
 
-    private function _get_registration_data() {
-        $bhaktiSadanModel = new BhaktiSadan();
-        $educationModel = new Lookup('educations');
-        $professionModel = new Lookup('professions');
-        $languageModel = new Lookup('languages');
-        $sevaModel = new Lookup('sevas');
+    private function handlePhotoUpload($file) {
+        $maxFileSize = 2 * 1024 * 1024;
+        if ($file['size'] > $maxFileSize) {
+            $this->returnWithError('Error: File size is larger than the allowed limit of 2MB.', 1);
+            return false;
+        }
 
+        $targetDir = "uploads/photos/";
+        $fileName = uniqid() . '_' . basename($file["name"]);
+        $targetFilePath = $targetDir . $fileName;
+        $fileType = strtolower(pathinfo($targetFilePath, PATHINFO_EXTENSION));
+        $allowedTypes = ['jpg', 'jpeg', 'png'];
+
+        if (!in_array($fileType, $allowedTypes)) {
+            $this->returnWithError('Error: Only JPG, JPEG, and PNG files are allowed.', 1);
+            return false;
+        }
+
+        if (!is_dir($targetDir)) {
+            mkdir($targetDir, 0755, true);
+        }
+
+        $source_image = $file["tmp_name"];
+        $image_info = getimagesize($source_image);
+        $image_mime = $image_info['mime'];
+        $image = ($image_mime == 'image/jpeg') ? imagecreatefromjpeg($source_image) : imagecreatefrompng($source_image);
+
+        if ($image) {
+            $quality = 75;
+            if ($image_mime == 'image/jpeg') {
+                imagejpeg($image, $targetFilePath, $quality);
+            } else {
+                imagepng($image, $targetFilePath, floor($quality / 10));
+            }
+            imagedestroy($image);
+            return $targetFilePath;
+        }
+
+        $this->returnWithError('Error: There was a problem uploading your file.', 1);
+        return false;
+    }
+
+    private function returnWithError($message, $step) {
+        $data = array_merge($_SESSION['registration_data'], $this->_get_registration_data());
+        $data['error'] = $message;
+        $data['step'] = $step;
+        $data['csrf_token'] = csrf_token();
+        echo $this->view('auth/register', $data);
+    }
+
+    private function _get_registration_data() {
         return [
-            'bhaktiSadans' => $bhaktiSadanModel->getAll(),
-            'educations' => $educationModel->getAll(),
-            'professions' => $professionModel->getAll(),
-            'languages' => $languageModel->getAll(),
-            'sevas' => $sevaModel->getAll(),
+            'bhaktiSadans' => (new BhaktiSadan())->getAll(),
+            'educations' => (new Lookup('educations'))->getAll(),
+            'professions' => (new Lookup('professions'))->getAll(),
+            'languages' => (new Lookup('languages'))->getAll(),
+            'sevas' => (new Lookup('sevas'))->getAll(),
+            'shiksha_levels' => (new Lookup('shiksha_levels'))->getAll(),
         ];
     }
 
-    /**
-     * Handles user logout.
-     */
     public function logout() {
         session_destroy();
         header("Location: " . url('login'));

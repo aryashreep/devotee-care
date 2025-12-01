@@ -83,6 +83,7 @@ CREATE TABLE IF NOT EXISTS users (
 
     education_id INT,
     profession_id INT,
+    blood_group_id INT NULL,
 
     is_initiated ENUM('Yes', 'No'),
     spiritual_master_name VARCHAR(255),
@@ -98,7 +99,8 @@ CREATE TABLE IF NOT EXISTS users (
     FOREIGN KEY (role_id) REFERENCES roles(id),
     FOREIGN KEY (education_id) REFERENCES educations(id),
     FOREIGN KEY (profession_id) REFERENCES professions(id),
-    FOREIGN KEY (bhakti_sadan_id) REFERENCES bhakti_sadans(id)
+    FOREIGN KEY (bhakti_sadan_id) REFERENCES bhakti_sadans(id),
+    FOREIGN KEY (blood_group_id) REFERENCES blood_groups(id)
 );
 
 -- Insert a default admin user if one doesn't exist

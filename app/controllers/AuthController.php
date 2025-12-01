@@ -101,6 +101,7 @@ class AuthController extends BaseController {
             'country' => $data['country'] ?? 'India',
             'education_id' => $data['education_id'],
             'profession_id' => $data['profession_id'],
+            'blood_group_id' => !empty($data['blood_group_id']) ? $data['blood_group_id'] : null,
             'is_initiated' => $data['is_initiated'] ?? null,
             'spiritual_master_name' => ($data['is_initiated'] === 'Yes') ? ($data['spiritual_master_name'] ?? null) : null,
             'chanting_rounds' => ($data['is_initiated'] === 'No') ? ($data['chanting_rounds'] ?? null) : null,
@@ -180,6 +181,7 @@ class AuthController extends BaseController {
     private function _get_registration_data() {
         return [
             'bhaktiSadans' => (new BhaktiSadan())->getAll(),
+            'blood_groups' => (new Lookup('blood_groups'))->getAll(),
             'educations' => (new Lookup('educations'))->getAll(),
             'professions' => (new Lookup('professions'))->getAll(),
             'languages' => (new Lookup('languages'))->getAll(),

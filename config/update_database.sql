@@ -12,6 +12,7 @@ DROP TABLE IF EXISTS `spiritual_masters`;
 ALTER TABLE `users` DROP COLUMN `initiated_name`;
 
 -- Add new columns to the users table for the expanded registration flow
+ALTER TABLE `users` ADD COLUMN `blood_group_id` INT NULL;
 ALTER TABLE `users` ADD COLUMN `is_initiated` ENUM('Yes', 'No') NULL;
 ALTER TABLE `users` ADD COLUMN `spiritual_master_name` VARCHAR(255) NULL;
 ALTER TABLE `users` ADD COLUMN `chanting_rounds` INT NULL;
@@ -45,6 +46,9 @@ CREATE TABLE IF NOT EXISTS `user_shiksha_levels` (
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`shiksha_level_id`) REFERENCES `shiksha_levels`(`id`) ON DELETE CASCADE
 );
+
+-- Add the new foreign key constraint
+ALTER TABLE `users` ADD CONSTRAINT `fk_blood_group` FOREIGN KEY (`blood_group_id`) REFERENCES `blood_groups`(`id`);
 
 -- Note: The original ALTER commands for adding columns like gender, photo, etc., have been removed
 -- as they should have been applied in the previous update. This script is for the LATEST changes.

@@ -90,6 +90,15 @@
                     <?php elseif ($data['step'] == 3): ?>
                         <h4>Step 3: Additional Details</h4>
                         <div class="mb-3">
+                            <label for="blood_group_id" class="form-label">Blood Group</label>
+                            <select class="form-control" id="blood_group_id" name="blood_group_id">
+                                <option value="">Select Blood Group</option>
+                                <?php foreach ($data['blood_groups'] as $item): ?>
+                                    <option value="<?php echo $item['id']; ?>"><?php echo htmlspecialchars($item['name']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label for="education_id" class="form-label">Education <span class="text-danger">*</span></label>
                             <select class="form-control" id="education_id" name="education_id" required>
                                 <?php foreach ($data['educations'] as $item): ?>

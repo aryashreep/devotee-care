@@ -7,3 +7,6 @@ composer.phar
 
 # Log files
 php_server.log
+
+# PHPUnit cache
+.phpunit.result.cache

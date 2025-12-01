@@ -151,18 +151,18 @@ class AuthController extends BaseController {
         }
 
         $source_image = $file["tmp_name"];
-        $image_info = getimagesize($source_image);
+        $image_info = \getimagesize($source_image);
         $image_mime = $image_info['mime'];
-        $image = ($image_mime == 'image/jpeg') ? imagecreatefromjpeg($source_image) : imagecreatefrompng($source_image);
+        $image = ($image_mime == 'image/jpeg') ? \imagecreatefromjpeg($source_image) : \imagecreatefrompng($source_image);
 
         if ($image) {
             $quality = 75;
             if ($image_mime == 'image/jpeg') {
-                imagejpeg($image, $targetFilePath, $quality);
+                \imagejpeg($image, $targetFilePath, $quality);
             } else {
-                imagepng($image, $targetFilePath, floor($quality / 10));
+                \imagepng($image, $targetFilePath, floor($quality / 10));
             }
-            imagedestroy($image);
+            \imagedestroy($image);
             return $targetFilePath;
         }
 

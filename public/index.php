@@ -16,8 +16,7 @@ require_once __DIR__ . '/../app/core/helpers.php';
  * @param string $message The error message to display.
  * @param int $httpCode The HTTP status code to set.
  */
-function showError($message, $httpCode = 500)
-{
+function showError($message, $httpCode = 500) {
     http_response_code($httpCode);
     $data['message'] = $message;
     // We can't use the BaseController here, so we'll do a simple view include
@@ -59,7 +58,6 @@ $routes = [
     'users' => 'App\\Controllers\\UserController@index',
     'user/delete/(\d+)' => 'App\\Controllers\\UserController@delete',
     'user/edit/(\d+)' => 'App\\Controllers\\UserController@edit',
-    'user/view/(\d+)' => 'App\\Controllers\\UserController@viewUser',
 
     // Bhakti Sadan
     'bhakti-sadan' => 'App\\Controllers\\BhaktiSadanController@index',

@@ -9,9 +9,26 @@ use PDO;
 class User extends BaseModel {
     protected $table = 'users';
 
+    // --- Add a fillable property to whitelist columns ---
+    private $fillable = [
+        'full_name', 'gender', 'photo', 'date_of_birth', 'marital_status',
+        'marriage_anniversary_date', 'password', 'email', 'mobile_number',
+        'address', 'city', 'state', 'pincode', 'country', 'education_id',
+        'profession_id', 'blood_group_id', 'is_initiated', 'spiritual_master_name',
+        'chanting_rounds', 'second_initiation', 'bhakti_sadan_id',
+        'has_life_membership', 'life_member_no', 'life_member_temple', 'role_id'
+    ];
+
     public function create($data) {
-        // --- Dynamically build the SQL query ---
-        $columns = array_keys($data);
+        // --- Filter the incoming data to only include fillable columns ---
+        $filteredData = array_filter(
+            $data,
+            fn($key) => in_array($key, $this->fillable),
+            ARRAY_FILTER_USE_KEY
+        );
+
+        // --- Dynamically build the SQL query from the filtered data ---
+        $columns = array_keys($filteredData);
         $placeholders = array_map(fn($col) => ":{$col}", $columns);
 
         $sql = sprintf(
@@ -23,13 +40,13 @@ class User extends BaseModel {
         $stmt = $this->db->prepare($sql);
 
         // --- Prepare data for execution ---
-        $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
-        if (!isset($data['role_id'])) {
-            $data['role_id'] = 5; // Default to 'End User'
+        $filteredData['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
+        if (!isset($filteredData['role_id'])) {
+            $filteredData['role_id'] = 5; // Default to 'End User'
         }
 
         try {
-            if ($stmt->execute($data)) {
+            if ($stmt->execute($filteredData)) {
                 return $this->db->lastInsertId();
             }
             return false;

@@ -4,7 +4,7 @@
 RewriteEngine On
 
 # Set the base path for the rewrite rules
-RewriteBase /
+RewriteBase /public/
 
 # Redirect Trailing Slashes If Not A Folder...
 RewriteCond %{REQUEST_FILENAME} !-d

@@ -232,21 +232,11 @@ class UserController extends BaseController {
         }
 
         // --- Fetch all data needed for the view ---
-        $data['user'] = $this->userModel->findById($userId);
-        $data['blood_groups'] = $lookupModel->getAll('blood_groups');
-        $data['educations'] = $lookupModel->getAll('educations');
-        $data['professions'] = $lookupModel->getAll('professions');
-        $data['languages'] = $lookupModel->getAll('languages');
-        $data['shiksha_levels'] = $lookupModel->getAll('shiksha_levels');
-        $data['sevas'] = $lookupModel->getAll('sevas');
-        $bhaktiSadanModel = new BhaktiSadan();
-        $data['bhaktiSadans'] = $bhaktiSadanModel->getAll();
+        // Refactored to use the helper method
+        $viewData = $this->_getUserProfileData($userId);
 
-        // Fetch related data for the user
-        $data['user_languages'] = $this->userModel->getUserRelation('user_languages', $userId, 'language_id');
-        $data['user_sevas'] = $this->userModel->getUserRelation('user_sevas', $userId, 'seva_id');
-        $data['user_shiksha_levels'] = $this->userModel->getUserRelation('user_shiksha_levels', $userId, 'shiksha_level_id');
-        $data['user_dependants'] = $this->userModel->getUserDependants($userId);
+        // Merge post-submission status (success/error) with the profile data
+        $data = array_merge($viewData, $data ?? []);
 
 
         echo $this->view('dashboard/profile', $data);

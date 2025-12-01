@@ -181,12 +181,12 @@ class AuthController extends BaseController {
     private function _get_registration_data() {
         return [
             'bhaktiSadans' => (new BhaktiSadan())->getAll(),
-            'blood_groups' => (new Lookup('blood_groups'))->getAll(),
-            'educations' => (new Lookup('educations'))->getAll(),
-            'professions' => (new Lookup('professions'))->getAll(),
-            'languages' => (new Lookup('languages'))->getAll(),
-            'sevas' => (new Lookup('sevas'))->getAll(),
-            'shiksha_levels' => (new Lookup('shiksha_levels'))->getAll(),
+            'blood_groups' => (new Lookup())->getAll('blood_groups'),
+            'educations' => (new Lookup())->getAll('educations'),
+            'professions' => (new Lookup())->getAll('professions'),
+            'languages' => (new Lookup())->getAll('languages'),
+            'sevas' => (new Lookup())->getAll('sevas'),
+            'shiksha_levels' => (new Lookup())->getAll('shiksha_levels'),
         ];
     }
 

@@ -26,6 +26,7 @@
                 <td><?php echo htmlspecialchars($user['role_name']); ?></td>
                 <td><?php echo htmlspecialchars($user['bhakti_sadan_name'] ?? 'N/A'); ?></td>
                 <td>
+                    <a href="<?php echo url('user/view/' . $user['id']); ?>" class="btn btn-sm btn-success">View</a>
                     <a href="<?php echo url('user/edit/' . $user['id']); ?>" class="btn btn-sm btn-info">Edit</a>
                     <a href="<?php echo url('user/delete/' . $user['id']); ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
                 </td>

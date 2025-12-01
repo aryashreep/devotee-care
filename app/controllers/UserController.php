@@ -94,6 +94,44 @@ class UserController extends BaseController {
     }
 
     /**
+     * Fetches all necessary profile data for a given user.
+     * @param int $userId The ID of the user.
+     * @return array The data array for the view.
+     */
+    private function _getUserProfileData($userId) {
+        $lookupModel = new Lookup();
+        $bhaktiSadanModel = new BhaktiSadan();
+
+        $data['user'] = $this->userModel->findById($userId);
+        $data['blood_groups'] = $lookupModel->getAll('blood_groups');
+        $data['educations'] = $lookupModel->getAll('educations');
+        $data['professions'] = $lookupModel->getAll('professions');
+        $data['languages'] = $lookupModel->getAll('languages');
+        $data['shiksha_levels'] = $lookupModel->getAll('shiksha_levels');
+        $data['sevas'] = $lookupModel->getAll('sevas');
+        $data['bhaktiSadans'] = $bhaktiSadanModel->getAll();
+
+        // Fetch related data for the user
+        $data['user_languages'] = $this->userModel->getUserRelation('user_languages', $userId, 'language_id');
+        $data['user_sevas'] = $this->userModel->getUserRelation('user_sevas', $userId, 'seva_id');
+        $data['user_shiksha_levels'] = $this->userModel->getUserRelation('user_shiksha_levels', $userId, 'shiksha_level_id');
+        $data['user_dependants'] = $this->userModel->getUserDependants($userId);
+
+        return $data;
+    }
+
+    /**
+     * Display a read-only view of a user's profile (Admin only).
+     */
+    public function viewUser($id) {
+        if ($_SESSION['user_role'] !== 'Admin') {
+            showError('Forbidden: You do not have permission to access this page.', 403);
+        }
+        $data = $this->_getUserProfileData($id);
+        echo $this->view('dashboard/view_user', $data);
+    }
+
+    /**
      * Display and handle updates for the user's own profile.
      */
     public function profile() {

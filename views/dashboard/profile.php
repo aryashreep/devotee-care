@@ -79,7 +79,7 @@
                         <input type="file" class="form-control" id="photo" name="photo">
                         <?php if (!empty($data['user']['photo'])): ?>
                             <div class="mt-2">
-                                <img src="<?php echo url($data['user']['photo']); ?>" alt="Current Photo" style="max-width: 150px; border-radius: 5px;">
+                                <img src="<?php echo asset($data['user']['photo']); ?>" alt="Current Photo" style="max-width: 150px; border-radius: 5px;">
                                 <p><small>Current Photo</small></p>
                             </div>
                         <?php endif; ?>

@@ -58,6 +58,7 @@ $routes = [
     'users' => 'App\\Controllers\\UserController@index',
     'user/delete/(\d+)' => 'App\\Controllers\\UserController@delete',
     'user/edit/(\d+)' => 'App\\Controllers\\UserController@edit',
+    'user/view/(\d+)' => 'App\\Controllers\\UserController@viewUser',
 
     // Bhakti Sadan
     'bhakti-sadan' => 'App\\Controllers\\BhaktiSadanController@index',

@@ -18,7 +18,7 @@ ALTER TABLE `users` ADD COLUMN `spiritual_master_name` VARCHAR(255) NULL;
 ALTER TABLE `users` ADD COLUMN `chanting_rounds` INT NULL;
 ALTER TABLE `users` ADD COLUMN `second_initiation` ENUM('Yes', 'No') NULL;
 ALTER TABLE `users` ADD COLUMN `has_life_membership` ENUM('Yes', 'No') NULL;
-
+ALTER TABLE `users` ADD `created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `blood_group_id`;
 
 -- Create the new shiksha_levels table
 CREATE TABLE IF NOT EXISTS `shiksha_levels` (

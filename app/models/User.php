@@ -121,24 +121,42 @@ class User extends BaseModel {
     }
 
     public function update($id, $data) {
-        $allowedColumns = ['full_name', 'mobile_number', 'email', 'password', 'bhakti_sadan_id', 'role_id'];
+        // Special handling for password: hash if not empty, otherwise unset
+        if (isset($data['password'])) {
+            if (empty($data['password'])) {
+                unset($data['password']);
+            } else {
+                $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
+            }
+        }
+
         $fields = [];
         $updateData = [];
 
-        foreach ($allowedColumns as $column) {
+        // Whitelist fields to update against the fillable property
+        foreach ($this->fillable as $column) {
             if (array_key_exists($column, $data)) {
                 $fields[] = "{$column} = :{$column}";
                 $updateData[$column] = $data[$column];
             }
         }
 
-        if (empty($fields)) return false;
+        if (empty($fields)) {
+            return true; // Nothing to update
+        }
 
         $sql = "UPDATE {$this->table} SET " . implode(', ', $fields) . " WHERE id = :id";
         $updateData['id'] = $id;
 
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute($updateData);
+        try {
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute($updateData);
+        } catch (\PDOException $e) {
+            if ($e->getCode() == 23000) { // Integrity constraint violation
+                return false;
+            }
+            throw $e;
+        }
     }
 
     public function isBhaktiSadanLeader($userId) {
@@ -161,14 +179,54 @@ class User extends BaseModel {
 
     public function delete($id) {
         // Clean up related data first
-        $this->db->prepare("DELETE FROM user_languages WHERE user_id = :id")->execute(['id' => $id]);
-        $this->db->prepare("DELETE FROM user_sevas WHERE user_id = :id")->execute(['id' => $id]);
-        $this->db->prepare("DELETE FROM user_shiksha_levels WHERE user_id = :id")->execute(['id' => $id]);
-        $this->db->prepare("DELETE FROM dependants WHERE user_id = :id")->execute(['id' => $id]);
-        $this->db->prepare("DELETE FROM bhakti_sadan_leaders WHERE user_id = :id")->execute(['id' => $id]);
+        $this->deleteUserRelations('user_languages', $id);
+        $this->deleteUserRelations('user_sevas', $id);
+        $this->deleteUserRelations('user_shiksha_levels', $id);
+        $this->deleteUserRelations('dependants', $id);
+        $this->deleteUserRelations('bhakti_sadan_leaders', $id);
+
 
         $sql = "DELETE FROM {$this->table} WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute(['id' => $id]);
+    }
+
+    /**
+     * Generic method to delete user-related records from a specified table.
+     */
+    public function deleteUserRelations($tableName, $userId) {
+        // Basic validation to prevent misuse
+        $allowedTables = ['user_languages', 'user_sevas', 'user_shiksha_levels', 'dependants', 'bhakti_sadan_leaders'];
+        if (!in_array($tableName, $allowedTables)) {
+            return false;
+        }
+        $sql = "DELETE FROM {$tableName} WHERE user_id = :user_id";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute(['user_id' => $userId]);
+    }
+
+    /**
+     * Generic method to fetch user-related IDs from a specified table.
+     */
+    public function getUserRelation($tableName, $userId, $columnName) {
+         // Basic validation
+        $allowedTables = ['user_languages', 'user_sevas', 'user_shiksha_levels'];
+         if (!in_array($tableName, $allowedTables)) {
+            return [];
+        }
+        $sql = "SELECT {$columnName} FROM {$tableName} WHERE user_id = :user_id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['user_id' => $userId]);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+    }
+
+    /**
+     * Fetch all dependants for a specific user.
+     */
+    public function getUserDependants($userId) {
+        $sql = "SELECT * FROM dependants WHERE user_id = :user_id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['user_id' => $userId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

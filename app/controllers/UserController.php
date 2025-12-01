@@ -7,6 +7,7 @@ use App\Core\BaseController;
 use App\Models\User;
 use App\Models\BhaktiSadan;
 use App\Models\Role;
+use App\Models\Lookup;
 
 class UserController extends BaseController {
 
@@ -97,48 +98,97 @@ class UserController extends BaseController {
      */
     public function profile() {
         $userId = $_SESSION['user_id'];
+        $lookupModel = new Lookup();
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // Basic input validation
+            // Move all post data into a data array for easier handling
+            $postData = $_POST;
+
+            // --- VALIDATION ---
             $errors = [];
-            if (empty($_POST['full_name'])) {
+            if (empty($postData['full_name'])) {
                 $errors[] = 'Full name is required.';
             }
-            if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
-                $errors[] = 'A valid email is required.';
+            if (!empty($postData['email']) && !filter_var($postData['email'], FILTER_VALIDATE_EMAIL)) {
+                $errors[] = 'Please enter a valid email address.';
             }
-            if (empty($_POST['mobile_number'])) {
-                $errors[] = 'Mobile number is required.';
+            if (!preg_match('/^[0-9]{10}$/', $postData['mobile_number'])) {
+                $errors[] = 'Mobile number must be exactly 10 digits.';
             }
-            if (!empty($_POST['password']) && strlen($_POST['password']) < 8) {
+            if (!empty($postData['password']) && strlen($postData['password']) < 8) {
                 $errors[] = 'Password must be at least 8 characters long.';
             }
 
             if (!empty($errors)) {
                 $data['error'] = implode('<br>', $errors);
             } else {
-                // Handle profile update
-                $updateData = [
-                    'full_name' => trim($_POST['full_name']),
-                    'mobile_number' => trim($_POST['mobile_number']),
-                    'email' => trim($_POST['email'])
-                ];
+                // Handle file upload for photo
+                if (isset($_FILES['photo']) && $_FILES['photo']['error'] == 0) {
+                    $targetDir = "uploads/profile_photos/";
+                    // Create directory if it doesn't exist
+                    if (!file_exists($targetDir)) {
+                        mkdir($targetDir, 0777, true);
+                    }
+                    $fileName = time() . '_' . basename($_FILES["photo"]["name"]);
+                    $targetFilePath = $targetDir . $fileName;
 
-                // Only update password if a new one is provided
-                if (!empty($_POST['password'])) {
-                    $updateData['password'] = password_hash($_POST['password'], PASSWORD_BCRYPT);
+                    if (move_uploaded_file($_FILES["photo"]["tmp_name"], $targetFilePath)) {
+                        $postData['photo'] = $targetFilePath;
+                    }
                 }
 
-                if ($this->userModel->update($userId, $updateData)) {
+                // Update the main user record
+                if ($this->userModel->update($userId, $postData)) {
+                    // --- Handle Many-to-Many Relationships ---
+                    // 1. Languages
+                    $this->userModel->deleteUserRelations('user_languages', $userId);
+                    if (!empty($postData['languages'])) {
+                        $this->userModel->assignLanguages($userId, $postData['languages']);
+                    }
+
+                    // 2. Sevas
+                    $this->userModel->deleteUserRelations('user_sevas', $userId);
+                    if (!empty($postData['sevas'])) {
+                        $this->userModel->assignSevas($userId, $postData['sevas']);
+                    }
+
+                    // 3. Shiksha Levels
+                    $this->userModel->deleteUserRelations('user_shiksha_levels', $userId);
+                    if (!empty($postData['shiksha_levels'])) {
+                        $this->userModel->assignShikshaLevels($userId, $postData['shiksha_levels']);
+                    }
+
+                    // --- Handle One-to-Many: Dependants ---
+                    $this->userModel->deleteUserRelations('dependants', $userId);
+                    if (!empty($postData['dependants'])) {
+                        $this->userModel->addDependants($userId, $postData['dependants']);
+                    }
+
                     $data['success'] = true;
                 } else {
-                    $data['error'] = 'Failed to update profile. The mobile number or email may already be in use.';
+                    $data['error'] = 'Failed to update profile. The mobile number or email may already be in use by another user.';
                 }
             }
         }
 
-        $user = $this->userModel->findById($userId);
-        $data['user'] = $user;
+        // --- Fetch all data needed for the view ---
+        $data['user'] = $this->userModel->findById($userId);
+        $data['blood_groups'] = $lookupModel->getAll('blood_groups');
+        $data['educations'] = $lookupModel->getAll('educations');
+        $data['professions'] = $lookupModel->getAll('professions');
+        $data['languages'] = $lookupModel->getAll('languages');
+        $data['shiksha_levels'] = $lookupModel->getAll('shiksha_levels');
+        $data['sevas'] = $lookupModel->getAll('sevas');
+        $bhaktiSadanModel = new BhaktiSadan();
+        $data['bhaktiSadans'] = $bhaktiSadanModel->getAll();
+
+        // Fetch related data for the user
+        $data['user_languages'] = $this->userModel->getUserRelation('user_languages', $userId, 'language_id');
+        $data['user_sevas'] = $this->userModel->getUserRelation('user_sevas', $userId, 'seva_id');
+        $data['user_shiksha_levels'] = $this->userModel->getUserRelation('user_shiksha_levels', $userId, 'shiksha_level_id');
+        $data['user_dependants'] = $this->userModel->getUserDependants($userId);
+
+
         echo $this->view('dashboard/profile', $data);
     }
 }

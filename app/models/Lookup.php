@@ -7,27 +7,34 @@ use App\Core\BaseModel;
 use PDO;
 
 class Lookup extends BaseModel {
+    // Table name can now be passed to methods instead of constructor
+    protected $table;
 
-    public function __construct($table) {
-        parent::__construct();
-        $this->table = $table;
+    public function __construct($db = null) {
+        parent::__construct($db);
     }
 
-    public function create($data) {
-        $sql = "INSERT INTO {$this->table} (name) VALUES (:name)";
+    public function create($table, $data) {
+        $sql = "INSERT INTO {$table} (name) VALUES (:name)";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute(['name' => $data['name']]);
     }
 
-    public function findById($id) {
-        $sql = "SELECT * FROM {$this->table} WHERE id = :id";
+    public function findById($table, $id) {
+        $sql = "SELECT * FROM {$table} WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['id' => $id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function getAll() {
-        $sql = "SELECT * FROM {$this->table}";
+    public function getAll($table) {
+        // Basic validation to allow only specific lookup tables
+        $allowedTables = ['blood_groups', 'educations', 'professions', 'languages', 'shiksha_levels', 'sevas', 'bhakti_sadans', 'roles'];
+        if (!in_array($table, $allowedTables)) {
+            // Or throw an exception, depending on error handling strategy
+            return [];
+        }
+        $sql = "SELECT * FROM {$table}";
         $stmt = $this->db->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

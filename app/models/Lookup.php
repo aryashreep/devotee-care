@@ -39,14 +39,14 @@ class Lookup extends BaseModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function update($id, $data) {
-        $sql = "UPDATE {$this->table} SET name = :name WHERE id = :id";
+    public function update($table, $id, $data) {
+        $sql = "UPDATE {$table} SET name = :name WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute(['id' => $id, 'name' => $data['name']]);
     }
 
-    public function delete($id) {
-        $sql = "DELETE FROM {$this->table} WHERE id = :id";
+    public function delete($table, $id) {
+        $sql = "DELETE FROM {$table} WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute(['id' => $id]);
     }

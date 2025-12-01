@@ -23,11 +23,11 @@ class LookupController extends BaseController {
 
         $this->lookupType = $lookupType;
         $this->lookupName = $lookupName;
-        $this->lookupModel = new Lookup($this->lookupType);
+        $this->lookupModel = new Lookup();
     }
 
     public function index() {
-        $data['items'] = $this->lookupModel->getAll();
+        $data['items'] = $this->lookupModel->getAll($this->lookupType);
         $data['lookupType'] = $this->lookupType;
         $data['lookupName'] = $this->lookupName;
         echo $this->view('dashboard/lookup/index', $data);
@@ -36,7 +36,7 @@ class LookupController extends BaseController {
     public function create() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $data = ['name' => trim($_POST['name'])];
-            if ($this->lookupModel->create($data)) {
+            if ($this->lookupModel->create($this->lookupType, $data)) {
                 header('Location: ' . url('lookup/' . $this->lookupType));
                 exit;
             } else {
@@ -49,7 +49,7 @@ class LookupController extends BaseController {
     public function edit($id) {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $data = ['name' => trim($_POST['name'])];
-            if ($this->lookupModel->update($id, $data)) {
+            if ($this->lookupModel->update($this->lookupType, $id, $data)) {
                 header('Location: ' . url('lookup/' . $this->lookupType));
                 exit;
             } else {
@@ -60,7 +60,7 @@ class LookupController extends BaseController {
     }
 
     public function delete($id) {
-        if ($this->lookupModel->delete($id)) {
+        if ($this->lookupModel->delete($this->lookupType, $id)) {
             header('Location: ' . url('lookup/' . $this->lookupType));
             exit;
         } else {

@@ -3,6 +3,9 @@
 # Enable URL rewriting
 RewriteEngine On
 
+# Set the base path for the rewrite rules
+RewriteBase /
+
 # Redirect Trailing Slashes If Not A Folder...
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)/$ /$1 [L,R=301]

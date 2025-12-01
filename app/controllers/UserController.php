@@ -5,6 +5,8 @@ namespace App\Controllers;
 
 use App\Core\BaseController;
 use App\Models\User;
+use App\Models\BhaktiSadan;
+use App\Models\Role;
 
 class UserController extends BaseController {
 
@@ -23,14 +25,71 @@ class UserController extends BaseController {
      * Display the user management page (Admin only).
      */
     public function index() {
-        // RBAC Check: Allow only 'Admin'
+        $isLeader = $this->userModel->isBhaktiSadanLeader($_SESSION['user_id']);
+
+        if ($_SESSION['user_role'] === 'Admin') {
+            $users = $this->userModel->getAll();
+        } elseif ($isLeader) {
+            $user = $this->userModel->findById($_SESSION['user_id']);
+            $users = $this->userModel->getUsersByBhaktiSadan($user['bhakti_sadan_id']);
+        } else {
+            showError('Forbidden: You do not have permission to access this page.', 403);
+        }
+
+        $bhaktiSadanModel = new BhaktiSadan();
+        $bhaktiSadans = $bhaktiSadanModel->getAll();
+
+        $data['users'] = $users;
+        $data['bhaktiSadans'] = $bhaktiSadans;
+        echo $this->view('dashboard/users', $data);
+    }
+
+    public function delete($id) {
         if ($_SESSION['user_role'] !== 'Admin') {
             showError('Forbidden: You do not have permission to access this page.', 403);
         }
 
-        $users = $this->userModel->getAll();
-        $data['users'] = $users;
-        echo $this->view('dashboard/users', $data);
+        if ($this->userModel->delete($id)) {
+            header('Location: ' . url('users'));
+            exit;
+        } else {
+            showError('Failed to delete user.', 500);
+        }
+    }
+
+    public function edit($id) {
+        if ($_SESSION['user_role'] !== 'Admin') {
+            showError('Forbidden: You do not have permission to access this page.', 403);
+        }
+
+        $user = $this->userModel->findById($id);
+        $roleModel = new Role();
+        $roles = $roleModel->getAll();
+        $bhaktiSadanModel = new BhaktiSadan();
+        $bhaktiSadans = $bhaktiSadanModel->getAll();
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $data = [
+                'full_name' => trim($_POST['full_name']),
+                'mobile_number' => trim($_POST['mobile_number']),
+                'email' => trim($_POST['email']),
+                'role_id' => $_POST['role_id'],
+                'bhakti_sadan_id' => $_POST['bhakti_sadan_id']
+            ];
+
+            if ($this->userModel->update($id, $data)) {
+                header('Location: ' . url('users'));
+                exit;
+            } else {
+                $data['error'] = 'Failed to update user.';
+            }
+        }
+
+        $data['user'] = $user;
+        $data['roles'] = $roles;
+        $data['bhaktiSadans'] = $bhaktiSadans;
+
+        echo $this->view('dashboard/user_edit', $data);
     }
 
     /**

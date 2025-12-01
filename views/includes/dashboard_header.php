@@ -45,6 +45,19 @@
             <li class="nav-item">
                 <a class="nav-link" href="<?php echo url('users'); ?>">User Management</a>
             </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="manageLookupsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Manage Lookups
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="manageLookupsDropdown">
+                    <li><a class="dropdown-item" href="<?php echo url('bhakti-sadan'); ?>">Bhakti Sadan</a></li>
+                    <li><a class="dropdown-item" href="<?php echo url('lookup/educations'); ?>">Education</a></li>
+                    <li><a class="dropdown-item" href="<?php echo url('lookup/professions'); ?>">Profession</a></li>
+                    <li><a class="dropdown-item" href="<?php echo url('lookup/blood_groups'); ?>">Blood Group</a></li>
+                    <li><a class="dropdown-item" href="<?php echo url('lookup/languages'); ?>">Languages</a></li>
+                    <li><a class="dropdown-item" href="<?php echo url('lookup/sevas'); ?>">Seva</a></li>
+                </ul>
+            </li>
             <?php endif; ?>
             <li class="nav-item">
                 <a class="nav-link" href="<?php echo url('profile'); ?>">My Profile</a>

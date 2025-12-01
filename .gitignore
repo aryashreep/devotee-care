@@ -4,3 +4,6 @@
 # Composer dependencies
 /vendor/
 composer.phar
+
+# Log files
+php_server.log

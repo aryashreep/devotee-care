@@ -40,7 +40,7 @@ class User extends BaseModel {
         $stmt = $this->db->prepare($sql);
 
         // --- Prepare data for execution ---
-        $filteredData['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
+        $filteredData['password'] = password_hash($filteredData['password'], PASSWORD_BCRYPT);
         if (!isset($filteredData['role_id'])) {
             $filteredData['role_id'] = 5; // Default to 'End User'
         }

@@ -124,7 +124,7 @@ class UserController extends BaseController {
             } else {
                 // --- PREPARE DATA: Convert empty strings to NULL for optional fields ---
                 $optionalFields = [
-                    'marriage_anniversary_date', 'photo', 'email', 'education_id',
+                    'marriage_anniversary_date', 'email', 'education_id',
                     'profession_id', 'blood_group_id', 'is_initiated', 'spiritual_master_name',
                     'chanting_rounds', 'second_initiation', 'bhakti_sadan_id', 'has_life_membership',
                     'life_member_no', 'life_member_temple'

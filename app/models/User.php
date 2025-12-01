@@ -9,8 +9,7 @@ use PDO;
 class User extends BaseModel {
     protected $table = 'users';
 
-    // --- Add a fillable property to whitelist columns ---
-    private $fillable = [
+    protected $fillable = [
         'full_name', 'gender', 'photo', 'date_of_birth', 'marital_status',
         'marriage_anniversary_date', 'password', 'email', 'mobile_number',
         'address', 'city', 'state', 'pincode', 'country', 'education_id',

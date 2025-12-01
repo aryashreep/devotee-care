@@ -122,6 +122,28 @@ class UserController extends BaseController {
             if (!empty($errors)) {
                 $data['error'] = implode('<br>', $errors);
             } else {
+                // --- PREPARE DATA: Convert empty strings to NULL for optional fields ---
+                $optionalFields = [
+                    'marriage_anniversary_date', 'photo', 'email', 'education_id',
+                    'profession_id', 'blood_group_id', 'is_initiated', 'spiritual_master_name',
+                    'chanting_rounds', 'second_initiation', 'bhakti_sadan_id', 'has_life_membership',
+                    'life_member_no', 'life_member_temple'
+                ];
+                foreach ($optionalFields as $field) {
+                    if (empty($postData[$field])) {
+                        $postData[$field] = null;
+                    }
+                }
+
+                // Also handle optional fields for dependants
+                if (!empty($postData['dependants'])) {
+                    foreach ($postData['dependants'] as $key => $dependant) {
+                        if (empty($dependant['date_of_birth'])) {
+                            $postData['dependants'][$key]['date_of_birth'] = null;
+                        }
+                    }
+                }
+
                 // Handle file upload for photo
                 if (isset($_FILES['photo']) && $_FILES['photo']['error'] == 0) {
                     $targetDir = "uploads/profile_photos/";

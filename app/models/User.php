@@ -27,6 +27,12 @@ class User extends BaseModel {
             ARRAY_FILTER_USE_KEY
         );
 
+        // --- Prepare data for execution ---
+        $filteredData['password'] = password_hash($filteredData['password'], PASSWORD_BCRYPT);
+        if (!isset($filteredData['role_id'])) {
+            $filteredData['role_id'] = 5; // Default to 'End User'
+        }
+
         // --- Dynamically build the SQL query from the filtered data ---
         $columns = array_keys($filteredData);
         $placeholders = array_map(fn($col) => ":{$col}", $columns);
@@ -38,12 +44,6 @@ class User extends BaseModel {
         );
 
         $stmt = $this->db->prepare($sql);
-
-        // --- Prepare data for execution ---
-        $filteredData['password'] = password_hash($filteredData['password'], PASSWORD_BCRYPT);
-        if (!isset($filteredData['role_id'])) {
-            $filteredData['role_id'] = 5; // Default to 'End User'
-        }
 
         try {
             if ($stmt->execute($filteredData)) {

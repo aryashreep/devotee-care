@@ -1,2 +1,0 @@
-# devotee-care
-Devotee Care

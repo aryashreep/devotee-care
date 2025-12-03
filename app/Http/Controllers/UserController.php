@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\BhaktiSadan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -16,7 +17,8 @@ class UserController extends Controller
 
     public function create()
     {
-        return view('users.create');
+        $bhaktiSadans = BhaktiSadan::all();
+        return view('users.create', compact('bhaktiSadans'));
     }
 
     public function store(Request $request)
@@ -26,6 +28,7 @@ class UserController extends Controller
             'mobile_number' => 'required|string|max:255|unique:users',
             'email' => 'nullable|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
+            'bhakti_sadan_id' => 'nullable|exists:bhakti_sadans,id',
         ]);
 
         User::create($validatedData);
@@ -40,7 +43,8 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        return view('users.edit', compact('user'));
+        $bhaktiSadans = BhaktiSadan::all();
+        return view('users.edit', compact('user', 'bhaktiSadans'));
     }
 
     public function update(Request $request, User $user)
@@ -50,6 +54,7 @@ class UserController extends Controller
             'mobile_number' => 'required|string|max:255|unique:users,mobile_number,' . $user->id,
             'email' => 'nullable|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
+            'bhakti_sadan_id' => 'nullable|exists:bhakti_sadans,id',
         ]);
 
         if (empty($validatedData['password'])) {

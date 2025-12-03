@@ -20,6 +20,15 @@
             <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" name="email" type="email" placeholder="Email">
         </div>
         <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="bhakti_sadan_id">Bhakti Sadan</label>
+            <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="bhakti_sadan_id" name="bhakti_sadan_id">
+                <option value="">Select Bhakti Sadan</option>
+                @foreach ($bhaktiSadans as $bhaktiSadan)
+                    <option value="{{ $bhaktiSadan->id }}">{{ $bhaktiSadan->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Password</label>
             <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="password" name="password" type="password" placeholder="******************" required>
         </div>

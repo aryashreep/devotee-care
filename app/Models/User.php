@@ -30,7 +30,13 @@ class User extends Authenticatable
         'country',
         'initiation_date',
         'spiritual_master',
+        'bhakti_sadan_id',
     ];
+
+    public function bhaktiSadan()
+    {
+        return $this->belongsTo(BhaktiSadan::class);
+    }
 
     public function roles()
     {

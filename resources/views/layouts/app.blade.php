@@ -19,18 +19,20 @@
                             <span class="ml-2">Users</span>
                         </a>
                     </li>
-                    @if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Management') || auth()->user()->hasRole('Finance') || auth()->user()->hasRole('Bhakti Sadan Leader'))
-                    <li class="mb-4">
-                        <h2 class="text-gray-500 uppercase tracking-wide font-bold text-xs">Masters</h2>
-                        <ul class="mt-2 space-y-2">
-                            <li><a href="{{ route('educations.index') }}" class="block hover:text-white">Education</a></li>
-                            <li><a href="{{ route('professions.index') }}" class="block hover:text-white">Profession</a></li>
-                            <li><a href="{{ route('bhakti-sadans.index') }}" class="block hover:text-white">Bhakti Sadan</a></li>
-                            <li><a href="{{ route('sevas.index') }}" class="block hover:text-white">Seva</a></li>
-                            <li><a href="{{ route('shiksha-levels.index') }}" class="block hover:text-white">Shiksha Level</a></li>
-                        </ul>
-                    </li>
-                    @endif
+                    @auth
+                        @if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Management') || auth()->user()->hasRole('Finance') || auth()->user()->hasRole('Bhakti Sadan Leader'))
+                        <li class="mb-4">
+                            <h2 class="text-gray-500 uppercase tracking-wide font-bold text-xs">Masters</h2>
+                            <ul class="mt-2 space-y-2">
+                                <li><a href="{{ route('educations.index') }}" class="block hover:text-white">Education</a></li>
+                                <li><a href="{{ route('professions.index') }}" class="block hover:text-white">Profession</a></li>
+                                <li><a href="{{ route('bhakti-sadans.index') }}" class="block hover:text-white">Bhakti Sadan</a></li>
+                                <li><a href="{{ route('sevas.index') }}" class="block hover:text-white">Seva</a></li>
+                                <li><a href="{{ route('shiksha-levels.index') }}" class="block hover:text-white">Shiksha Level</a></li>
+                            </ul>
+                        </li>
+                        @endif
+                    @endauth
                 </ul>
             </div>
         </div>

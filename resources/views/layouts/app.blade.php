@@ -13,27 +13,34 @@
                 <a href="{{ route('dashboard') }}" class="text-white text-xl font-bold">{{ config('app.name', 'Devotee Care') }}</a>
             </div>
             <div class="px-4 py-6">
-                <ul class="text-gray-300">
-                    <li class="mb-4">
-                        <a href="{{ route('users.index') }}" class="flex items-center hover:text-white">
-                            <span class="ml-2">Users</span>
-                        </a>
-                    </li>
-                    @auth
-                        @if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Management') || auth()->user()->hasRole('Finance') || auth()->user()->hasRole('Bhakti Sadan Leader'))
+                @auth
+                    <ul class="text-gray-300">
                         <li class="mb-4">
-                            <h2 class="text-gray-500 uppercase tracking-wide font-bold text-xs">Masters</h2>
-                            <ul class="mt-2 space-y-2">
-                                <li><a href="{{ route('educations.index') }}" class="block hover:text-white">Education</a></li>
-                                <li><a href="{{ route('professions.index') }}" class="block hover:text-white">Profession</a></li>
-                                <li><a href="{{ route('bhakti-sadans.index') }}" class="block hover:text-white">Bhakti Sadan</a></li>
-                                <li><a href="{{ route('sevas.index') }}" class="block hover:text-white">Seva</a></li>
-                                <li><a href="{{ route('shiksha-levels.index') }}" class="block hover:text-white">Shiksha Level</a></li>
-                            </ul>
+                            <a href="{{ route('profile.show') }}" class="flex items-center hover:text-white">
+                                <span class="ml-2">View My Profile</span>
+                            </a>
                         </li>
+                        @if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Management'))
+                            <li class="mb-4">
+                                <a href="{{ route('users.index') }}" class="flex items-center hover:text-white">
+                                    <span class="ml-2">Users</span>
+                                </a>
+                            </li>
                         @endif
-                    @endauth
-                </ul>
+                        @if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Management') || auth()->user()->hasRole('Finance') || auth()->user()->hasRole('Bhakti Sadan Leader'))
+                            <li class="mb-4">
+                                <h2 class="text-gray-500 uppercase tracking-wide font-bold text-xs">Masters</h2>
+                                <ul class="mt-2 space-y-2">
+                                    <li><a href="{{ route('educations.index') }}" class="block hover:text-white">Education</a></li>
+                                    <li><a href="{{ route('professions.index') }}" class="block hover:text-white">Profession</a></li>
+                                    <li><a href="{{ route('bhakti-sadans.index') }}" class="block hover:text-white">Bhakti Sadan</a></li>
+                                    <li><a href="{{ route('sevas.index') }}" class="block hover:text-white">Seva</a></li>
+                                    <li><a href="{{ route('shiksha-levels.index') }}" class="block hover:text-white">Shiksha Level</a></li>
+                                </ul>
+                            </li>
+                        @endif
+                    </ul>
+                @endauth
             </div>
         </div>
         <div class="flex-1 flex flex-col">

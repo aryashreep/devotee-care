@@ -15,11 +15,13 @@
             <div class="px-4 py-6">
                 @auth
                     <ul class="text-gray-300">
-                        <li class="mb-4">
-                            <a href="{{ route('profile.show') }}" class="flex items-center hover:text-white">
-                                <span class="ml-2">View My Profile</span>
-                            </a>
-                        </li>
+                        @if (auth()->user()->hasRole('Admin'))
+                            <li class="mb-4">
+                                <a href="{{ route('profile.show') }}" class="flex items-center hover:text-white">
+                                    <span class="ml-2">View My Profile</span>
+                                </a>
+                            </li>
+                        @endif
                         @if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Management'))
                             <li class="mb-4">
                                 <a href="{{ route('users.index') }}" class="flex items-center hover:text-white">

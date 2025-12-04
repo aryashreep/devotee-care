@@ -127,6 +127,9 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
 
+    /**
+     * Display the authenticated user's profile.
+     */
     public function profile()
     {
         return view('profile.show', [

@@ -15,14 +15,14 @@
             <div class="px-4 py-6">
                 @auth
                     <ul class="text-gray-300">
-                        @if (Auth::check() && Auth::user()->hasRole('Admin'))
+                        @if (Route::has('profile.show'))
                             <li class="mb-4">
                                 <a href="{{ route('profile.show') }}" class="flex items-center hover:text-white">
                                     <span class="ml-2">View My Profile</span>
                                 </a>
                             </li>
                         @endif
-                        @if (Auth::check() && (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Management')))
+                        @if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Management'))
                             <li class="mb-4">
                                 <a href="{{ route('users.index') }}" class="flex items-center hover:text-white">
                                     <span class="ml-2">Users</span>

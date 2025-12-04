@@ -17,7 +17,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::all();
+        $users = User::latest()->paginate(10);
         return view('users.index', compact('users'));
     }
 
@@ -43,10 +43,10 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'email' => 'string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'bhakti_sadan_id' => 'required|exists:bhakti_sadans,id',
-            'role' => 'required|exists:roles,name',
+            'mobile_number' => 'required|string|max:15',
         ]);
 
         $user = User::create([
@@ -54,9 +54,8 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'bhakti_sadan_id' => $request->bhakti_sadan_id,
+            'mobile_number' => $request->mobile_number,
         ]);
-
-        $user->assignRole($request->role);
 
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
@@ -96,10 +95,10 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
             'bhakti_sadan_id' => 'required|exists:bhakti_sadans,id',
-            'role' => 'required|exists:roles,name',
+            'mobile_number' => 'required|string|max:15',
         ]);
 
         $user->name = $request->name;
@@ -108,9 +107,8 @@ class UserController extends Controller
             $user->password = Hash::make($request->password);
         }
         $user->bhakti_sadan_id = $request->bhakti_sadan_id;
+        $user->mobile_number = $request->mobile_number;
         $user->save();
-
-        $user->syncRoles($request->role);
 
         return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }

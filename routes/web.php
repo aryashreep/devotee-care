@@ -12,6 +12,8 @@ Route::get('/', function () {
 });
 
 use App\Http\Controllers\UserController;
+
+Route::get('/profile', [UserController::class, 'profile'])->name('profile.show')->middleware('auth');
 use App\Http\Controllers\EducationController;
 use App\Http\Controllers\ProfessionController;
 use App\Http\Controllers\SevaController;

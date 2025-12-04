@@ -2,80 +2,136 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\BhaktiSadan;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
         $users = User::latest()->paginate(10);
         return view('users.index', compact('users'));
     }
 
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function create()
     {
+        $roles = Role::all();
         $bhaktiSadans = BhaktiSadan::all();
-        return view('users.create', compact('bhaktiSadans'));
+        return view('users.create', compact('roles', 'bhaktiSadans'));
     }
 
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
-            'mobile_number' => 'required|string|max:255|unique:users',
-            'email' => 'nullable|string|email|max:255|unique:users',
+            'email' => 'string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'bhakti_sadan_id' => 'nullable|exists:bhakti_sadans,id',
+            'bhakti_sadan_id' => 'required|exists:bhakti_sadans,id',
+            'mobile_number' => 'required|string|max:15',
         ]);
 
-        User::create($validatedData);
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'bhakti_sadan_id' => $request->bhakti_sadan_id,
+            'mobile_number' => $request->mobile_number,
+        ]);
 
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\User  $user
+     * @return \Illuminate\Http\Response
+     */
     public function show(User $user)
     {
         return view('users.show', compact('user'));
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Models\User  $user
+     * @return \Illuminate\Http\Response
+     */
     public function edit(User $user)
     {
+        $roles = Role::all();
         $bhaktiSadans = BhaktiSadan::all();
-        return view('users.edit', compact('user', 'bhaktiSadans'));
+        return view('users.edit', compact('user', 'roles', 'bhaktiSadans'));
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\User  $user
+     * @return \Illuminate\Http\Response
+     */
     public function update(Request $request, User $user)
     {
-        $validatedData = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
-            'mobile_number' => 'required|string|max:255|unique:users,mobile_number,' . $user->id,
-            'email' => 'nullable|string|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
-            'bhakti_sadan_id' => 'nullable|exists:bhakti_sadans,id',
+            'bhakti_sadan_id' => 'required|exists:bhakti_sadans,id',
+            'mobile_number' => 'required|string|max:15',
         ]);
 
-        if (empty($validatedData['password'])) {
-            unset($validatedData['password']);
+        $user->name = $request->name;
+        $user->email = $request->email;
+        if ($request->password) {
+            $user->password = Hash::make($request->password);
         }
-
-        $user->update($validatedData);
+        $user->bhakti_sadan_id = $request->bhakti_sadan_id;
+        $user->mobile_number = $request->mobile_number;
+        $user->save();
 
         return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\User  $user
+     * @return \Illuminate\Http\Response
+     */
     public function destroy(User $user)
     {
         $user->delete();
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
 
+    /**
+     * Display the authenticated user's profile.
+     */
     public function profile()
     {
-        $user = Auth::user();
-        return view('users.profile', compact('user'));
+        return view('profile.show', [
+            'user' => auth()->user()
+        ]);
     }
 }

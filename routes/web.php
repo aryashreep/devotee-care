@@ -12,8 +12,6 @@ Route::get('/', function () {
 });
 
 use App\Http\Controllers\UserController;
-
-Route::get('/profile', [UserController::class, 'profile'])->name('profile.show')->middleware('auth');
 use App\Http\Controllers\EducationController;
 use App\Http\Controllers\ProfessionController;
 use App\Http\Controllers\SevaController;
@@ -25,6 +23,7 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
         return redirect()->route('users.index');
     })->name('dashboard');
 
+    Route::get('/profile', [UserController::class, 'profile'])->name('profile.show');
     Route::resource('users', UserController::class);
     Route::resource('educations', EducationController::class);
     Route::resource('professions', ProfessionController::class);

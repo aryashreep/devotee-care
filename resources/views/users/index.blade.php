@@ -14,21 +14,24 @@
     </div>
 
     <div class="my-4 flex justify-between items-center">
-        <div class="flex items-center">
-            <input placeholder="Search"
+        <form action="{{ route('users.index') }}" method="GET" class="flex items-center">
+            <input name="search" placeholder="Search"
                    class="appearance-none border border-r-0 border-gray-300 rounded-l py-2 px-4 bg-white text-sm placeholder-gray-400 text-gray-700 focus:outline-none"
+                   value="{{ $search ?? '' }}"
                    style="width: 200px;" />
-            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r">
+            <input type="hidden" name="per_page" value="{{ $perPage ?? 10 }}">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r">
                 <i class="fas fa-search"></i> Search
             </button>
-        </div>
-        <div class="relative">
-            <select class="appearance-none rounded border bg-white border-gray-300 text-gray-700 py-2 px-4 pr-8 leading-tight focus:outline-none">
-                <option>10</option>
-                <option>25</option>
-                <option>50</option>
+        </form>
+        <form action="{{ route('users.index') }}" method="GET">
+            <input type="hidden" name="search" value="{{ $search ?? '' }}">
+            <select name="per_page" class="appearance-none rounded border bg-white border-gray-300 text-gray-700 py-2 px-4 pr-8 leading-tight focus:outline-none" onchange="this.form.submit()">
+                <option value="10" @if($perPage == 10) selected @endif>10</option>
+                <option value="25" @if($perPage == 25) selected @endif>25</option>
+                <option value="50" @if($perPage == 50) selected @endif>50</option>
             </select>
-        </div>
+        </form>
     </div>
 
     <div class="overflow-x-auto">
@@ -52,7 +55,7 @@
                             <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">{{ $user->mobile_number }}</td>
                             <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                 <label class="switch">
-                                    <input type="checkbox" checked>
+                                    <input type="checkbox" data-user-id="{{ $user->id }}" @if($user->enabled) checked @endif>
                                     <span class="slider round"></span>
                                 </label>
                             </td>
@@ -84,63 +87,42 @@
             Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of {{ $users->total() }} Entries
         </span>
         <div class="inline-flex mt-2 xs:mt-0">
-            {{ $users->links() }}
+            {{ $users->appends(request()->query())->links() }}
         </div>
     </div>
 </div>
 @endsection
 
-@push('styles')
-<style>
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
-}
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-input:checked + .slider {
-  background-color: #2196F3;
-}
-input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
-}
-input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
-}
-.slider.round {
-  border-radius: 34px;
-}
-.slider.round:before {
-  border-radius: 50%;
-}
-</style>
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggleSwitches = document.querySelectorAll('.switch input[type="checkbox"]');
+        toggleSwitches.forEach(function (switchElement) {
+            switchElement.addEventListener('change', function () {
+                const userId = this.dataset.userId;
+                const url = `/users/${userId}/toggle-enabled`;
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        // Revert the switch if the request fails
+                        this.checked = !this.checked;
+                    }
+                })
+                .catch(() => {
+                    // Revert the switch if there's a network error
+                    this.checked = !this.checked;
+                });
+            });
+        });
+    });
+</script>
 @endpush

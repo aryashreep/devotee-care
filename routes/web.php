@@ -24,6 +24,7 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     })->name('dashboard');
 
     Route::get('/profile', [UserController::class, 'profile'])->name('profile.show');
+    Route::post('/users/{user}/toggle-enabled', [UserController::class, 'toggleEnabled'])->name('users.toggle-enabled');
     Route::resource('users', UserController::class);
     Route::resource('educations', EducationController::class);
     Route::resource('professions', ProfessionController::class);

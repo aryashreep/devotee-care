@@ -30,9 +30,11 @@
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
                         <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 hidden">
+                            <div class="px-4 py-2 text-white bg-blue-500 font-bold rounded-t-md">Account</div>
+                            <a href="{{ route('profile.show') }}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 border-b"><i class="fas fa-user mr-3"></i>Profile</a>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
+                                <button type="submit" class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-100"><i class="fas fa-sign-out-alt mr-3"></i>Logout</button>
                             </form>
                         </div>
                     </div>
@@ -82,10 +84,6 @@
                             <i class="fas fa-user-circle mr-3"></i>
                             <span class="mx-3">Manage access</span>
                         </a>
-                        <a href="#" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white">
-                            <i class="fas fa-globe mr-3"></i>
-                            <span class="mx-3">Translations</span>
-                        </a>
                     @endif
                 @endauth
             </nav>
@@ -129,5 +127,6 @@
         });
     </script>
     @stack('styles')
+    @stack('scripts')
 </body>
 </html>

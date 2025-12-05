@@ -31,6 +31,7 @@ class User extends Authenticatable
         'initiation_date',
         'spiritual_master',
         'bhakti_sadan_id',
+        'enabled',
     ];
 
     public function bhaktiSadan()
@@ -68,6 +69,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'enabled' => 'boolean',
         ];
     }
 }

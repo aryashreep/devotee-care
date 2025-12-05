@@ -18,12 +18,15 @@ use App\Http\Controllers\SevaController;
 use App\Http\Controllers\ShikshaLevelController;
 use App\Http\Controllers\BhaktiSadanController;
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile', [UserController::class, 'profile'])->name('profile.show');
+});
+
 Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::get('/dashboard', function () {
         return redirect()->route('users.index');
     })->name('dashboard');
 
-    Route::get('/profile', [UserController::class, 'profile'])->name('profile.show');
     Route::post('/users/{user}/toggle-enabled', [UserController::class, 'toggleEnabled'])->name('users.toggle-enabled');
     Route::resource('users', UserController::class);
     Route::resource('educations', EducationController::class);

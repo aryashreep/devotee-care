@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title')</title>
+    <title>@yield('title') - {{ config('app.name', 'Devotee Care') }}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -11,7 +11,7 @@
     <header class="bg-white shadow-md w-full">
         <div class="flex justify-between items-center py-4 px-6">
             <div class="p-4">
-                <a href="{{ route('dashboard') }}" class="text-gray-800 text-2xl font-bold uppercase">Devotee Care</a>
+                <a href="{{ route('dashboard') }}" class="text-gray-800 text-2xl font-bold uppercase">{{ config('app.name', 'Devotee Care') }}</a>
             </div>
             <div class="flex items-center">
                 <button id="sidebar-toggle" class="text-gray-600 hover:text-gray-800 md:hidden">

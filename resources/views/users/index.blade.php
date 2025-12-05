@@ -37,11 +37,11 @@
                 <table class="min-w-full leading-normal">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mobile Number</th>
-                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enabled</th>
-                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th scope="col" class="px-5 py-3 border-t border-b border-gray-200 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">ID</th>
+                            <th scope="col" class="px-5 py-3 border-t border-b border-gray-200 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
+                            <th scope="col" class="px-5 py-3 border-t border-b border-gray-200 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Mobile Number</th>
+                            <th scope="col" class="px-5 py-3 border-t border-b border-gray-200 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Enabled</th>
+                            <th scope="col" class="px-5 py-3 border-t border-b border-gray-200 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white">

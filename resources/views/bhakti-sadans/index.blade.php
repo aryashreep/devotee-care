@@ -22,11 +22,12 @@
                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">{{ $bhaktiSadan->name }}</td>
                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">{{ $bhaktiSadan->leader->name ?? 'N/A' }}</td>
                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <a href="{{ route('bhakti-sadans.edit', $bhaktiSadan->id) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                    <a href="{{ route('bhakti-sadans.show', $bhaktiSadan->id) }}" class="text-blue-600 hover:text-blue-900"><i class="fas fa-eye"></i></a>
+                    <a href="{{ route('bhakti-sadans.edit', $bhaktiSadan->id) }}" class="text-indigo-600 hover:text-indigo-900 ml-4"><i class="fas fa-pencil-alt"></i></a>
                     <form action="{{ route('bhakti-sadans.destroy', $bhaktiSadan->id) }}" method="POST" class="inline-block ml-4">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                        <button type="submit" class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
                     </form>
                 </td>
             </tr>

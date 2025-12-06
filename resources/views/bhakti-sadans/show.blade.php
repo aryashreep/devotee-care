@@ -1,0 +1,22 @@
+@extends('layouts.app')
+
+@section('title', 'View Bhakti Sadan')
+
+@section('content')
+<h1 class="text-2xl font-bold mb-4">View Bhakti Sadan</h1>
+<div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="name">Name</label>
+        <p class="text-gray-700 text-base">{{ $bhaktiSadan->name }}</p>
+    </div>
+    <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="leader">Leader</label>
+        <p class="text-gray-700 text-base">{{ $bhaktiSadan->leader->name ?? 'N/A' }}</p>
+    </div>
+    <div class="flex items-center justify-between">
+        <a href="{{ route('bhakti-sadans.index') }}" class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800">
+            Back to List
+        </a>
+    </div>
+</div>
+@endsection

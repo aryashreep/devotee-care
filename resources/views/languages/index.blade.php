@@ -20,12 +20,12 @@
             <tr>
                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">{{ $language->name }}</td>
                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <a href="{{ route('languages.show', $language->id) }}" class="text-blue-600 hover:text-blue-900">View</a>
-                    <a href="{{ route('languages.edit', $language->id) }}" class="text-indigo-600 hover:text-indigo-900 ml-4">Edit</a>
+                    <a href="{{ route('languages.show', $language->id) }}" class="text-blue-600 hover:text-blue-900"><i class="fas fa-eye"></i></a>
+                    <a href="{{ route('languages.edit', $language->id) }}" class="text-indigo-600 hover:text-indigo-900 ml-4"><i class="fas fa-pencil-alt"></i></a>
                     <form action="{{ route('languages.destroy', $language->id) }}" method="POST" class="inline-block ml-4">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                        <button type="submit" class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
                     </form>
                 </td>
             </tr>

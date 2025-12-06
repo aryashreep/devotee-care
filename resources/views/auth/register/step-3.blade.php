@@ -6,6 +6,19 @@
 <div class="flex items-center justify-center min-h-screen bg-gray-100">
     <div class="w-full max-w-lg p-8 bg-white rounded-lg shadow-lg">
         <h2 class="text-2xl font-bold text-center text-gray-800 mb-8">Additional Details (Step 3 of 5)</h2>
+
+        @if ($errors->any())
+            <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <strong class="font-bold">Whoops!</strong>
+                <span class="block sm:inline">There were some problems with your input.</span>
+                <ul class="mt-3 list-disc list-inside text-sm">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <form action="{{ route('register.step3.store') }}" method="POST">
             @csrf
 
@@ -13,18 +26,24 @@
                 <label for="education_id" class="block text-sm font-medium text-gray-700">Education *</label>
                 <select name="education_id" id="education_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
                     @foreach($educations as $education)
-                        <option value="{{ $education->id }}">{{ $education->name }}</option>
+                        <option value="{{ $education->id }}" {{ old('education_id') == $education->id ? 'selected' : '' }}>{{ $education->name }}</option>
                     @endforeach
                 </select>
+                @error('education_id')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <div class="mb-4">
                 <label for="profession_id" class="block text-sm font-medium text-gray-700">Profession *</label>
                 <select name="profession_id" id="profession_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
                     @foreach($professions as $profession)
-                        <option value="{{ $profession->id }}">{{ $profession->name }}</option>
+                        <option value="{{ $profession->id }}" {{ old('profession_id') == $profession->id ? 'selected' : '' }}>{{ $profession->name }}</option>
                     @endforeach
                 </select>
+                @error('profession_id')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <div class="mb-4">
@@ -32,11 +51,14 @@
                 <div class="mt-2 grid grid-cols-3 gap-2">
                     @foreach($languages as $language)
                         <label class="inline-flex items-center">
-                            <input type="checkbox" name="languages[]" value="{{ $language->id }}" class="form-checkbox">
+                            <input type="checkbox" name="languages[]" value="{{ $language->id }}" class="form-checkbox" {{ is_array(old('languages')) && in_array($language->id, old('languages')) ? 'checked' : '' }}>
                             <span class="ml-2">{{ $language->name }}</span>
                         </label>
                     @endforeach
                 </div>
+                @error('languages')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <div class="mb-4">

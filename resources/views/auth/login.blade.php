@@ -17,6 +17,12 @@
       <p class="text-center text-gray-600 mb-4">Devotee Care Management System</p>
             </div>
 
+            @if (session('success'))
+                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                    <span class="block sm:inline">{{ session('success') }}</span>
+                </div>
+            @endif
+
             <div class="text-center mb-6">
                 <div class="w-24 h-24 rounded-full bg-gray-200 mx-auto flex items-center justify-center">
                     <svg class="w-12 h-12 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">

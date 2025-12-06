@@ -80,7 +80,8 @@ class RegistrationTest extends TestCase
             'disclaimer' => true,
         ]);
 
-        $response->assertRedirect(route('dashboard'));
+        $response->assertRedirect(route('login'));
+        $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('users', [
             'name' => 'Test User',
@@ -88,7 +89,6 @@ class RegistrationTest extends TestCase
         ]);
 
         $user = User::where('mobile_number', '1234567890')->first();
-        $this->assertAuthenticatedAs($user);
 
         $this->assertDatabaseHas('user_shiksha_level', [
             'user_id' => $user->id,

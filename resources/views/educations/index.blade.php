@@ -31,5 +31,8 @@
             @endforeach
         </tbody>
     </table>
+    <div class="p-4">
+        {{ $educations->links() }}
+    </div>
 </div>
 @endsection

@@ -20,7 +20,8 @@
             <tr>
                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">{{ $language->name }}</td>
                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <a href="{{ route('languages.edit', $language->id) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                    <a href="{{ route('languages.show', $language->id) }}" class="text-blue-600 hover:text-blue-900">View</a>
+                    <a href="{{ route('languages.edit', $language->id) }}" class="text-indigo-600 hover:text-indigo-900 ml-4">Edit</a>
                     <form action="{{ route('languages.destroy', $language->id) }}" method="POST" class="inline-block ml-4">
                         @csrf
                         @method('DELETE')
@@ -31,5 +32,8 @@
             @endforeach
         </tbody>
     </table>
+    <div class="p-4">
+        {{ $languages->links() }}
+    </div>
 </div>
 @endsection

@@ -72,7 +72,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return view('users.show', compact('user'));
+        return redirect()->route('profile.show', $user);
     }
 
     /**
@@ -83,15 +83,7 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        $educations = Education::all();
-        $professions = Profession::all();
-        $languages = Language::all();
-        $bloodGroups = BloodGroup::all();
-        $shikshaLevels = ShikshaLevel::all();
-        $bhaktiSadans = BhaktiSadan::all();
-        $sevas = Seva::all();
-
-        return view('users.show', compact('user', 'educations', 'professions', 'languages', 'bloodGroups', 'shikshaLevels', 'bhaktiSadans', 'sevas'))->with('editMode', true);
+        return redirect()->route('profile.show', $user);
     }
 
     /**

@@ -42,7 +42,7 @@ class UserProfileController extends Controller
             'state' => 'required|string|max:255',
             'pincode' => 'required|string|max:255',
             'country' => 'nullable|string|max:255',
-            'education_id' => 'required|exists:educations,id',
+            'education_id' => 'required|exists:education,id',
             'profession_id' => 'required|exists:professions,id',
             'blood_group_id' => 'required|exists:blood_groups,id',
             'languages' => 'required|array',

@@ -25,7 +25,7 @@ class User extends Authenticatable
         'date_of_birth',
         'gender',
         'alternative_mobile',
-        'street',
+        'address',
         'city',
         'country',
         'initiation_date',

@@ -5,7 +5,10 @@
 @section('content')
 <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
     <div class="flex justify-between items-center mb-4">
-        <h1 class="text-2xl font-bold">User Profile</h1>
+        <div class="flex items-center">
+            <img class="w-16 h-16 rounded-full mr-4" src="{{ $user->photo ? asset('storage/' . $user->photo) : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&color=7F9CF5&background=EBF4FF' }}" alt="User Photo">
+            <h1 class="text-2xl font-bold">{{ $user->name }}</h1>
+        </div>
         <div>
             @if(auth()->user()->hasRole('Admin') && request()->route()->getName() !== 'my-profile.show')
                 <a href="{{ route('users.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2">

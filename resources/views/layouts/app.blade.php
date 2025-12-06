@@ -85,10 +85,10 @@
                 @endauth
                 <h2 class="px-6 mt-4 text-gray-500 uppercase tracking-wide font-bold text-xs">Settings</h2>
                 @auth
-                    @if (Route::has('profile.show'))
-                        <a href="{{ route('profile.show') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('profile.show') ? 'bg-blue-600 text-white' : '' }}">
+                    @if (Route::has('my-profile.show'))
+                        <a href="{{ route('my-profile.show') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('my-profile.show') ? 'bg-blue-600 text-white' : '' }}">
                             <i class="fas fa-user-circle mr-3"></i>
-                            <span class="mx-3">Manage access</span>
+                            <span class="mx-3">View My Profile</span>
                         </a>
                     @endif
                 @endauth

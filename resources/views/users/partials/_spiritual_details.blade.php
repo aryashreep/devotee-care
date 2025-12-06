@@ -1,55 +1,140 @@
-<div id="spiritual-details" class="tab-content hidden">
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="initiated">Initiated</label>
-        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="initiated" name="initiated" type="text" value="{{ $user->initiated ? 'Yes' : 'No' }}" disabled>
+@if($view === 'view')
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+        <p class="text-gray-700 font-bold">Rounds:</p>
+        <p>{{ $user->rounds ?? 'N/A' }}</p>
+    </div>
+    <div>
+        <p class="text-gray-700 font-bold">Bhakti Sadan:</p>
+        <p>{{ $user->bhaktiSadan->name ?? 'N/A' }}</p>
+    </div>
+    <div>
+        <p class="text-gray-700 font-bold">Initiated:</p>
+        <p>{{ $user->initiated ? 'Yes' : 'No' }}</p>
     </div>
     @if($user->initiated)
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="spiritual_master">Spiritual Master</label>
-        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="spiritual_master" name="spiritual_master" type="text" value="{{ $user->spiritual_master }}" disabled>
+    <div>
+        <p class="text-gray-700 font-bold">Spiritual Master Name:</p>
+        <p>{{ $user->spiritual_master_name ?? 'N/A' }}</p>
     </div>
-    @else
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="rounds">Rounds</label>
-        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="rounds" name="rounds" type="text" value="{{ $user->rounds }}" disabled>
+    @endif
+    <div>
+        <p class="text-gray-700 font-bold">Shiksha Levels:</p>
+        <p>{{ $user->shikshaLevels->implode('name', ', ') }}</p>
     </div>
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2">Shiksha Levels</label>
-        <div class="flex flex-wrap">
-            @foreach($user->shikshaLevels as $level)
-                <span class="bg-gray-200 text-gray-700 text-sm font-semibold mr-2 px-2.5 py-0.5 rounded-full">{{ $level->name }}</span>
+    <div>
+        <p class="text-gray-700 font-bold">Second Initiation:</p>
+        <p>{{ $user->second_initiation ? 'Yes' : 'No' }}</p>
+    </div>
+    <div>
+        <p class="text-gray-700 font-bold">Life Membership:</p>
+        <p>{{ $user->life_membership ? 'Yes' : 'No' }}</p>
+    </div>
+    @if($user->life_membership)
+    <div>
+        <p class="text-gray-700 font-bold">Life Member No:</p>
+        <p>{{ $user->life_member_no ?? 'N/A' }}</p>
+    </div>
+    <div>
+        <p class="text-gray-700 font-bold">Temple:</p>
+        <p>{{ $user->temple ?? 'N/A' }}</p>
+    </div>
+    @endif
+    <div>
+        <p class="text-gray-700 font-bold">Services:</p>
+        <p>{{ $user->sevas->implode('name', ', ') }}</p>
+    </div>
+</div>
+@else
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+        <label for="rounds" class="block text-sm font-medium text-gray-700">Rounds</label>
+        <select name="rounds" id="rounds" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+            @for ($i = 0; $i <= 16; $i++)
+                <option value="{{ $i }}" {{ old('rounds', $user->rounds) == $i ? 'selected' : '' }}>{{ $i }}</option>
+            @endfor
+        </select>
+    </div>
+    <div>
+        <label for="bhakti_sadan_id" class="block text-sm font-medium text-gray-700">Bhakti Sadan</label>
+        <select name="bhakti_sadan_id" id="bhakti_sadan_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+            @foreach($bhaktiSadans as $sadan)
+                <option value="{{ $sadan->id }}" {{ old('bhakti_sadan_id', $user->bhakti_sadan_id) == $sadan->id ? 'selected' : '' }}>{{ $sadan->name }}</option>
+            @endforeach
+        </select>
+    </div>
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Initiated</label>
+        <div class="mt-2">
+            <label class="inline-flex items-center">
+                <input type="radio" name="initiated" value="1" class="form-radio" {{ old('initiated', $user->initiated) == 1 ? 'checked' : '' }}>
+                <span class="ml-2">Yes</span>
+            </label>
+            <label class="inline-flex items-center ml-6">
+                <input type="radio" name="initiated" value="0" class="form-radio" {{ old('initiated', $user->initiated) == 0 ? 'checked' : '' }}>
+                <span class="ml-2">No</span>
+            </label>
+        </div>
+    </div>
+    <div>
+        <label for="spiritual_master_name" class="block text-sm font-medium text-gray-700">Spiritual Master Name</label>
+        <input type="text" name="spiritual_master_name" id="spiritual_master_name" value="{{ old('spiritual_master_name', $user->spiritual_master_name) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+    </div>
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Shiksha Levels</label>
+        <div class="mt-2 grid grid-cols-3 gap-2">
+            @foreach($shikshaLevels as $level)
+                <label class="inline-flex items-center">
+                    <input type="checkbox" name="shiksha_levels[]" value="{{ $level->id }}" class="form-checkbox" {{ in_array($level->id, old('shiksha_levels', $user->shikshaLevels->pluck('id')->toArray())) ? 'checked' : '' }}>
+                    <span class="ml-2">{{ $level->name }}</span>
+                </label>
             @endforeach
         </div>
     </div>
-    @endif
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="second_initiation">Second Initiation</label>
-        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="second_initiation" name="second_initiation" type="text" value="{{ $user->second_initiation ? 'Yes' : 'No' }}" disabled>
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Second Initiation</label>
+        <div class="mt-2">
+            <label class="inline-flex items-center">
+                <input type="radio" name="second_initiation" value="1" class="form-radio" {{ old('second_initiation', $user->second_initiation) == 1 ? 'checked' : '' }}>
+                <span class="ml-2">Yes</span>
+            </label>
+            <label class="inline-flex items-center ml-6">
+                <input type="radio" name="second_initiation" value="0" class="form-radio" {{ old('second_initiation', $user->second_initiation) == 0 ? 'checked' : '' }}>
+                <span class="ml-2">No</span>
+            </label>
+        </div>
     </div>
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="bhakti_sadan">Bhakti Sadan</label>
-        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="bhakti_sadan" name="bhakti_sadan" type="text" value="{{ $user->bhaktiSadan->name ?? '' }}" disabled>
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Life Membership</label>
+        <div class="mt-2">
+            <label class="inline-flex items-center">
+                <input type="radio" name="life_membership" value="1" class="form-radio" {{ old('life_membership', $user->life_membership) == 1 ? 'checked' : '' }}>
+                <span class="ml-2">Yes</span>
+            </label>
+            <label class="inline-flex items-center ml-6">
+                <input type="radio" name="life_membership" value="0" class="form-radio" {{ old('life_membership', $user->life_membership) == 0 ? 'checked' : '' }}>
+                <span class="ml-2">No</span>
+            </label>
+        </div>
     </div>
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="life_membership">Life Membership</label>
-        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="life_membership" name="life_membership" type="text" value="{{ $user->life_membership ? 'Yes' : 'No' }}" disabled>
+    <div>
+        <label for="life_member_no" class="block text-sm font-medium text-gray-700">Life Member No</label>
+        <input type="text" name="life_member_no" id="life_member_no" value="{{ old('life_member_no', $user->life_member_no) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
     </div>
-    @if($user->life_membership)
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="life_member_no">Life Member No</label>
-        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="life_member_no" name="life_member_no" type="text" value="{{ $user->life_member_no }}" disabled>
+    <div>
+        <label for="temple" class="block text-sm font-medium text-gray-700">Temple</label>
+        <input type="text" name="temple" id="temple" value="{{ old('temple', $user->temple) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
     </div>
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="temple">Temple</label>
-        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="temple" name="temple" type="text" value="{{ $user->temple }}" disabled>
-    </div>
-    @endif
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2">Services</label>
-        <div class="flex flex-wrap">
-            @foreach($user->sevas as $seva)
-                <span class="bg-gray-200 text-gray-700 text-sm font-semibold mr-2 px-2.5 py-0.5 rounded-full">{{ $seva->name }}</span>
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Services</label>
+        <div class="mt-2 grid grid-cols-3 gap-2">
+            @foreach($sevas as $service)
+                <label class="inline-flex items-center">
+                    <input type="checkbox" name="services[]" value="{{ $service->id }}" class="form-checkbox" {{ in_array($service->id, old('services', $user->sevas->pluck('id')->toArray())) ? 'checked' : '' }}>
+                    <span class="ml-2">{{ $service->name }}</span>
+                </label>
             @endforeach
         </div>
     </div>
 </div>
+@endif

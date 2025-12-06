@@ -24,8 +24,7 @@ class User extends Authenticatable
         'password',
         'date_of_birth',
         'gender',
-        'alternative_mobile',
-        'street',
+        'address',
         'city',
         'country',
         'initiation_date',
@@ -51,6 +50,16 @@ class User extends Authenticatable
     public function bloodGroup()
     {
         return $this->belongsTo(BloodGroup::class);
+    }
+
+    public function education()
+    {
+        return $this->belongsTo(Education::class);
+    }
+
+    public function profession()
+    {
+        return $this->belongsTo(Profession::class);
     }
 
     public function bhaktiSadan()
@@ -95,7 +104,6 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
-        'remember_token',
     ];
 
     /**
@@ -106,9 +114,10 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'enabled' => 'boolean',
+            'date_of_birth' => 'date',
+            'marriage_anniversary_date' => 'date',
         ];
     }
 }

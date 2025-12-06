@@ -1,30 +1,63 @@
-<div id="contact-details" class="tab-content hidden">
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Email</label>
-        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" name="email" type="email" value="{{ $user->email }}" disabled>
+@if($view === 'view')
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+        <p class="text-gray-700 font-bold">Email:</p>
+        <p>{{ $user->email ?? 'N/A' }}</p>
     </div>
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="mobile_number">Mobile Number</label>
-        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="mobile_number" name="mobile_number" type="text" value="{{ $user->mobile_number }}" disabled>
+    <div>
+        <p class="text-gray-700 font-bold">Mobile Number:</p>
+        <p>{{ $user->mobile_number }}</p>
     </div>
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="address">Address</label>
-        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="address" name="address" type="text" value="{{ $user->address }}" disabled>
+    <div>
+        <p class="text-gray-700 font-bold">Address:</p>
+        <p>{{ $user->address }}</p>
     </div>
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="city">City</label>
-        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="city" name="city" type="text" value="{{ $user->city }}" disabled>
+    <div>
+        <p class="text-gray-700 font-bold">City:</p>
+        <p>{{ $user->city }}</p>
     </div>
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="state">State</label>
-        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="state" name="state" type="text" value="{{ $user->state }}" disabled>
+    <div>
+        <p class="text-gray-700 font-bold">State:</p>
+        <p>{{ $user->state }}</p>
     </div>
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="pincode">Pincode</label>
-        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="pincode" name="pincode" type="text" value="{{ $user->pincode }}" disabled>
+    <div>
+        <p class="text-gray-700 font-bold">Pincode:</p>
+        <p>{{ $user->pincode }}</p>
     </div>
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="country">Country</label>
-        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="country" name="country" type="text" value="{{ $user->country }}" disabled>
+    <div>
+        <p class="text-gray-700 font-bold">Country:</p>
+        <p>{{ $user->country ?? 'N/A' }}</p>
     </div>
 </div>
+@else
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+        <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+    </div>
+    <div>
+        <label for="mobile_number" class="block text-sm font-medium text-gray-700">Mobile Number</label>
+        <input type="text" name="mobile_number" id="mobile_number" value="{{ old('mobile_number', $user->mobile_number) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+    </div>
+    <div>
+        <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+        <input type="text" name="address" id="address" value="{{ old('address', $user->address) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+    </div>
+    <div>
+        <label for="city" class="block text-sm font-medium text-gray-700">City</label>
+        <input type="text" name="city" id="city" value="{{ old('city', $user->city) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+    </div>
+    <div>
+        <label for="state" class="block text-sm font-medium text-gray-700">State</label>
+        <input type="text" name="state" id="state" value="{{ old('state', $user->state) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+    </div>
+    <div>
+        <label for="pincode" class="block text-sm font-medium text-gray-700">Pincode</label>
+        <input type="text" name="pincode" id="pincode" value="{{ old('pincode', $user->pincode) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+    </div>
+    <div>
+        <label for="country" class="block text-sm font-medium text-gray-700">Country</label>
+        <input type="text" name="country" id="country" value="{{ old('country', $user->country) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+    </div>
+</div>
+@endif

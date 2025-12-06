@@ -31,7 +31,7 @@
                         </button>
                         <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 hidden">
                             <div class="px-4 py-2 text-white bg-blue-500 font-bold rounded-t-md">Account</div>
-                            <a href="{{ route('profile.show') }}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 border-b"><i class="fas fa-user mr-3"></i>Profile</a>
+                            <a href="{{ route('my-profile.show') }}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 border-b"><i class="fas fa-user mr-3"></i>Profile</a>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit" class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-100"><i class="fas fa-sign-out-alt mr-3"></i>Logout</button>
@@ -85,10 +85,10 @@
                 @endauth
                 <h2 class="px-6 mt-4 text-gray-500 uppercase tracking-wide font-bold text-xs">Settings</h2>
                 @auth
-                    @if (Route::has('profile.show'))
-                        <a href="{{ route('profile.show') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('profile.show') ? 'bg-blue-600 text-white' : '' }}">
+                    @if (Route::has('my-profile.show'))
+                        <a href="{{ route('my-profile.show') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('my-profile.show') ? 'bg-blue-600 text-white' : '' }}">
                             <i class="fas fa-user-circle mr-3"></i>
-                            <span class="mx-3">Manage access</span>
+                            <span class="mx-3">View My Profile</span>
                         </a>
                     @endif
                 @endauth

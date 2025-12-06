@@ -57,7 +57,7 @@
             </form>
 
             <div class="mt-4 text-center">
-                <p class="text-sm text-gray-600">Don't have an account? <a href="{{ route('register.step1.show') }}" class="text-blue-500 hover:text-blue-700">Sign up</a></p>
+                <p class="text-sm text-gray-600"><b>Don't have an account? <a href="{{ route('register.step1.show') }}" class="text-blue-500 hover:text-blue-700">Sign up</a></b></p>
             </div>
         </div>
     </div>

@@ -53,6 +53,16 @@ class User extends Authenticatable
         return $this->belongsTo(BloodGroup::class);
     }
 
+    public function education()
+    {
+        return $this->belongsTo(Education::class);
+    }
+
+    public function profession()
+    {
+        return $this->belongsTo(Profession::class);
+    }
+
     public function bhaktiSadan()
     {
         return $this->belongsTo(BhaktiSadan::class);

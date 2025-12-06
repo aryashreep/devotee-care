@@ -109,6 +109,8 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'enabled' => 'boolean',
+            'date_of_birth' => 'date',
+            'marriage_anniversary_date' => 'date',
         ];
     }
 }

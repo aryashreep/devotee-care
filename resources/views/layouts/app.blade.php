@@ -73,6 +73,12 @@
                                 <a href="{{ route('shiksha-levels.index') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('shiksha-levels.*') ? 'bg-blue-600 text-white' : '' }}">
                                     <span class="mx-3">Shiksha Level</span>
                                 </a>
+                                <a href="{{ route('languages.index') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('languages.*') ? 'bg-blue-600 text-white' : '' }}">
+                                    <span class="mx-3">Languages</span>
+                                </a>
+                                <a href="{{ route('blood-groups.index') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('blood-groups.*') ? 'bg-blue-600 text-white' : '' }}">
+                                    <span class="mx-3">Blood Group</span>
+                                </a>
                             </div>
                         </div>
                     @endif

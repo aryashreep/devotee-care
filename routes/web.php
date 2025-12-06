@@ -34,6 +34,8 @@ use App\Http\Controllers\ProfessionController;
 use App\Http\Controllers\SevaController;
 use App\Http\Controllers\ShikshaLevelController;
 use App\Http\Controllers\BhaktiSadanController;
+use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\BloodGroupController;
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [UserController::class, 'profile'])->name('profile.show');
@@ -51,4 +53,6 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::resource('sevas', SevaController::class);
     Route::resource('shiksha-levels', ShikshaLevelController::class);
     Route::resource('bhakti-sadans', BhaktiSadanController::class);
+    Route::resource('languages', LanguageController::class);
+    Route::resource('blood-groups', BloodGroupController::class);
 });

@@ -12,6 +12,7 @@ use App\Models\ShikshaLevel;
 use App\Models\BhaktiSadan;
 use App\Models\Seva;
 use App\Models\Dependant;
+use App\Models\BloodGroup;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
@@ -81,7 +82,8 @@ class RegisterController extends Controller
         $educations = Education::all();
         $professions = Profession::all();
         $languages = Language::all();
-        return view('auth.register.step-3', compact('educations', 'professions', 'languages'));
+        $bloodGroups = BloodGroup::all();
+        return view('auth.register.step-3', compact('educations', 'professions', 'languages', 'bloodGroups'));
     }
 
     public function storeStep3(Request $request)
@@ -90,8 +92,9 @@ class RegisterController extends Controller
             return redirect()->route('register.step2.show');
         }
         $validatedData = $request->validate([
-            'education_id' => 'required|exists:educations,id',
+            'education_id' => 'required|exists:education,id',
             'profession_id' => 'required|exists:professions,id',
+            'blood_group_id' => 'required|exists:blood_groups,id',
             'languages' => 'required|array',
             'languages.*' => 'exists:languages,id',
             'dependants' => 'nullable|array',
@@ -182,8 +185,6 @@ class RegisterController extends Controller
 
         $request->session()->flush();
 
-        Auth::login($user);
-
-        return redirect()->route('dashboard');
+        return redirect()->route('login')->with('success', 'Hare Krishna! It is a great pleasure to hear that the account creation was successful. I wish you all the best as you begin your service. Please proceed by logging in with your registered details. 🙏');
     }
 }

@@ -12,9 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            if (Schema::hasColumn('users', 'shiksha_level_id')) {
-                $table->dropForeign(['shiksha_level_id']);
-                $table->dropColumn('shiksha_level_id');
+            if (!Schema::hasColumn('users', 'blood_group_id')) {
+                $table->foreignId('blood_group_id')->nullable()->constrained('blood_groups');
             }
         });
     }
@@ -25,8 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            if (!Schema::hasColumn('users', 'shiksha_level_id')) {
-                $table->foreignId('shiksha_level_id')->nullable()->constrained('shiksha_levels');
+            if (Schema::hasColumn('users', 'blood_group_id')) {
+                $table->dropForeign(['blood_group_id']);
+                $table->dropColumn('blood_group_id');
             }
         });
     }

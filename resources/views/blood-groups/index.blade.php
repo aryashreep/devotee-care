@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Seva')
+@section('title', 'Blood Groups')
 
 @section('content')
 <div class="flex flex-col md:flex-row justify-between items-center mb-4">
-    <h1 class="text-2xl font-bold mb-4 md:mb-0">Seva</h1>
-    <a href="{{ route('sevas.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Create New Seva</a>
+    <h1 class="text-2xl font-bold mb-4 md:mb-0">Blood Groups</h1>
+    <a href="{{ route('blood-groups.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Create New Blood Group</a>
 </div>
 <div class="bg-white shadow-md rounded overflow-x-auto">
     <table class="min-w-full leading-normal">
@@ -16,13 +16,13 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($sevas as $seva)
+            @foreach ($bloodGroups as $bloodGroup)
             <tr>
-                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">{{ $seva->name }}</td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">{{ $bloodGroup->name }}</td>
                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <a href="{{ route('sevas.show', $seva->id) }}" class="text-blue-600 hover:text-blue-900"><i class="fas fa-eye"></i></a>
-                    <a href="{{ route('sevas.edit', $seva->id) }}" class="text-indigo-600 hover:text-indigo-900 ml-4"><i class="fas fa-pencil-alt"></i></a>
-                    <form action="{{ route('sevas.destroy', $seva->id) }}" method="POST" class="inline-block ml-4">
+                    <a href="{{ route('blood-groups.show', $bloodGroup->id) }}" class="text-blue-600 hover:text-blue-900"><i class="fas fa-eye"></i></a>
+                    <a href="{{ route('blood-groups.edit', $bloodGroup->id) }}" class="text-indigo-600 hover:text-indigo-900 ml-4"><i class="fas fa-pencil-alt"></i></a>
+                    <form action="{{ route('blood-groups.destroy', $bloodGroup->id) }}" method="POST" class="inline-block ml-4">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
@@ -32,5 +32,8 @@
             @endforeach
         </tbody>
     </table>
+    <div class="p-4">
+        {{ $bloodGroups->links() }}
+    </div>
 </div>
 @endsection

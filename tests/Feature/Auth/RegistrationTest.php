@@ -54,10 +54,12 @@ class RegistrationTest extends TestCase
 
         $response->assertRedirect(route('register.step3.show'));
 
+        $bloodGroup = \App\Models\BloodGroup::factory()->create();
         $response = $this->withSession(session()->all())->post(route('register.step3.store'), [
             'education_id' => $education->id,
             'profession_id' => $profession->id,
             'languages' => [$language->id],
+            'blood_group_id' => $bloodGroup->id,
         ]);
 
         $response->assertRedirect(route('register.step4.show'));
@@ -78,7 +80,8 @@ class RegistrationTest extends TestCase
             'disclaimer' => true,
         ]);
 
-        $response->assertRedirect(route('dashboard'));
+        $response->assertRedirect(route('login'));
+        $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('users', [
             'name' => 'Test User',
@@ -86,7 +89,6 @@ class RegistrationTest extends TestCase
         ]);
 
         $user = User::where('mobile_number', '1234567890')->first();
-        $this->assertAuthenticatedAs($user);
 
         $this->assertDatabaseHas('user_shiksha_level', [
             'user_id' => $user->id,
@@ -103,16 +105,16 @@ class RegistrationTest extends TestCase
         $education = Education::factory()->create();
         $profession = Profession::factory()->create();
 
-        $this->withSession([
+        $sessionData = [
             'step1' => ['full_name' => 'Test User', 'gender' => 'Male', 'photo' => 'photo.jpg', 'date_of_birth' => '1990-01-01', 'marital_status' => 'Single', 'password' => 'Password123'],
             'step2' => ['mobile_number' => '1234567891', 'address' => '123 Main St', 'city' => 'Anytown', 'state' => 'Anystate', 'pincode' => '12345'],
             'step3' => ['education_id' => $education->id, 'profession_id' => $profession->id, 'languages' => [$language->id]],
-        ]);
+        ];
 
         // Test missing spiritual_master_name when initiated
-        $this->from(route('register.step3.show'))
-            ->followingRedirects()
-            ->post(route('register.step4.store'), [
+        session()->put($sessionData);
+        session()->put('url.previous', route('register.step3.show'));
+        $response = $this->post(route('register.step4.store'), [
                 'initiated' => true,
                 'rounds' => null,
                 'shiksha_levels' => [],
@@ -120,12 +122,13 @@ class RegistrationTest extends TestCase
                 'bhakti_sadan_id' => $bhaktiSadan->id,
                 'life_membership' => false,
                 'services' => [$seva->id],
-            ])->assertSessionHasErrors('spiritual_master_name');
+            ]);
+        $response->assertSessionHasErrors('spiritual_master_name');
 
         // Test missing rounds when not initiated
-        $this->from(route('register.step3.show'))
-            ->followingRedirects()
-            ->post(route('register.step4.store'), [
+        session()->put($sessionData);
+        session()->put('url.previous', route('register.step3.show'));
+        $response = $this->post(route('register.step4.store'), [
                 'initiated' => false,
                 'spiritual_master_name' => null,
                 'shiksha_levels' => [],
@@ -133,12 +136,13 @@ class RegistrationTest extends TestCase
                 'bhakti_sadan_id' => $bhaktiSadan->id,
                 'life_membership' => false,
                 'services' => [$seva->id],
-            ])->assertSessionHasErrors('rounds');
+            ]);
+        $response->assertSessionHasErrors('rounds');
 
         // Test missing life_member_no and temple when life_membership is true
-        $this->from(route('register.step3.show'))
-            ->followingRedirects()
-            ->post(route('register.step4.store'), [
+        session()->put($sessionData);
+        session()->put('url.previous', route('register.step3.show'));
+        $response = $this->post(route('register.step4.store'), [
                 'initiated' => false,
                 'rounds' => 16,
                 'shiksha_levels' => [],
@@ -146,6 +150,7 @@ class RegistrationTest extends TestCase
                 'bhakti_sadan_id' => $bhaktiSadan->id,
                 'life_membership' => true,
                 'services' => [$seva->id],
-            ])->assertSessionHasErrors(['life_member_no', 'temple']);
+            ]);
+        $response->assertSessionHasErrors(['life_member_no', 'temple']);
     }
 }

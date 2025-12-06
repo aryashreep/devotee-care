@@ -45,7 +45,13 @@ class User extends Authenticatable
         'life_membership',
         'life_member_no',
         'temple',
+        'blood_group_id',
     ];
+
+    public function bloodGroup()
+    {
+        return $this->belongsTo(BloodGroup::class);
+    }
 
     public function bhaktiSadan()
     {

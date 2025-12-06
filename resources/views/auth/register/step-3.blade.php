@@ -47,6 +47,18 @@
             </div>
 
             <div class="mb-4">
+                <label for="blood_group_id" class="block text-sm font-medium text-gray-700">Blood Group *</label>
+                <select name="blood_group_id" id="blood_group_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                    @foreach($bloodGroups as $bloodGroup)
+                        <option value="{{ $bloodGroup->id }}" {{ old('blood_group_id') == $bloodGroup->id ? 'selected' : '' }}>{{ $bloodGroup->name }}</option>
+                    @endforeach
+                </select>
+                @error('blood_group_id')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700">Languages *</label>
                 <div class="mt-2 grid grid-cols-3 gap-2">
                     @foreach($languages as $language)

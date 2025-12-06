@@ -54,10 +54,12 @@ class RegistrationTest extends TestCase
 
         $response->assertRedirect(route('register.step3.show'));
 
+        $bloodGroup = \App\Models\BloodGroup::factory()->create();
         $response = $this->withSession(session()->all())->post(route('register.step3.store'), [
             'education_id' => $education->id,
             'profession_id' => $profession->id,
             'languages' => [$language->id],
+            'blood_group_id' => $bloodGroup->id,
         ]);
 
         $response->assertRedirect(route('register.step4.show'));

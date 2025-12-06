@@ -12,8 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign(['shiksha_level_id']);
-            $table->dropColumn('shiksha_level_id');
+            if (Schema::hasColumn('users', 'shiksha_level_id')) {
+                $table->dropForeign(['shiksha_level_id']);
+                $table->dropColumn('shiksha_level_id');
+            }
         });
     }
 
@@ -23,7 +25,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('shiksha_level_id')->nullable()->constrained('shiksha_levels');
+            if (!Schema::hasColumn('users', 'shiksha_level_id')) {
+                $table->foreignId('shiksha_level_id')->nullable()->constrained('shiksha_levels');
+            }
         });
     }
 };

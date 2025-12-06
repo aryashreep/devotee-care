@@ -36,15 +36,20 @@ use App\Http\Controllers\ShikshaLevelController;
 use App\Http\Controllers\BhaktiSadanController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\BloodGroupController;
+use App\Http\Controllers\UserProfileController;
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/profile', [UserController::class, 'profile'])->name('profile.show');
+    Route::get('/profile', [UserController::class, 'profile'])->name('my-profile.show');
+    Route::put('/profile', [UserController::class, 'updateProfile'])->name('my-profile.update');
 });
 
 Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::get('/dashboard', function () {
         return redirect()->route('users.index');
     })->name('dashboard');
+
+    Route::get('/users/{user}/profile', [UserProfileController::class, 'show'])->name('profile.show');
+    Route::put('/users/{user}/profile', [UserProfileController::class, 'update'])->name('profile.update');
 
     Route::post('/users/{user}/toggle-enabled', [UserController::class, 'toggleEnabled'])->name('users.toggle-enabled');
     Route::resource('users', UserController::class);

@@ -10,7 +10,7 @@
     </div>
     <div>
         <p class="text-gray-700 font-bold">Date of Birth:</p>
-        <p>{{ $user->date_of_birth->format('d-m-Y') }}</p>
+        <p>{{ $user->date_of_birth ? $user->date_of_birth->format('d-m-Y') : 'N/A' }}</p>
     </div>
     <div>
         <p class="text-gray-700 font-bold">Marital Status:</p>
@@ -44,7 +44,7 @@
     </div>
     <div>
         <label for="date_of_birth" class="block text-sm font-medium text-gray-700">Date of Birth</label>
-        <input type="date" name="date_of_birth" id="date_of_birth" value="{{ old('date_of_birth', $user->date_of_birth->format('Y-m-d')) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+        <input type="date" name="date_of_birth" id="date_of_birth" value="{{ old('date_of_birth', $user->date_of_birth ? $user->date_of_birth->format('Y-m-d') : '') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
     </div>
     <div>
         <label for="marital_status" class="block text-sm font-medium text-gray-700">Marital Status</label>

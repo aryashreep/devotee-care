@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('education', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign(['shiksha_level_id']);
+            $table->dropColumn('shiksha_level_id');
         });
     }
 
@@ -23,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('education');
+        Schema::table('users', function (Blueprint $table) {
+            $table->foreignId('shiksha_level_id')->nullable()->constrained('shiksha_levels');
+        });
     }
 };

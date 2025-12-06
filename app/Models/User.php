@@ -32,6 +32,19 @@ class User extends Authenticatable
         'spiritual_master',
         'bhakti_sadan_id',
         'enabled',
+        'photo',
+        'marital_status',
+        'marriage_anniversary_date',
+        'state',
+        'pincode',
+        'education_id',
+        'profession_id',
+        'initiated',
+        'rounds',
+        'second_initiation',
+        'life_membership',
+        'life_member_no',
+        'temple',
     ];
 
     public function bhaktiSadan()
@@ -42,6 +55,26 @@ class User extends Authenticatable
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'user_roles');
+    }
+
+    public function languages()
+    {
+        return $this->belongsToMany(Language::class, 'user_languages');
+    }
+
+    public function sevas()
+    {
+        return $this->belongsToMany(Seva::class, 'user_sevas');
+    }
+
+    public function dependants()
+    {
+        return $this->hasMany(Dependant::class);
+    }
+
+    public function shikshaLevels()
+    {
+        return $this->belongsToMany(ShikshaLevel::class, 'user_shiksha_level');
     }
 
     public function hasRole($role)

@@ -2,6 +2,20 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+
+Route::prefix('register')->name('register.')->group(function () {
+    Route::get('step-1', [RegisterController::class, 'showStep1'])->name('step1.show');
+    Route::post('step-1', [RegisterController::class, 'storeStep1'])->name('step1.store');
+    Route::get('step-2', [RegisterController::class, 'showStep2'])->name('step2.show');
+    Route::post('step-2', [RegisterController::class, 'storeStep2'])->name('step2.store');
+    Route::get('step-3', [RegisterController::class, 'showStep3'])->name('step3.show');
+    Route::post('step-3', [RegisterController::class, 'storeStep3'])->name('step3.store');
+    Route::get('step-4', [RegisterController::class, 'showStep4'])->name('step4.show');
+    Route::post('step-4', [RegisterController::class, 'storeStep4'])->name('step4.store');
+    Route::get('step-5', [RegisterController::class, 'showStep5'])->name('step5.show');
+    Route::post('step-5', [RegisterController::class, 'storeStep5'])->name('step5.store');
+});
 
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('login', [LoginController::class, 'login']);

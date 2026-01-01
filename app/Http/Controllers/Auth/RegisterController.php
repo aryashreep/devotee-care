@@ -63,8 +63,8 @@ class RegisterController extends Controller
             'email' => 'nullable|email|max:255|unique:users',
             'mobile_number' => 'required|string|digits:10|unique:users',
             'address' => 'required|string|max:255',
-            'city' => 'required|string|max:255',
-            'state' => 'required|string|max:255',
+            'city' => 'required|exists:cities,id',
+            'state' => 'required|exists:states,id',
             'pincode' => 'required|string|max:255',
             'country' => 'nullable|string|max:255',
         ]);

@@ -12,8 +12,6 @@ use App\Models\Language;
 use App\Models\ShikshaLevel;
 use App\Models\BhaktiSadan;
 use App\Models\Seva;
-use App\Models\State;
-use App\Models\City;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -33,8 +31,6 @@ class RegistrationTest extends TestCase
         $shikshaLevel = ShikshaLevel::factory()->create();
         $bhaktiSadan = BhaktiSadan::factory()->create();
         $seva = Seva::factory()->create();
-        $state = State::factory()->create();
-        $city = City::factory()->create(['state_id' => $state->id]);
 
         $response = $this->post(route('register.step1.store'), [
             'full_name' => 'Test User',
@@ -51,8 +47,8 @@ class RegistrationTest extends TestCase
         $response = $this->withSession(['step1' => session('step1')])->post(route('register.step2.store'), [
             'mobile_number' => '1234567890',
             'address' => '123 Main St',
-            'city' => $city->id,
-            'state' => $state->id,
+            'city' => 'Anytown',
+            'state' => 'Anystate',
             'pincode' => '12345',
         ]);
 
@@ -108,14 +104,11 @@ class RegistrationTest extends TestCase
         $language = Language::factory()->create();
         $education = Education::factory()->create();
         $profession = Profession::factory()->create();
-        $state = State::factory()->create();
-        $city = City::factory()->create(['state_id' => $state->id]);
-        $bloodGroup = \App\Models\BloodGroup::factory()->create();
 
         $sessionData = [
             'step1' => ['full_name' => 'Test User', 'gender' => 'Male', 'photo' => 'photo.jpg', 'date_of_birth' => '1990-01-01', 'marital_status' => 'Single', 'password' => 'Password123'],
-            'step2' => ['mobile_number' => '1234567891', 'address' => '123 Main St', 'city' => $city->id, 'state' => $state->id, 'pincode' => '12345'],
-            'step3' => ['education_id' => $education->id, 'profession_id' => $profession->id, 'languages' => [$language->id], 'blood_group_id' => $bloodGroup->id],
+            'step2' => ['mobile_number' => '1234567891', 'address' => '123 Main St', 'city' => 'Anytown', 'state' => 'Anystate', 'pincode' => '12345'],
+            'step3' => ['education_id' => $education->id, 'profession_id' => $profession->id, 'languages' => [$language->id]],
         ];
 
         // Test missing spiritual_master_name when initiated
@@ -159,19 +152,5 @@ class RegistrationTest extends TestCase
                 'services' => [$seva->id],
             ]);
         $response->assertSessionHasErrors(['life_member_no', 'temple']);
-    }
-
-    /** @test */
-    public function it_returns_cities_for_a_given_state()
-    {
-        $state = State::factory()->create();
-        $city1 = City::factory()->create(['state_id' => $state->id]);
-        $city2 = City::factory()->create(['state_id' => $state->id]);
-
-        $response = $this->get(route('api.cities', $state));
-
-        $response->assertStatus(200);
-        $response->assertJsonCount(2);
-        $response->assertJson([['id' => $city1->id], ['id' => $city2->id]]);
     }
 }

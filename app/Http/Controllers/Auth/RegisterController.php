@@ -51,7 +51,7 @@ class RegisterController extends Controller
         if (!$request->session()->has('step1')) {
             return redirect()->route('register.step1.show');
         }
-        $states = State::all();
+        $states = \App\Models\State::all();
         return view('auth.register.step-2', compact('states'));
     }
 

@@ -69,19 +69,18 @@
                 @enderror
             </div>
 
+            <div class="mb-6">
+                <label for="country" class="block text-sm font-medium text-gray-700">Country</label>
+                <input type="text" name="country" id="country" value="India" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" readonly>
+                @error('country')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+            </div>
 
             <div class="mb-4">
                 <label for="pincode" class="block text-sm font-medium text-gray-700">Pincode *</label>
                 <input type="text" name="pincode" id="pincode" value="{{ old('pincode') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
                 @error('pincode')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div class="mb-6">
-                <label for="country" class="block text-sm font-medium text-gray-700">Country</label>
-                <input type="text" name="country" id="country" value="India" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" readonly>
-                @error('country')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
             </div>

@@ -47,17 +47,24 @@
             </div>
 
             <div class="mb-4">
-                <label for="city" class="block text-sm font-medium text-gray-700">City *</label>
-                <input type="text" name="city" id="city" value="{{ old('city') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
-                @error('city')
+                <label for="state" class="block text-sm font-medium text-gray-700">State *</label>
+                <select name="state" id="state" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                    <option value="">Select a state</option>
+                    @foreach($states as $state)
+                        <option value="{{ $state->id }}">{{ $state->name }}</option>
+                    @endforeach
+                </select>
+                @error('state')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
             </div>
 
             <div class="mb-4">
-                <label for="state" class="block text-sm font-medium text-gray-700">State *</label>
-                <input type="text" name="state" id="state" value="{{ old('state') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
-                @error('state')
+                <label for="city" class="block text-sm font-medium text-gray-700">City *</label>
+                <select name="city" id="city" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                    <option value="">Select a city</option>
+                </select>
+                @error('city')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
             </div>
@@ -72,7 +79,7 @@
 
             <div class="mb-6">
                 <label for="country" class="block text-sm font-medium text-gray-700">Country</label>
-                <input type="text" name="country" id="country" value="{{ old('country') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                <input type="text" name="country" id="country" value="India" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" readonly>
                 @error('country')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
@@ -88,3 +95,38 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('#state').select2({
+            tags: true
+        });
+        $('#city').select2({
+            tags: true
+        });
+
+        $('#state').on('change', function() {
+            var stateId = $(this).val();
+            if (stateId) {
+                $.ajax({
+                    url: '/api/states/' + stateId + '/cities',
+                    type: "GET",
+                    dataType: "json",
+                    beforeSend: function() {
+                        $('#city').empty().append('<option value="">Loading...</option>');
+                    },
+                    success: function(data) {
+                        $('#city').empty().append('<option value="">Select a city</option>');
+                        $.each(data, function(key, value) {
+                            $('#city').append('<option value="' + value.id + '">' + value.name + '</option>');
+                        });
+                    }
+                });
+            } else {
+                $('#city').empty().append('<option value="">Select a city</option>');
+            }
+        });
+    });
+</script>
+@endpush

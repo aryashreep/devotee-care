@@ -69,6 +69,7 @@
                 @enderror
             </div>
 
+
             <div class="mb-4">
                 <label for="pincode" class="block text-sm font-medium text-gray-700">Pincode *</label>
                 <input type="text" name="pincode" id="pincode" value="{{ old('pincode') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>

@@ -2,6 +2,10 @@
 
 @section('title', 'Register - Step 2')
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+@endpush
+
 @section('content')
 <div class="flex items-center justify-center min-h-screen bg-gray-100">
     <div class="w-full max-w-lg p-8 bg-white rounded-lg shadow-lg">
@@ -47,18 +51,33 @@
             </div>
 
             <div class="mb-4">
-                <label for="city" class="block text-sm font-medium text-gray-700">City *</label>
-                <input type="text" name="city" id="city" value="{{ old('city') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
-                @error('city')
+                <label for="state" class="block text-sm font-medium text-gray-700">State *</label>
+                <select name="state" id="state" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                    <option value="">Select State</option>
+                    @foreach($states as $state)
+                        <option value="{{ $state->id }}">{{ $state->name }}</option>
+                    @endforeach
+                </select>
+                @error('state')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
             </div>
 
             <div class="mb-4">
-                <label for="state" class="block text-sm font-medium text-gray-700">State *</label>
-                <input type="text" name="state" id="state" value="{{ old('state') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
-                @error('state')
+                <label for="city" class="block text-sm font-medium text-gray-700">City *</label>
+                <select name="city" id="city" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                    <option value="">Select City</option>
+                </select>
+                @error('city')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="mb-6">
+                <label for="country" class="block text-sm font-medium text-gray-700">Country</label>
+                <input type="text" name="country" id="country" value="India" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100" readonly>
+                @error('country')
+                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
             </div>
 
@@ -66,15 +85,7 @@
                 <label for="pincode" class="block text-sm font-medium text-gray-700">Pincode *</label>
                 <input type="text" name="pincode" id="pincode" value="{{ old('pincode') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
                 @error('pincode')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div class="mb-6">
-                <label for="country" class="block text-sm font-medium text-gray-700">Country</label>
-                <input type="text" name="country" id="country" value="{{ old('country') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                @error('country')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
             </div>
 
@@ -88,3 +99,35 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#state').select2();
+        $('#city').select2();
+
+        $('#state').on('change', function() {
+            var stateId = $(this).val();
+            if (stateId) {
+                $.ajax({
+                    url: '/api/states/' + stateId + '/cities',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        $('#city').empty();
+                        $('#city').append('<option value="">Select City</option>');
+                        $.each(data, function(key, value) {
+                            $('#city').append('<option value="' + value.name + '">' + value.name + '</option>');
+                        });
+                    }
+                });
+            } else {
+                $('#city').empty();
+                $('#city').append('<option value="">Select City</option>');
+            }
+        });
+    });
+</script>
+@endpush

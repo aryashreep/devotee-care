@@ -104,23 +104,24 @@ class RegistrationTest extends TestCase
         $language = Language::factory()->create();
         $education = Education::factory()->create();
         $profession = Profession::factory()->create();
+        $bloodGroup = \App\Models\BloodGroup::factory()->create();
 
         $sessionData = [
             'step1' => ['full_name' => 'Test User', 'gender' => 'Male', 'photo' => 'photo.jpg', 'date_of_birth' => '1990-01-01', 'marital_status' => 'Single', 'password' => 'Password123'],
             'step2' => ['mobile_number' => '1234567891', 'address' => '123 Main St', 'city' => 'Anytown', 'state' => 'Anystate', 'pincode' => '12345'],
-            'step3' => ['education_id' => $education->id, 'profession_id' => $profession->id, 'languages' => [$language->id]],
+            'step3' => ['education_id' => $education->id, 'profession_id' => $profession->id, 'languages' => [$language->id], 'blood_group_id' => $bloodGroup->id],
         ];
 
         // Test missing spiritual_master_name when initiated
         session()->put($sessionData);
         session()->put('url.previous', route('register.step3.show'));
         $response = $this->post(route('register.step4.store'), [
-                'initiated' => true,
+                'initiated' => '1',
                 'rounds' => null,
                 'shiksha_levels' => [],
-                'second_initiation' => false,
+                'second_initiation' => '0',
                 'bhakti_sadan_id' => $bhaktiSadan->id,
-                'life_membership' => false,
+                'life_membership' => '0',
                 'services' => [$seva->id],
             ]);
         $response->assertSessionHasErrors('spiritual_master_name');
@@ -129,12 +130,12 @@ class RegistrationTest extends TestCase
         session()->put($sessionData);
         session()->put('url.previous', route('register.step3.show'));
         $response = $this->post(route('register.step4.store'), [
-                'initiated' => false,
+                'initiated' => '0',
                 'spiritual_master_name' => null,
                 'shiksha_levels' => [],
-                'second_initiation' => false,
+                'second_initiation' => '0',
                 'bhakti_sadan_id' => $bhaktiSadan->id,
-                'life_membership' => false,
+                'life_membership' => '0',
                 'services' => [$seva->id],
             ]);
         $response->assertSessionHasErrors('rounds');
@@ -143,12 +144,12 @@ class RegistrationTest extends TestCase
         session()->put($sessionData);
         session()->put('url.previous', route('register.step3.show'));
         $response = $this->post(route('register.step4.store'), [
-                'initiated' => false,
+                'initiated' => '0',
                 'rounds' => 16,
                 'shiksha_levels' => [],
-                'second_initiation' => false,
+                'second_initiation' => '0',
                 'bhakti_sadan_id' => $bhaktiSadan->id,
-                'life_membership' => true,
+                'life_membership' => '1',
                 'services' => [$seva->id],
             ]);
         $response->assertSessionHasErrors(['life_member_no', 'temple']);

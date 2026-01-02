@@ -13,6 +13,7 @@ use App\Models\BhaktiSadan;
 use App\Models\Seva;
 use App\Models\Dependant;
 use App\Models\BloodGroup;
+use App\Models\State;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
@@ -50,7 +51,8 @@ class RegisterController extends Controller
         if (!$request->session()->has('step1')) {
             return redirect()->route('register.step1.show');
         }
-        return view('auth.register.step-2');
+        $states = State::all();
+        return view('auth.register.step-2', compact('states'));
     }
 
     public function storeStep2(Request $request)

@@ -25,6 +25,7 @@
             <div class="mb-4">
                 <label for="rounds" class="block text-sm font-medium text-gray-700">How many rounds you are doing? *</label>
                 <select name="rounds" id="rounds" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                    <option value="">Select</option>
                     @for ($i = 0; $i <= 16; $i++)
                         <option value="{{ $i }}" {{ old('rounds') == $i ? 'selected' : '' }}>{{ $i }}</option>
                     @endfor
@@ -53,14 +54,14 @@
 
             <div class="mb-4 @if(old('initiated') != '1') hidden @endif" id="initiated_fields_div">
                 <div class="mb-4">
-                    <label for="initiated_name" class="block text-sm font-medium text-gray-700">Initiated Name</label>
+                    <label for="initiated_name" class="block text-sm font-medium text-gray-700">Initiated Name *</label>
                     <input type="text" name="initiated_name" id="initiated_name" value="{{ old('initiated_name') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                     @error('initiated_name')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
                 <div class="mb-4">
-                    <label for="spiritual_master" class="block text-sm font-medium text-gray-700">Spiritual Master Name</label>
+                    <label for="spiritual_master" class="block text-sm font-medium text-gray-700">Spiritual Master Name *</label>
                     <input type="text" name="spiritual_master" id="spiritual_master" value="{{ old('spiritual_master') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                     @error('spiritual_master')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -103,6 +104,7 @@
             <div class="mb-4">
                 <label for="bhakti_sadan_id" class="block text-sm font-medium text-gray-700">Connected to which Bhakti Sadan *</label>
                 <select name="bhakti_sadan_id" id="bhakti_sadan_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                    <option value="">Select</option>
                     @foreach($bhaktiSadans as $sadan)
                         <option value="{{ $sadan->id }}" {{ old('bhakti_sadan_id') == $sadan->id ? 'selected' : '' }}>{{ $sadan->name }}</option>
                     @endforeach

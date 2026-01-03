@@ -15,6 +15,7 @@ Route::prefix('register')->name('register.')->group(function () {
     Route::post('step-4', [RegisterController::class, 'storeStep4'])->name('step4.store');
     Route::get('step-5', [RegisterController::class, 'showStep5'])->name('step5.show');
     Route::post('step-5', [RegisterController::class, 'storeStep5'])->name('step5.store');
+    Route::get('autocomplete/spiritual-master', [RegisterController::class, 'autocompleteSpiritualMaster'])->name('autocomplete.spiritualMaster');
 });
 
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');

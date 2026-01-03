@@ -23,6 +23,18 @@
             @csrf
 
             <div class="mb-4">
+                <label for="rounds" class="block text-sm font-medium text-gray-700">How many rounds you are doing? *</label>
+                <select name="rounds" id="rounds" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                    @for ($i = 0; $i <= 16; $i++)
+                        <option value="{{ $i }}" {{ old('rounds') == $i ? 'selected' : '' }}>{{ $i }}</option>
+                    @endfor
+                </select>
+                @error('rounds')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700">Are you Initiated? *</label>
                 <div class="mt-2">
                     <label class="inline-flex items-center">
@@ -30,7 +42,7 @@
                         <span class="ml-2">Yes</span>
                     </label>
                     <label class="inline-flex items-center ml-6">
-                        <input type="radio" name="initiated" value="0" class="form-radio" onchange="toggleInitiation(false)" {{ old('initiated') == '0' ? 'checked' : '' }}>
+                        <input type="radio" name="initiated" value="0" class="form-radio" onchange="toggleInitiation(false)" {{ old('initiated', '0') == '0' ? 'checked' : '' }}>
                         <span class="ml-2">No</span>
                     </label>
                 </div>
@@ -39,40 +51,36 @@
                 @enderror
             </div>
 
-            <div class="mb-4 @if(old('initiated') != '1') hidden @endif" id="spiritual_master_div">
-                <label for="spiritual_master_name" class="block text-sm font-medium text-gray-700">Spiritual Master Name</label>
-                <input type="text" name="spiritual_master_name" id="spiritual_master_name" value="{{ old('spiritual_master_name') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                @error('spiritual_master_name')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                @enderror
+            <div class="mb-4 @if(old('initiated') != '1') hidden @endif" id="initiated_fields_div">
+                <div class="mb-4">
+                    <label for="initiated_name" class="block text-sm font-medium text-gray-700">Initiated Name</label>
+                    <input type="text" name="initiated_name" id="initiated_name" value="{{ old('initiated_name') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    @error('initiated_name')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div class="mb-4">
+                    <label for="spiritual_master" class="block text-sm font-medium text-gray-700">Spiritual Master Name</label>
+                    <input type="text" name="spiritual_master" id="spiritual_master" value="{{ old('spiritual_master') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    @error('spiritual_master')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
-            <div class="mb-4 @if(old('initiated') != '0') hidden @endif" id="not_initiated_div">
-                <div class="mb-4">
-                    <label for="rounds" class="block text-sm font-medium text-gray-700">How many rounds you are doing? *</label>
-                    <select name="rounds" id="rounds" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                        @for ($i = 0; $i <= 16; $i++)
-                            <option value="{{ $i }}" {{ old('rounds') == $i ? 'selected' : '' }}>{{ $i }}</option>
-                        @endfor
-                    </select>
-                    @error('rounds')
-                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                    @enderror
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Shiksha level</label>
+                <div class="mt-2 grid grid-cols-3 gap-2">
+                    @foreach($shikshaLevels as $level)
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="shiksha_levels[]" value="{{ $level->id }}" class="form-checkbox" {{ is_array(old('shiksha_levels')) && in_array($level->id, old('shiksha_levels')) ? 'checked' : '' }}>
+                            <span class="ml-2">{{ $level->name }}</span>
+                        </label>
+                    @endforeach
                 </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700">Shiksha level</label>
-                    <div class="mt-2 grid grid-cols-3 gap-2">
-                        @foreach($shikshaLevels as $level)
-                            <label class="inline-flex items-center">
-                                <input type="checkbox" name="shiksha_levels[]" value="{{ $level->id }}" class="form-checkbox" {{ is_array(old('shiksha_levels')) && in_array($level->id, old('shiksha_levels')) ? 'checked' : '' }}>
-                                <span class="ml-2">{{ $level->name }}</span>
-                            </label>
-                        @endforeach
-                    </div>
-                    @error('shiksha_levels')
-                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+                @error('shiksha_levels')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <div class="mb-4">
@@ -83,7 +91,7 @@
                         <span class="ml-2">Yes</span>
                     </label>
                     <label class="inline-flex items-center ml-6">
-                        <input type="radio" name="second_initiation" value="0" class="form-radio" {{ old('second_initiation') == '0' ? 'checked' : '' }}>
+                        <input type="radio" name="second_initiation" value="0" class="form-radio" {{ old('second_initiation', '0') == '0' ? 'checked' : '' }}>
                         <span class="ml-2">No</span>
                     </label>
                 </div>
@@ -112,7 +120,7 @@
                         <span class="ml-2">Yes</span>
                     </label>
                     <label class="inline-flex items-center ml-6">
-                        <input type="radio" name="life_membership" value="0" class="form-radio" onchange="toggleLifeMembership(false)" {{ old('life_membership') == '0' ? 'checked' : '' }}>
+                        <input type="radio" name="life_membership" value="0" class="form-radio" onchange="toggleLifeMembership(false)" {{ old('life_membership', '0') == '0' ? 'checked' : '' }}>
                         <span class="ml-2">No</span>
                     </label>
                 </div>
@@ -162,16 +170,16 @@
         </form>
     </div>
 </div>
+@endsection
+
+@push('scripts')
 <script>
     function toggleInitiation(show) {
-        const spiritualMasterDiv = document.getElementById('spiritual_master_div');
-        const notInitiatedDiv = document.getElementById('not_initiated_div');
+        const initiatedFieldsDiv = document.getElementById('initiated_fields_div');
         if (show) {
-            spiritualMasterDiv.classList.remove('hidden');
-            notInitiatedDiv.classList.add('hidden');
+            initiatedFieldsDiv.classList.remove('hidden');
         } else {
-            spiritualMasterDiv.classList.add('hidden');
-            notInitiatedDiv.classList.remove('hidden');
+            initiatedFieldsDiv.classList.add('hidden');
         }
     }
 
@@ -183,5 +191,23 @@
             lifeMembershipDiv.classList.add('hidden');
         }
     }
+
+    $(document).ready(function() {
+        $( "#spiritual_master" ).autocomplete({
+            source: function( request, response ) {
+                $.ajax({
+                    url: "{{ route('register.autocomplete.spiritualMaster') }}",
+                    dataType: "json",
+                    data: {
+                        term: request.term
+                    },
+                    success: function( data ) {
+                        response( data );
+                    }
+                });
+            },
+            minLength: 2
+        });
+    });
 </script>
-@endsection
+@endpush

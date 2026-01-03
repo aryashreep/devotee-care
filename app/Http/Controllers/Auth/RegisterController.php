@@ -66,7 +66,7 @@ class RegisterController extends Controller
             'mobile_number' => 'required|string|digits:10|unique:users',
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:255',
-            'state' => 'required|string|max:255',
+            'state' => 'required|exists:states,id',
             'pincode' => 'required|string|max:255',
             'country' => 'nullable|string|max:255',
         ]);
@@ -127,8 +127,9 @@ class RegisterController extends Controller
         }
         $validatedData = $request->validate([
             'initiated' => 'required|boolean',
-            'spiritual_master_name' => 'required_if:initiated,1|nullable|string|max:255',
-            'rounds' => 'required_if:initiated,0|nullable|integer|min:0|max:16',
+            'initiated_name' => 'required_if:initiated,1|nullable|string|max:255',
+            'spiritual_master' => 'required_if:initiated,1|nullable|string|max:255',
+            'rounds' => 'required|integer|min:0|max:16',
             'shiksha_levels' => 'nullable|array',
             'shiksha_levels.*' => 'exists:shiksha_levels,id',
             'second_initiation' => 'required|boolean',
@@ -188,5 +189,12 @@ class RegisterController extends Controller
         $request->session()->flush();
 
         return redirect()->route('login')->with('success', 'Hare Krishna! It is a great pleasure to hear that the account creation was successful. I wish you all the best as you begin your service. Please proceed by logging in with your registered details. 🙏');
+    }
+
+    public function autocompleteSpiritualMaster(Request $request)
+    {
+        $search = $request->get('term');
+        $data = User::where('spiritual_master', 'LIKE', '%'. $search . '%')->distinct()->pluck('spiritual_master');
+        return response()->json($data);
     }
 }

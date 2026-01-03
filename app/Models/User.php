@@ -29,6 +29,7 @@ class User extends Authenticatable
         'country',
         'initiation_date',
         'spiritual_master',
+        'initiated_name',
         'bhakti_sadan_id',
         'enabled',
         'photo',

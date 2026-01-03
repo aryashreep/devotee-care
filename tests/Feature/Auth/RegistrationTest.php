@@ -68,7 +68,7 @@ class RegistrationTest extends TestCase
 
         $response = $this->withSession(session()->all())->post(route('register.step4.store'), [
             'initiated' => false,
-            'rounds' => 16,
+            'rounds' => 108,
             'shiksha_levels' => [$shikshaLevel->id],
             'second_initiation' => false,
             'bhakti_sadan_id' => $bhaktiSadan->id,
@@ -119,41 +119,41 @@ class RegistrationTest extends TestCase
         session()->put($sessionData);
         session()->put('url.previous', route('register.step3.show'));
         $response = $this->post(route('register.step4.store'), [
-                'initiated' => '1',
-                'rounds' => 16,
-                'shiksha_levels' => [],
-                'second_initiation' => '0',
-                'bhakti_sadan_id' => $bhaktiSadan->id,
-                'life_membership' => '0',
-                'services' => [$seva->id],
-            ]);
+            'initiated' => '1',
+            'rounds' => 108,
+            'shiksha_levels' => [],
+            'second_initiation' => '0',
+            'bhakti_sadan_id' => $bhaktiSadan->id,
+            'life_membership' => '0',
+            'services' => [$seva->id],
+        ]);
         $response->assertSessionHasErrors(['initiated_name', 'spiritual_master']);
 
         // Test missing rounds
         session()->put($sessionData);
         session()->put('url.previous', route('register.step3.show'));
         $response = $this->post(route('register.step4.store'), [
-                'initiated' => '0',
-                'shiksha_levels' => [],
-                'second_initiation' => '0',
-                'bhakti_sadan_id' => $bhaktiSadan->id,
-                'life_membership' => '0',
-                'services' => [$seva->id],
-            ]);
+            'initiated' => '0',
+            'shiksha_levels' => [],
+            'second_initiation' => '0',
+            'bhakti_sadan_id' => $bhaktiSadan->id,
+            'life_membership' => '0',
+            'services' => [$seva->id],
+        ]);
         $response->assertSessionHasErrors('rounds');
 
         // Test missing life_member_no and temple when life_membership is true
         session()->put($sessionData);
         session()->put('url.previous', route('register.step3.show'));
         $response = $this->post(route('register.step4.store'), [
-                'initiated' => '0',
-                'rounds' => 16,
-                'shiksha_levels' => [],
-                'second_initiation' => '0',
-                'bhakti_sadan_id' => $bhaktiSadan->id,
-                'life_membership' => '1',
-                'services' => [$seva->id],
-            ]);
+            'initiated' => '0',
+            'rounds' => 108,
+            'shiksha_levels' => [],
+            'second_initiation' => '0',
+            'bhakti_sadan_id' => $bhaktiSadan->id,
+            'life_membership' => '1',
+            'services' => [$seva->id],
+        ]);
         $response->assertSessionHasErrors(['life_member_no', 'temple']);
     }
 }

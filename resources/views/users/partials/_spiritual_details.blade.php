@@ -50,16 +50,16 @@
     <div>
         <label for="rounds" class="block text-sm font-medium text-gray-700">Rounds</label>
         <select name="rounds" id="rounds" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-            @for ($i = 0; $i <= 16; $i++)
+            @for ($i = 0; $i <= 108; $i++)
                 <option value="{{ $i }}" {{ old('rounds', $user->rounds) == $i ? 'selected' : '' }}>{{ $i }}</option>
-            @endfor
+                @endfor
         </select>
     </div>
     <div>
         <label for="bhakti_sadan_id" class="block text-sm font-medium text-gray-700">Bhakti Sadan</label>
         <select name="bhakti_sadan_id" id="bhakti_sadan_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
             @foreach($bhaktiSadans as $sadan)
-                <option value="{{ $sadan->id }}" {{ old('bhakti_sadan_id', $user->bhakti_sadan_id) == $sadan->id ? 'selected' : '' }}>{{ $sadan->name }}</option>
+            <option value="{{ $sadan->id }}" {{ old('bhakti_sadan_id', $user->bhakti_sadan_id) == $sadan->id ? 'selected' : '' }}>{{ $sadan->name }}</option>
             @endforeach
         </select>
     </div>
@@ -84,10 +84,10 @@
         <label class="block text-sm font-medium text-gray-700">Shiksha Levels</label>
         <div class="mt-2 grid grid-cols-3 gap-2">
             @foreach($shikshaLevels as $level)
-                <label class="inline-flex items-center">
-                    <input type="checkbox" name="shiksha_levels[]" value="{{ $level->id }}" class="form-checkbox" {{ in_array($level->id, old('shiksha_levels', $user->shikshaLevels->pluck('id')->toArray())) ? 'checked' : '' }}>
-                    <span class="ml-2">{{ $level->name }}</span>
-                </label>
+            <label class="inline-flex items-center">
+                <input type="checkbox" name="shiksha_levels[]" value="{{ $level->id }}" class="form-checkbox" {{ in_array($level->id, old('shiksha_levels', $user->shikshaLevels->pluck('id')->toArray())) ? 'checked' : '' }}>
+                <span class="ml-2">{{ $level->name }}</span>
+            </label>
             @endforeach
         </div>
     </div>
@@ -129,10 +129,10 @@
         <label class="block text-sm font-medium text-gray-700">Services</label>
         <div class="mt-2 grid grid-cols-3 gap-2">
             @foreach($sevas as $service)
-                <label class="inline-flex items-center">
-                    <input type="checkbox" name="services[]" value="{{ $service->id }}" class="form-checkbox" {{ in_array($service->id, old('services', $user->sevas->pluck('id')->toArray())) ? 'checked' : '' }}>
-                    <span class="ml-2">{{ $service->name }}</span>
-                </label>
+            <label class="inline-flex items-center">
+                <input type="checkbox" name="services[]" value="{{ $service->id }}" class="form-checkbox" {{ in_array($service->id, old('services', $user->sevas->pluck('id')->toArray())) ? 'checked' : '' }}>
+                <span class="ml-2">{{ $service->name }}</span>
+            </label>
             @endforeach
         </div>
     </div>

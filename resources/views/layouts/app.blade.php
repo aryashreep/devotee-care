@@ -46,15 +46,15 @@
         <!-- Sidebar -->
         <div id="sidebar" class="bg-gray-800 text-white w-64 min-h-screen fixed md:relative -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
             <nav class="mt-4">
-                <h2 class="px-6 text-gray-500 uppercase tracking-wide font-bold text-xs">Content</h2>
                 @auth
-                    @if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Management'))
+                    @if (!auth()->user()->hasRole('Devotee') && (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Management')))
+                        <h2 class="px-6 text-gray-500 uppercase tracking-wide font-bold text-xs">Content</h2>
                         <a href="{{ route('users.index') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('users.*') ? 'bg-blue-600 text-white' : '' }}">
                             <i class="fas fa-users mr-3"></i>
                             <span class="mx-3">Users</span>
                         </a>
                     @endif
-                    @if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Management') || auth()->user()->hasRole('Finance') || auth()->user()->hasRole('Bhakti Sadan Leader'))
+                    @if (!auth()->user()->hasRole('Devotee') && (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Management') || auth()->user()->hasRole('Finance') || auth()->user()->hasRole('Bhakti Sadan Leader')))
                         <div class="mt-4">
                             <h2 class="px-6 text-gray-500 uppercase tracking-wide font-bold text-xs">Masters</h2>
                             <div class="mt-2 space-y-1">

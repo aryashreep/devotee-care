@@ -25,6 +25,7 @@
             <div class="mb-4">
                 <label for="education_id" class="block text-sm font-medium text-gray-700">Education *</label>
                 <select name="education_id" id="education_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                    <option value="" selected>Select</option>
                     @foreach($educations as $education)
                         <option value="{{ $education->id }}" {{ old('education_id') == $education->id ? 'selected' : '' }}>{{ $education->name }}</option>
                     @endforeach
@@ -37,6 +38,7 @@
             <div class="mb-4">
                 <label for="profession_id" class="block text-sm font-medium text-gray-700">Profession *</label>
                 <select name="profession_id" id="profession_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                    <option value="" selected>Select</option>
                     @foreach($professions as $profession)
                         <option value="{{ $profession->id }}" {{ old('profession_id') == $profession->id ? 'selected' : '' }}>{{ $profession->name }}</option>
                     @endforeach
@@ -49,6 +51,7 @@
             <div class="mb-4">
                 <label for="blood_group_id" class="block text-sm font-medium text-gray-700">Blood Group *</label>
                 <select name="blood_group_id" id="blood_group_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                    <option value="" selected>Select</option>
                     @foreach($bloodGroups as $bloodGroup)
                         <option value="{{ $bloodGroup->id }}" {{ old('blood_group_id') == $bloodGroup->id ? 'selected' : '' }}>{{ $bloodGroup->name }}</option>
                     @endforeach

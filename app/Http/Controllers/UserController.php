@@ -31,8 +31,8 @@ class UserController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('mobile_number', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('mobile_number', 'like', "%{$search}%");
             });
         }
 
@@ -114,7 +114,7 @@ class UserController extends Controller
             'languages' => 'required|array',
             'initiated' => 'required|boolean',
             'spiritual_master' => 'required_if:initiated,1|nullable|string|max:255',
-            'rounds' => 'required_if:initiated,0|nullable|integer|min:0|max:16',
+            'rounds' => 'required_if:initiated,0|nullable|integer|min:0|max:108',
             'shiksha_levels' => 'nullable|array',
             'second_initiation' => 'required|boolean',
             'bhakti_sadan_id' => 'required|exists:bhakti_sadans,id',
@@ -184,7 +184,7 @@ class UserController extends Controller
             'languages' => 'required|array',
             'initiated' => 'required|boolean',
             'spiritual_master_name' => 'required_if:initiated,1|nullable|string|max:255',
-            'rounds' => 'required_if:initiated,0|nullable|integer|min:0|max:16',
+            'rounds' => 'required_if:initiated,0|nullable|integer|min:0|max:108',
             'shiksha_levels' => 'nullable|array',
             'second_initiation' => 'required|boolean',
             'bhakti_sadan_id' => 'required|exists:bhakti_sadans,id',

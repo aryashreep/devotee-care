@@ -129,7 +129,7 @@ class RegisterController extends Controller
             'initiated' => 'required|boolean',
             'initiated_name' => 'required_if:initiated,1|nullable|string|max:255',
             'spiritual_master' => 'required_if:initiated,1|nullable|string|max:255',
-            'rounds' => 'required|integer|min:0|max:16',
+            'rounds' => 'required|integer|min:0|max:108',
             'shiksha_levels' => 'nullable|array',
             'shiksha_levels.*' => 'exists:shiksha_levels,id',
             'second_initiation' => 'required|boolean',
@@ -194,7 +194,7 @@ class RegisterController extends Controller
     public function autocompleteSpiritualMaster(Request $request)
     {
         $search = $request->get('term');
-        $data = User::where('spiritual_master', 'LIKE', '%'. $search . '%')->distinct()->pluck('spiritual_master');
+        $data = User::where('spiritual_master', 'LIKE', '%' . $search . '%')->distinct()->pluck('spiritual_master');
         return response()->json($data);
     }
 }

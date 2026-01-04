@@ -41,6 +41,9 @@
             <a href="#" class="tab-link border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" data-tab="spiritual-details">
                 Spiritual Details
             </a>
+            <a href="#" class="tab-link border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" data-tab="dependants">
+                Dependants
+            </a>
         </nav>
     </div>
 
@@ -56,6 +59,9 @@
         </div>
         <div id="spiritual-details-view-content" class="tab-content hidden">
             @include('users.partials._spiritual_details', ['user' => $user, 'view' => 'view', 'shikshaLevels' => $shikshaLevels, 'sevas' => $sevas])
+        </div>
+        <div id="dependants-view-content" class="tab-content hidden">
+            @include('users.partials._dependants', ['user' => $user, 'view' => 'view'])
         </div>
     </div>
 
@@ -79,6 +85,9 @@
             </div>
             <div id="spiritual-details-edit-content" class="tab-content hidden">
                 @include('users.partials._spiritual_details', ['user' => $user, 'view' => 'edit', 'bhaktiSadans' => $bhaktiSadans, 'shikshaLevels' => $shikshaLevels, 'sevas' => $sevas])
+            </div>
+            <div id="dependants-edit-content" class="tab-content hidden">
+                @include('users.partials._dependants', ['user' => $user, 'view' => 'edit'])
             </div>
         </form>
     </div>

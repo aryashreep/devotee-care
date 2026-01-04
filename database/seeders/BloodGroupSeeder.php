@@ -18,7 +18,7 @@ class BloodGroupSeeder extends Seeder
         ];
 
         foreach ($bloodGroups as $bloodGroup) {
-            BloodGroup::create(['name' => $bloodGroup]);
+            BloodGroup::firstOrCreate(['name' => $bloodGroup]);
         }
     }
 }

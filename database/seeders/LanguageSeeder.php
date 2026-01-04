@@ -14,16 +14,14 @@ class LanguageSeeder extends Seeder
     public function run(): void
     {
         $languages = [
-            'English',
-            'Hindi',
-            'Kannada',
-            'Telugu',
-            'Tamil',
-            'Malayalam',
+            'Assamese', 'Bengali', 'Bodo', 'Dogri', 'Gujarati', 'Hindi',
+            'Kannada', 'Kashmiri', 'Konkani', 'Maithili', 'Malayalam', 'Marathi',
+            'Nepali', 'Odia', 'Punjabi', 'Sanskrit', 'Santali', 'Sindhi',
+            'Tamil', 'Telugu', 'Urdu', 'English'
         ];
 
         foreach ($languages as $language) {
-            Language::create(['name' => $language]);
+            Language::firstOrCreate(['name' => $language]);
         }
     }
 }

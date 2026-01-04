@@ -119,6 +119,9 @@ class User extends Authenticatable
             'enabled' => 'boolean',
             'date_of_birth' => 'date',
             'marriage_anniversary_date' => 'date',
+            'initiated' => 'boolean',
+            'second_initiation' => 'boolean',
+            'life_membership' => 'boolean',
         ];
     }
 }

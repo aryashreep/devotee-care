@@ -113,6 +113,7 @@ class UserController extends Controller
             'blood_group_id' => 'required|exists:blood_groups,id',
             'languages' => 'required|array',
             'initiated' => 'required|boolean',
+            'initiated_name' => 'required_if:initiated,1|nullable|string|max:255',
             'spiritual_master' => 'required_if:initiated,1|nullable|string|max:255',
             'rounds' => 'required_if:initiated,0|nullable|integer|min:0|max:108',
             'shiksha_levels' => 'nullable|array',
@@ -183,7 +184,8 @@ class UserController extends Controller
             'blood_group_id' => 'required|exists:blood_groups,id',
             'languages' => 'required|array',
             'initiated' => 'required|boolean',
-            'spiritual_master_name' => 'required_if:initiated,1|nullable|string|max:255',
+            'initiated_name' => 'required_if:initiated,1|nullable|string|max:255',
+            'spiritual_master' => 'required_if:initiated,1|nullable|string|max:255',
             'rounds' => 'required_if:initiated,0|nullable|integer|min:0|max:108',
             'shiksha_levels' => 'nullable|array',
             'second_initiation' => 'required|boolean',
@@ -192,12 +194,37 @@ class UserController extends Controller
             'life_member_no' => 'required_if:life_membership,1|nullable|string|max:255',
             'temple' => 'required_if:life_membership,1|nullable|string|max:255',
             'services' => 'required|array',
+            'dependants' => 'nullable|array',
+            'dependants.*.id' => 'nullable|exists:dependants,id',
+            'dependants.*.name' => 'required|string|max:255',
+            'dependants.*.age' => 'required|integer|min:0',
+            'dependants.*.gender' => 'required|in:Male,Female',
+            'dependants.*.dob' => 'required|date',
         ]);
 
         $user->update($validatedData);
         $user->languages()->sync($request->languages);
         $user->shikshaLevels()->sync($request->shiksha_levels);
         $user->sevas()->sync($request->services);
+
+        if ($request->has('dependants')) {
+            $dependantIds = [];
+            foreach ($request->dependants as $dependantData) {
+                if (isset($dependantData['id'])) {
+                    $dependant = \App\Models\Dependant::find($dependantData['id']);
+                    if ($dependant && $dependant->user_id === $user->id) {
+                        $dependant->update($dependantData);
+                        $dependantIds[] = $dependant->id;
+                    }
+                } else {
+                    $dependant = $user->dependants()->create($dependantData);
+                    $dependantIds[] = $dependant->id;
+                }
+            }
+            $user->dependants()->whereNotIn('id', $dependantIds)->delete();
+        } else {
+            $user->dependants()->delete();
+        }
 
         return redirect()->route('my-profile.show')->with('success', 'Profile updated successfully.');
     }

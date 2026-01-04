@@ -14,8 +14,12 @@
     </div>
     @if($user->initiated)
     <div>
+        <p class="text-gray-700 font-bold">Initiated Name:</p>
+        <p>{{ $user->initiated_name ?? 'N/A' }}</p>
+    </div>
+    <div>
         <p class="text-gray-700 font-bold">Spiritual Master Name:</p>
-        <p>{{ $user->spiritual_master_name ?? 'N/A' }}</p>
+        <p>{{ $user->spiritual_master ?? 'N/A' }}</p>
     </div>
     @endif
     <div>
@@ -77,8 +81,12 @@
         </div>
     </div>
     <div>
-        <label for="spiritual_master_name" class="block text-sm font-medium text-gray-700">Spiritual Master Name</label>
-        <input type="text" name="spiritual_master_name" id="spiritual_master_name" value="{{ old('spiritual_master_name', $user->spiritual_master_name) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+        <label for="initiated_name" class="block text-sm font-medium text-gray-700">Initiated Name</label>
+        <input type="text" name="initiated_name" id="initiated_name" value="{{ old('initiated_name', $user->initiated_name) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+    </div>
+    <div>
+        <label for="spiritual_master" class="block text-sm font-medium text-gray-700">Spiritual Master Name</label>
+        <input type="text" name="spiritual_master" id="spiritual_master" value="{{ old('spiritual_master', $user->spiritual_master) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
     </div>
     <div>
         <label class="block text-sm font-medium text-gray-700">Shiksha Levels</label>

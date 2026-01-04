@@ -12,7 +12,13 @@ echo "--- Starting Development Environment Setup ---"
 # 1. Install System Dependencies (PHP and extensions)
 echo "--- Installing PHP and required extensions... ---"
 sudo apt-get update -y || error_exit "Failed to update package lists."
-sudo apt-get install -y php-cli php8.3-dom php8.3-xml php8.3-sqlite3 php8.3-mbstring php8.3-gd || error_exit "Failed to install PHP or extensions."
+sudo apt-get install -y php-cli php8.3-dom php8.3-xml php8.3-sqlite3 php8.3-mbstring php8.3-gd php-pear php-dev || error_exit "Failed to install PHP or extensions."
+
+# Install and enable PCOV for code coverage
+sudo pecl install pcov || true
+echo "extension=pcov.so" | sudo tee /etc/php/8.3/mods-available/pcov.ini > /dev/null
+sudo ln -sfn /etc/php/8.3/mods-available/pcov.ini /etc/php/8.3/cli/conf.d/20-pcov.ini
+
 echo "--- PHP and extensions installed successfully. ---"
 
 # 2. Install Composer

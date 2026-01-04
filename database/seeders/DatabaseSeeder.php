@@ -15,8 +15,13 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(RoleSeeder::class);
         $this->call(AdminUserSeeder::class);
-$this->call(LanguageSeeder::class);
-$this->call(BloodGroupSeeder::class);
+        $this->call(LanguageSeeder::class);
+        $this->call(BloodGroupSeeder::class);
         $this->call(LocationSeeder::class);
+        $this->call(BhaktiSadanSeeder::class);
+        $this->call(EducationSeeder::class);
+        $this->call(ProfessionSeeder::class);
+        $this->call(SevaSeeder::class);
+        $this->call(ShikshaLevelSeeder::class);
     }
 }

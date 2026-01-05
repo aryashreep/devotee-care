@@ -1,86 +1,78 @@
 #!/bin/bash
+
+# Exit immediately if a command exits with a non-zero status.
 set -e
 
-# Exit with an error message if a command fails
-function error_exit {
-    echo "Error: $1" >&2
-    exit 1
-}
+# --- Install System Dependencies ---
+echo "--- Installing system dependencies... ---"
+apt-get update
+apt-get install -yq --no-install-recommends \
+  php-cli \
+  php-dom \
+  php-xml \
+  php-sqlite3 \
+  php-mbstring \
+  php-gd \
+  unzip \
+  nodejs \
+  npm \
+  sqlite3
 
-echo "--- Starting Development Environment Setup ---"
-
-# 1. Install System Dependencies (PHP and extensions)
-echo "--- Installing PHP and required extensions... ---"
-sudo apt-get update -y || error_exit "Failed to update package lists."
-sudo apt-get install -y php-cli php8.3-dom php8.3-xml php8.3-sqlite3 php8.3-mbstring php8.3-gd php-pear php-dev || error_exit "Failed to install PHP or extensions."
-
-# Install and enable PCOV for code coverage
-sudo pecl install pcov || true
-echo "extension=pcov.so" | sudo tee /etc/php/8.3/mods-available/pcov.ini > /dev/null
-sudo ln -sfn /etc/php/8.3/mods-available/pcov.ini /etc/php/8.3/cli/conf.d/20-pcov.ini
-
-echo "--- PHP and extensions installed successfully. ---"
-
-# 2. Install Composer
+# --- Install Composer ---
 echo "--- Installing Composer... ---"
-if [ ! -f composer.phar ]; then
-    php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" || error_exit "Failed to download Composer installer."
-    php composer-setup.php --filename=composer.phar || error_exit "Composer installation failed."
+if [ ! -f "composer.phar" ]; then
+    php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+    php composer-setup.php
     php -r "unlink('composer-setup.php');"
-    echo "--- Composer installed locally as composer.phar. ---"
 else
-    echo "--- composer.phar already exists. ---"
+    echo "Composer already installed."
 fi
 
-# 3. Install Composer Dependencies
-echo "--- Installing project dependencies with Composer... ---"
-php composer.phar install || error_exit "Composer install failed."
-echo "--- Project dependencies installed successfully. ---"
+# --- Install PHP Dependencies ---
+echo "--- Installing PHP dependencies... ---"
+php composer.phar install
 
-# 4. Install Node.js Dependencies
-echo "--- Installing Node.js dependencies... ---"
-npm install || error_exit "NPM install failed."
-echo "--- Node.js dependencies installed successfully. ---"
+# --- Install NPM Dependencies ---
+echo "--- Installing NPM dependencies... ---"
+npm install
 
-# 5. Install Playwright
-echo "--- Installing Playwright and its browser dependencies... ---"
-pip install playwright || error_exit "Failed to install Playwright."
-playwright install --with-deps || error_exit "Failed to install Playwright browsers and dependencies."
+# --- Install Playwright and its dependencies ---
+echo "--- Installing Playwright... ---"
+npm i -D @playwright/test
+npx playwright install --with-deps
 echo "--- Playwright setup complete. ---"
 
-# 6. Set up .env file
+# --- Configure environment file (.env) ---
 echo "--- Configuring environment file (.env)... ---"
-if [ ! -f .env ]; then
-    cp .env.example .env || error_exit "Failed to copy .env.example."
+if [ ! -f ".env" ]; then
+    cp .env.example .env
     echo "--- .env file created. ---"
 else
     echo "--- .env file already exists. ---"
 fi
 
-# Ensure DB_DATABASE is set for SQLite
-if ! grep -q "DB_DATABASE=" .env; then
-    echo "" >> .env
-    echo "DB_DATABASE=database/database.sqlite" >> .env
-    echo "--- Added DB_DATABASE to .env file. ---"
+# --- Generate Application Key ---
+echo "--- Generating application key... ---"
+php artisan key:generate
+
+# --- Create Database File ---
+echo "--- Creating database file... ---"
+if [ ! -f "database/database.sqlite" ]; then
+    touch database/database.sqlite
+    echo "--- Database file created. ---"
+else
+    echo "--- Database file already exists. ---"
 fi
 
-# 7. Generate Application Key
-echo "--- Generating application key... ---"
-php artisan key:generate || error_exit "Failed to generate application key."
+# --- Install Spatie Permissions and Run Migrations ---
+echo "--- Setting up Spatie Permissions and database... ---"
+php composer.phar require spatie/laravel-permission
+php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider" --tag="permission-migrations"
+php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider" --tag="permission-config"
+php artisan migrate:fresh --seed
 
-# 8. Create SQLite Database File
-echo "--- Creating database file... ---"
-touch database/database.sqlite || error_exit "Failed to create database file."
-echo "--- Database file created. ---"
-
-# 9. Run Migrations and Seeders
-echo "--- Running database migrations and seeders... ---"
-php artisan migrate:fresh --seed || error_exit "Failed to run migrations and seeders."
-echo "--- Database is set up and seeded. ---"
-
-# 10. Clear Caches
+# --- Clear Application Caches ---
 echo "--- Clearing application caches... ---"
-php artisan optimize:clear || error_exit "Failed to clear caches."
-echo "--- Caches cleared. ---"
+php artisan optimize:clear
 
 echo "--- Development Environment Setup Complete! ---"

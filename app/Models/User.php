@@ -6,11 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -68,11 +69,6 @@ class User extends Authenticatable
         return $this->belongsTo(BhaktiSadan::class);
     }
 
-    public function roles()
-    {
-        return $this->belongsToMany(Role::class, 'user_roles');
-    }
-
     public function languages()
     {
         return $this->belongsToMany(Language::class, 'user_languages');
@@ -91,11 +87,6 @@ class User extends Authenticatable
     public function shikshaLevels()
     {
         return $this->belongsToMany(ShikshaLevel::class, 'user_shiksha_level');
-    }
-
-    public function hasRole($role)
-    {
-        return $this->roles->contains('name', $role);
     }
 
     /**

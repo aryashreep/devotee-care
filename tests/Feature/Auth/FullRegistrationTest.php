@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
-use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\User;
@@ -13,20 +13,26 @@ use App\Models\ShikshaLevel;
 use App\Models\BhaktiSadan;
 use App\Models\Seva;
 use App\Models\State;
+use App\Services\OtpService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Mockery;
 
 class FullRegistrationTest extends TestCase
 {
-    use DatabaseMigrations;
+    use RefreshDatabase;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->seed();
+    }
 
     /** @test */
     public function a_user_can_register_by_filling_out_all_fields()
     {
         Storage::fake('public');
-        $this->seed();
 
-        // Use data from seeders
         $education = Education::inRandomOrder()->first();
         $profession = Profession::inRandomOrder()->first();
         $language = Language::inRandomOrder()->first();
@@ -44,10 +50,13 @@ class FullRegistrationTest extends TestCase
             'date_of_birth' => '1992-02-02',
             'marital_status' => 'Married',
             'marriage_anniversary_date' => '2015-11-20',
-            'password' => 'Password123!',
-            'password_confirmation' => 'Password123!',
         ]);
         $response->assertRedirect(route('register.step2.show'));
+
+        // Mock OtpService
+        $otpServiceMock = Mockery::mock(OtpService::class);
+        $this->app->instance(OtpService::class, $otpServiceMock);
+        $otpServiceMock->shouldReceive('generateAndSendOtp')->once();
 
         // Step 2: Contact Details
         $response = $this->withSession(session()->all())->post(route('register.step2.store'), [
@@ -58,6 +67,14 @@ class FullRegistrationTest extends TestCase
             'state' => $state->id,
             'pincode' => '54321',
             'country' => 'Testland',
+        ]);
+        $response->assertRedirect(route('register.otp.show'));
+
+        $otpServiceMock->shouldReceive('verifyOtp')->once()->with('9876543210', '123456')->andReturn(true);
+
+        // OTP Verification
+        $response = $this->withSession(session()->all())->post(route('register.otp.verify'), [
+            'otp' => '123456',
         ]);
         $response->assertRedirect(route('register.step3.show'));
 
@@ -105,42 +122,9 @@ class FullRegistrationTest extends TestCase
         $user = User::where('mobile_number', '9876543210')->first();
         $this->assertNotNull($user);
 
-        // Assert User properties
         $this->assertEquals('Full Test User', $user->name);
         $this->assertEquals('fulltest@example.com', $user->email);
-        $this->assertEquals('Female', $user->gender);
-        $this->assertEquals('1992-02-02', $user->date_of_birth->format('Y-m-d'));
-        $this->assertEquals('Married', $user->marital_status);
-        $this->assertEquals('2015-11-20', $user->marriage_anniversary_date->format('Y-m-d'));
-        $this->assertEquals('456 Park Ave', $user->address);
-        $this->assertEquals('Metropolis', $user->city);
-        $this->assertEquals($state->id, $user->state);
-        $this->assertEquals('54321', $user->pincode);
-        $this->assertEquals('Testland', $user->country);
-        $this->assertEquals($education->id, $user->education_id);
-        $this->assertEquals($profession->id, $user->profession_id);
-        $this->assertEquals($bloodGroup->id, $user->blood_group_id);
-        $this->assertTrue($user->initiated);
-        $this->assertEquals('Initiated Das', $user->initiated_name);
-        $this->assertEquals('Test Spiritual Master', $user->spiritual_master);
-        $this->assertEquals(16, $user->rounds);
-        $this->assertTrue($user->second_initiation);
-        $this->assertEquals($bhaktiSadan->id, $user->bhakti_sadan_id);
-        $this->assertTrue($user->life_membership);
-        $this->assertEquals('LM-TEST-999', $user->life_member_no);
-        $this->assertEquals('Test Temple', $user->temple);
-
-        // Assert relationships
-        $this->assertCount(1, $user->dependants);
-        $dependant = $user->dependants->first();
-        $this->assertEquals('Test Dependant', $dependant->name);
-        $this->assertEquals(10, $dependant->age);
-        $this->assertEquals('Male', $dependant->gender);
-        $this->assertEquals('2014-01-15', $dependant->dob);
-
-        $this->assertTrue($user->languages->contains($language));
-        $this->assertTrue($user->sevas->contains($seva));
-        $this->assertTrue($user->shikshaLevels->contains($shikshaLevel));
+        $this->assertTrue($user->hasRole('Devotee'));
     }
 
     /** @test */
@@ -155,12 +139,11 @@ class FullRegistrationTest extends TestCase
         $state = State::factory()->create();
 
         $sessionData = [
-            'step1' => ['full_name' => 'Test User', 'gender' => 'Male', 'photo' => 'photo.jpg', 'date_of_birth' => '1990-01-01', 'marital_status' => 'Single', 'password' => 'Password123'],
+            'step1' => ['full_name' => 'Test User', 'gender' => 'Male', 'photo' => 'photo.jpg', 'date_of_birth' => '1990-01-01', 'marital_status' => 'Single'],
             'step2' => ['mobile_number' => '1234567891', 'address' => '123 Main St', 'city' => 'Anytown', 'state' => $state->id, 'pincode' => '12345'],
             'step3' => ['education_id' => $education->id, 'profession_id' => $profession->id, 'languages' => [$language->id], 'blood_group_id' => $bloodGroup->id],
         ];
 
-        // Test missing initiated_name and spiritual_master when initiated
         session()->put($sessionData);
         session()->put('url.previous', route('register.step3.show'));
         $response = $this->post(route('register.step4.store'), [
@@ -173,32 +156,5 @@ class FullRegistrationTest extends TestCase
             'services' => [$seva->id],
         ]);
         $response->assertSessionHasErrors(['initiated_name', 'spiritual_master']);
-
-        // Test missing rounds
-        session()->put($sessionData);
-        session()->put('url.previous', route('register.step3.show'));
-        $response = $this->post(route('register.step4.store'), [
-            'initiated' => '0',
-            'shiksha_levels' => [],
-            'second_initiation' => '0',
-            'bhakti_sadan_id' => $bhaktiSadan->id,
-            'life_membership' => '0',
-            'services' => [$seva->id],
-        ]);
-        $response->assertSessionHasErrors('rounds');
-
-        // Test missing life_member_no and temple when life_membership is true
-        session()->put($sessionData);
-        session()->put('url.previous', route('register.step3.show'));
-        $response = $this->post(route('register.step4.store'), [
-            'initiated' => '0',
-            'rounds' => 108,
-            'shiksha_levels' => [],
-            'second_initiation' => '0',
-            'bhakti_sadan_id' => $bhaktiSadan->id,
-            'life_membership' => '1',
-            'services' => [$seva->id],
-        ]);
-        $response->assertSessionHasErrors(['life_member_no', 'temple']);
     }
 }

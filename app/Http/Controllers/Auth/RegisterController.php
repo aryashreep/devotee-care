@@ -16,9 +16,18 @@ use App\Models\BloodGroup;
 use App\Models\State;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use App\Services\OtpService;
+use Illuminate\Support\Str;
 
 class RegisterController extends Controller
 {
+    protected $otpService;
+
+    public function __construct(OtpService $otpService)
+    {
+        $this->otpService = $otpService;
+    }
+
     public function showStep1()
     {
         return view('auth.register.step-1');
@@ -33,7 +42,6 @@ class RegisterController extends Controller
             'date_of_birth' => 'required|date',
             'marital_status' => 'required|in:Single,Married,Divorced',
             'marriage_anniversary_date' => 'nullable|date',
-            'password' => 'required|string|min:9|confirmed|regex:/^(?=.*[A-Z])(?=.*[0-9]).*$/',
         ]);
 
         if ($request->hasFile('photo')) {
@@ -62,7 +70,7 @@ class RegisterController extends Controller
         }
 
         $validatedData = $request->validate([
-            'email' => 'nullable|email|max:255|unique:users',
+            'email' => 'required|email|max:255|unique:users',
             'mobile_number' => 'required|string|digits:10|unique:users',
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:255',
@@ -73,7 +81,50 @@ class RegisterController extends Controller
 
         $request->session()->put('step2', $validatedData);
 
-        return redirect()->route('register.step3.show');
+        $user = new User($validatedData);
+        $user->name = $request->session()->get('step1')['full_name'];
+
+        $this->otpService->generateAndSendOtp($user);
+
+        return redirect()->route('register.otp.show');
+    }
+
+    public function showOtpForm(Request $request)
+    {
+        if (!$request->session()->has('step2')) {
+            return redirect()->route('register.step2.show');
+        }
+        return view('auth.register.verify-otp');
+    }
+
+    public function resendOtp(Request $request)
+    {
+        if (!$request->session()->has('step2')) {
+            return redirect()->route('register.step2.show');
+        }
+
+        $step2Data = $request->session()->get('step2');
+        $user = new User($step2Data);
+        $user->name = $request->session()->get('step1')['full_name'];
+
+        $this->otpService->generateAndSendOtp($user);
+
+        return back()->with('success', 'A new OTP has been sent to your mobile number and email.');
+    }
+
+    public function verifyOtpAndProceed(Request $request)
+    {
+        $validatedData = $request->validate([
+            'otp' => 'required|string|digits:6',
+        ]);
+
+        $mobileNumber = $request->session()->get('step2')['mobile_number'];
+
+        if ($this->otpService->verifyOtp($mobileNumber, $validatedData['otp'])) {
+            return redirect()->route('register.step3.show');
+        }
+
+        return back()->with('error', 'The OTP you entered is invalid or has expired.');
     }
 
     public function showStep3(Request $request)
@@ -170,7 +221,8 @@ class RegisterController extends Controller
         $userData['name'] = $userData['full_name'];
         unset($userData['full_name']);
 
-        $userData['password'] = Hash::make($userData['password']);
+        // Set a secure, random password for the user since it's no longer collected
+        $userData['password'] = Hash::make(Str::random(16));
 
         $user = User::create($userData);
 
@@ -185,6 +237,8 @@ class RegisterController extends Controller
         if (!empty($step4['shiksha_levels'])) {
             $user->shikshaLevels()->attach($step4['shiksha_levels']);
         }
+
+        $user->assignRole('Devotee');
 
         $request->session()->flush();
 

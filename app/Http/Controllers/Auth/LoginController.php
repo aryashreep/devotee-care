@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Services\OtpService;
 use App\Models\User;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str;
 
 class LoginController extends Controller
 {
@@ -28,6 +31,8 @@ class LoginController extends Controller
             'mobile_number' => ['required', 'digits:10'],
         ]);
 
+        $this->ensureIsNotRateLimited($request);
+
         $user = User::where('mobile_number', $credentials['mobile_number'])->first();
 
         if (!$user) {
@@ -46,6 +51,8 @@ class LoginController extends Controller
 
         $request->session()->put('mobile_number', $user->mobile_number);
 
+        RateLimiter::hit($this->throttleKey($request));
+
         return redirect()->route('login.otp.show');
     }
 
@@ -56,6 +63,8 @@ class LoginController extends Controller
 
     public function resendOtp(Request $request)
     {
+        $this->ensureIsNotRateLimited($request);
+
         $mobileNumber = $request->session()->get('mobile_number');
 
         if (!$mobileNumber) {
@@ -118,5 +127,26 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    public function ensureIsNotRateLimited(Request $request)
+    {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey($request), 3)) {
+            return;
+        }
+
+        $seconds = RateLimiter::availableIn($this->throttleKey($request));
+
+        throw ValidationException::withMessages([
+            'mobile_number' => trans('auth.throttle', [
+                'seconds' => $seconds,
+                'minutes' => ceil($seconds / 60),
+            ]),
+        ]);
+    }
+
+    public function throttleKey(Request $request)
+    {
+        return Str::transliterate(Str::lower($request->input('mobile_number')).'|'.$request->ip());
     }
 }

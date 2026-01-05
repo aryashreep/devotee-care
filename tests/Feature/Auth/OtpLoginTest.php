@@ -62,4 +62,23 @@ class OtpLoginTest extends TestCase
         $response->assertRedirect();
         $response->assertSessionHas('success', 'A new OTP has been sent to your mobile number and email.');
     }
+
+    public function test_rate_limiting_is_enforced()
+    {
+        $user = User::factory()->create([
+            'mobile_number' => '1234567890',
+        ]);
+
+        $otpServiceMock = Mockery::mock(OtpService::class);
+        $this->app->instance(OtpService::class, $otpServiceMock);
+        $otpServiceMock->shouldReceive('generateAndSendOtp');
+
+        for ($i = 0; $i < 3; $i++) {
+            $this->post(route('login.request-otp'), ['mobile_number' => '1234567890']);
+        }
+
+        $response = $this->post(route('login.request-otp'), ['mobile_number' => '1234567890']);
+
+        $response->assertSessionHasErrors('mobile_number');
+    }
 }

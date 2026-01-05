@@ -141,6 +141,41 @@ class RegistrationTest extends TestCase
         $response->assertSessionHas('success', 'A new OTP has been sent to your mobile number and email.');
     }
 
+    public function test_rate_limiting_is_enforced_during_registration()
+    {
+        $state = State::factory()->create();
+        $sessionData = [
+            'step1' => ['full_name' => 'Test User', 'gender' => 'Male', 'photo' => 'photo.jpg', 'date_of_birth' => '1990-01-01', 'marital_status' => 'Single'],
+        ];
+        $this->withSession($sessionData);
+
+        $otpServiceMock = Mockery::mock(OtpService::class);
+        $this->app->instance(OtpService::class, $otpServiceMock);
+        $otpServiceMock->shouldReceive('generateAndSendOtp');
+
+        for ($i = 0; $i < 3; $i++) {
+            $this->post(route('register.step2.store'), [
+                'email' => "test{$i}@example.com",
+                'mobile_number' => '9876543210',
+                'address' => '123 Main St',
+                'city' => 'Anytown',
+                'state' => $state->id,
+                'pincode' => '12345',
+            ]);
+        }
+
+        $response = $this->post(route('register.step2.store'), [
+            'email' => 'test3@example.com',
+            'mobile_number' => '9876543210',
+            'address' => '123 Main St',
+            'city' => 'Anytown',
+            'state' => $state->id,
+            'pincode' => '12345',
+        ]);
+
+        $response->assertSessionHasErrors('mobile_number');
+    }
+
     /** @test */
     public function conditional_validation_rules_are_enforced()
     {

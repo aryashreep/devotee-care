@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Services\OtpService;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Validation\ValidationException;
 
 class RegisterController extends Controller
 {
@@ -69,6 +71,8 @@ class RegisterController extends Controller
             return redirect()->route('register.step1.show');
         }
 
+        $this->ensureIsNotRateLimited($request);
+
         $validatedData = $request->validate([
             'email' => 'required|email|max:255|unique:users',
             'mobile_number' => 'required|string|digits:10|unique:users',
@@ -102,6 +106,8 @@ class RegisterController extends Controller
         if (!$request->session()->has('step2')) {
             return redirect()->route('register.step2.show');
         }
+
+        $this->ensureIsNotRateLimited($request);
 
         $step2Data = $request->session()->get('step2');
         $user = new User($step2Data);
@@ -250,5 +256,26 @@ class RegisterController extends Controller
         $search = $request->get('term');
         $data = User::where('spiritual_master', 'LIKE', '%' . $search . '%')->distinct()->pluck('spiritual_master');
         return response()->json($data);
+    }
+
+    public function ensureIsNotRateLimited(Request $request)
+    {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey($request), 3)) {
+            return;
+        }
+
+        $seconds = RateLimiter::availableIn($this->throttleKey($request));
+
+        throw ValidationException::withMessages([
+            'mobile_number' => trans('auth.throttle', [
+                'seconds' => $seconds,
+                'minutes' => ceil($seconds / 60),
+            ]),
+        ]);
+    }
+
+    public function throttleKey(Request $request)
+    {
+        return Str::transliterate(Str::lower($request->input('mobile_number')).'|'.$request->ip());
     }
 }

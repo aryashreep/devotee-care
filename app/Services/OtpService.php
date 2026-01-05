@@ -34,22 +34,23 @@ class OtpService
     protected function sendWhatsAppOtp(User $user, $otp)
     {
         $apiKey = config('services.interakt.api_key');
-        $templateName = 'devotee_care_otp';
 
-        // The user's full name and the OTP will be passed as body values
         $response = Http::withHeaders([
             'Authorization' => 'Basic ' . $apiKey,
             'Content-Type' => 'application/json',
-        ])->post('https://api.interakt.ai/v1/public/track/events/', [
+        ])->post('https://api.interakt.ai/v1/public/message/', [
+            'countryCode' => '+91',
             'phoneNumber' => $user->mobile_number,
-            'event' => $templateName,
-            'traits' => [
-                'name' => $user->name,
-                'otp' => $otp,
-            ],
+            'type' => 'Template',
+            'template' => [
+                'name' => 'devotee_care_otp',
+                'languageCode' => 'en',
+                'bodyValues' => [
+                    (string)$otp
+                ]
+            ]
         ]);
 
-        // It's good practice to log the response for debugging purposes
         if ($response->failed()) {
             \Illuminate\Support\Facades\Log::error('Interakt API call failed: ' . $response->body());
         }

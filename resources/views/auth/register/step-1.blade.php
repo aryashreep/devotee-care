@@ -92,6 +92,20 @@
                 @enderror
             </div>
 
+            <div class="mb-4">
+                <label for="password" class="block text-sm font-medium text-gray-700">Password *</label>
+                <input type="password" name="password" id="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                <p class="text-xs text-gray-500 mt-1">Password must be at least 9 characters long and contain at least one number and one capital letter.</p>
+                @error('password')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="mb-6">
+                <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Confirm Password *</label>
+                <input type="password" name="password_confirmation" id="password_confirmation" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+            </div>
+
             <div class="flex items-center justify-end">
                 <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                     Next

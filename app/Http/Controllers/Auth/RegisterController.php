@@ -17,9 +17,7 @@ use App\Models\State;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Services\OtpService;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Redirect;
 
 class RegisterController extends Controller
 {
@@ -71,10 +69,8 @@ class RegisterController extends Controller
             return redirect()->route('register.step1.show');
         }
 
-        $this->ensureIsNotRateLimited($request);
-
         $validatedData = $request->validate([
-            'email' => 'required|email|max:255|unique:users',
+            'email' => 'nullable|email|max:255|unique:users',
             'mobile_number' => 'required|string|digits:10|unique:users',
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:255',
@@ -83,60 +79,63 @@ class RegisterController extends Controller
             'country' => 'nullable|string|max:255',
         ]);
 
+        if ($this->otpService->hasTooManyAttempts($request->mobile_number)) {
+            return back()->withErrors(['mobile_number' => 'Too many OTP requests. Please try again later.']);
+        }
+
         $request->session()->put('step2', $validatedData);
 
+        // This is a temporary user to send the OTP
         $user = new User($validatedData);
-        $user->name = $request->session()->get('step1')['full_name'];
 
         $this->otpService->generateAndSendOtp($user);
 
         return redirect()->route('register.otp.show');
     }
 
-    public function showOtpForm(Request $request)
+    public function showOtpForm()
     {
-        if (!$request->session()->has('step2')) {
-            return redirect()->route('register.step2.show');
+        if (!session('step2')) {
+            return Redirect::route('register.step2.show');
         }
-        return view('auth.register.verify-otp');
+        return view('auth.register.otp');
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $request->validate(['otp' => 'required|digits:6']);
+
+        $step2Data = session('step2');
+        if (!$step2Data || !isset($step2Data['mobile_number'])) {
+            return Redirect::route('register.step2.show')->withErrors(['otp' => 'Something went wrong. Please try again.']);
+        }
+
+        if ($this->otpService->verifyOtp($step2Data['mobile_number'], $request->otp)) {
+            session()->put('otp_verified', true);
+            return redirect()->route('register.step3.show');
+        }
+
+        return back()->withErrors(['otp' => 'The provided OTP is invalid or has expired.']);
     }
 
     public function resendOtp(Request $request)
     {
-        if (!$request->session()->has('step2')) {
-            return redirect()->route('register.step2.show');
+        $step2Data = session('step2');
+
+        if (!$step2Data || !isset($step2Data['mobile_number'])) {
+            return Redirect::route('register.step2.show')->withErrors(['otp' => 'Something went wrong. Please try again.']);
         }
 
-        $this->ensureIsNotRateLimited($request);
-
-        $step2Data = $request->session()->get('step2');
         $user = new User($step2Data);
-        $user->name = $request->session()->get('step1')['full_name'];
-
         $this->otpService->generateAndSendOtp($user);
 
         return back()->with('success', 'A new OTP has been sent to your mobile number and email.');
     }
 
-    public function verifyOtpAndProceed(Request $request)
-    {
-        $validatedData = $request->validate([
-            'otp' => 'required|string|digits:6',
-        ]);
-
-        $mobileNumber = $request->session()->get('step2')['mobile_number'];
-
-        if ($this->otpService->verifyOtp($mobileNumber, $validatedData['otp'])) {
-            return redirect()->route('register.step3.show');
-        }
-
-        return back()->with('error', 'The OTP you entered is invalid or has expired.');
-    }
-
     public function showStep3(Request $request)
     {
-        if (!$request->session()->has('step2')) {
-            return redirect()->route('register.step2.show');
+        if (!$request->session()->has('otp_verified')) {
+            return redirect()->route('register.otp.show');
         }
         $educations = Education::all();
         $professions = Profession::all();
@@ -147,8 +146,8 @@ class RegisterController extends Controller
 
     public function storeStep3(Request $request)
     {
-        if (!$request->session()->has('step2')) {
-            return redirect()->route('register.step2.show');
+        if (!$request->session()->has('otp_verified')) {
+            return redirect()->route('register.otp.show');
         }
         $validatedData = $request->validate([
             'education_id' => 'required|exists:education,id',
@@ -227,8 +226,8 @@ class RegisterController extends Controller
         $userData['name'] = $userData['full_name'];
         unset($userData['full_name']);
 
-        // Set a secure, random password for the user since it's no longer collected
-        $userData['password'] = Hash::make(Str::random(16));
+        // Since we are not asking for a password, we can generate a random one.
+        $userData['password'] = Hash::make(str()->random(16));
 
         $user = User::create($userData);
 
@@ -244,8 +243,6 @@ class RegisterController extends Controller
             $user->shikshaLevels()->attach($step4['shiksha_levels']);
         }
 
-        $user->assignRole('Devotee');
-
         $request->session()->flush();
 
         return redirect()->route('login')->with('success', 'Hare Krishna! It is a great pleasure to hear that the account creation was successful. I wish you all the best as you begin your service. Please proceed by logging in with your registered details. 🙏');
@@ -256,26 +253,5 @@ class RegisterController extends Controller
         $search = $request->get('term');
         $data = User::where('spiritual_master', 'LIKE', '%' . $search . '%')->distinct()->pluck('spiritual_master');
         return response()->json($data);
-    }
-
-    public function ensureIsNotRateLimited(Request $request)
-    {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey($request), 3)) {
-            return;
-        }
-
-        $seconds = RateLimiter::availableIn($this->throttleKey($request));
-
-        throw ValidationException::withMessages([
-            'mobile_number' => trans('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
-        ]);
-    }
-
-    public function throttleKey(Request $request)
-    {
-        return Str::transliterate(Str::lower($request->input('mobile_number')).'|'.$request->ip());
     }
 }

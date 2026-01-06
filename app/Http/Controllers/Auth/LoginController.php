@@ -5,11 +5,10 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Services\OtpService;
 use App\Models\User;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Str;
+use App\Services\OtpService;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
 
 class LoginController extends Controller
 {
@@ -27,50 +26,62 @@ class LoginController extends Controller
 
     public function requestOtp(Request $request)
     {
-        $credentials = $request->validate([
-            'mobile_number' => ['required', 'digits:10'],
-        ]);
+        $request->validate(['mobile_number' => 'required|digits:10']);
 
-        $this->ensureIsNotRateLimited($request);
-
-        $user = User::where('mobile_number', $credentials['mobile_number'])->first();
-
-        if (!$user) {
-            return back()->withErrors([
-                'mobile_number' => 'The provided mobile number does not match our records.',
-            ]);
+        if ($this->otpService->hasTooManyAttempts($request->mobile_number)) {
+            return back()->withErrors(['mobile_number' => 'Too many OTP requests. Please try again later.']);
         }
 
-        if (!$user->enabled) {
-            return back()->withErrors([
-                'mobile_number' => 'Your account is disabled. Please contact an administrator.',
-            ]);
+        $user = User::where('mobile_number', $request->mobile_number)->first();
+
+        if (!$user) {
+            return back()->withErrors(['mobile_number' => 'The provided mobile number does not match our records.']);
         }
 
         $this->otpService->generateAndSendOtp($user);
 
-        $request->session()->put('mobile_number', $user->mobile_number);
-
-        RateLimiter::hit($this->throttleKey($request));
-
-        return redirect()->route('login.otp.show');
+        return Redirect::route('login.otp.show')->with('mobile_number', $request->mobile_number);
     }
 
     public function showOtpForm()
     {
-        return view('auth.login-otp');
+        if (!session('mobile_number')) {
+            return Redirect::route('login');
+        }
+        return view('auth.otp');
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'otp' => 'required|digits:6',
+        ]);
+
+        $mobileNumber = session('mobile_number');
+        if (!$mobileNumber) {
+            return Redirect::route('login')->withErrors(['otp' => 'Something went wrong. Please try again.']);
+        }
+
+        if ($this->otpService->verifyOtp($mobileNumber, $request->otp)) {
+            $user = User::where('mobile_number', $mobileNumber)->first();
+            Auth::login($user);
+            $request->session()->regenerate();
+
+            if ($user->hasRole('Devotee')) {
+                return redirect()->route('my-profile.show');
+            }
+            return redirect()->intended('dashboard');
+        }
+
+        return back()->withErrors(['otp' => 'The provided OTP is invalid or has expired.']);
     }
 
     public function resendOtp(Request $request)
     {
-        $this->ensureIsNotRateLimited($request);
-
-        $mobileNumber = $request->session()->get('mobile_number');
+        $mobileNumber = session('mobile_number');
 
         if (!$mobileNumber) {
-            return redirect()->route('login')->withErrors([
-                'mobile_number' => 'Your session has expired. Please try again.',
-            ]);
+            return Redirect::route('login')->withErrors(['otp' => 'Something went wrong. Please try again.']);
         }
 
         $user = User::where('mobile_number', $mobileNumber)->first();
@@ -80,73 +91,15 @@ class LoginController extends Controller
             return back()->with('success', 'A new OTP has been sent to your mobile number and email.');
         }
 
-        return redirect()->route('login')->withErrors([
-            'mobile_number' => 'An unexpected error occurred. Please try again.',
-        ]);
+        return Redirect::route('login')->withErrors(['otp' => 'Could not find a user with that mobile number.']);
     }
 
-    public function loginWithOtp(Request $request)
-    {
-        $credentials = $request->validate([
-            'otp' => ['required', 'digits:6'],
-        ]);
-
-        $mobileNumber = $request->session()->get('mobile_number');
-
-        if (!$mobileNumber) {
-            return redirect()->route('login')->withErrors([
-                'mobile_number' => 'Your session has expired. Please try again.',
-            ]);
-        }
-
-        if ($this->otpService->verifyOtp($mobileNumber, $credentials['otp'])) {
-            $user = User::where('mobile_number', $mobileNumber)->first();
-            Auth::login($user);
-            $request->session()->regenerate();
-
-            $request->session()->forget('mobile_number');
-
-            if ($user->hasRole('Devotee')) {
-                return redirect()->route('my-profile.show');
-            }
-
-            return redirect()->intended('dashboard');
-        }
-
-        return back()->withErrors([
-            'otp' => 'The provided OTP is invalid or has expired.',
-        ]);
-    }
 
     public function logout(Request $request)
     {
         Auth::logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
-
         return redirect('/');
-    }
-
-    public function ensureIsNotRateLimited(Request $request)
-    {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey($request), 3)) {
-            return;
-        }
-
-        $seconds = RateLimiter::availableIn($this->throttleKey($request));
-
-        throw ValidationException::withMessages([
-            'mobile_number' => trans('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
-        ]);
-    }
-
-    public function throttleKey(Request $request)
-    {
-        return Str::transliterate(Str::lower($request->input('mobile_number')).'|'.$request->ip());
     }
 }

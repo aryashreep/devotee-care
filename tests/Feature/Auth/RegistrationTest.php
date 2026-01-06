@@ -57,6 +57,7 @@ class RegistrationTest extends TestCase
         $otpServiceMock = Mockery::mock(OtpService::class);
         $this->app->instance(OtpService::class, $otpServiceMock);
 
+        $otpServiceMock->shouldReceive('hasTooManyAttempts')->once()->andReturn(false);
         $otpServiceMock->shouldReceive('generateAndSendOtp')->once();
 
         // Step 2
@@ -121,7 +122,8 @@ class RegistrationTest extends TestCase
         ]);
     }
 
-    public function test_user_can_resend_otp_during_registration()
+    /** @test */
+    public function user_can_resend_otp_during_registration()
     {
         $state = State::factory()->create();
         $sessionData = [
@@ -141,7 +143,8 @@ class RegistrationTest extends TestCase
         $response->assertSessionHas('success', 'A new OTP has been sent to your mobile number and email.');
     }
 
-    public function test_rate_limiting_is_enforced_during_registration()
+    /** @test */
+    public function rate_limiting_is_enforced_during_registration()
     {
         $state = State::factory()->create();
         $sessionData = [
@@ -151,21 +154,10 @@ class RegistrationTest extends TestCase
 
         $otpServiceMock = Mockery::mock(OtpService::class);
         $this->app->instance(OtpService::class, $otpServiceMock);
-        $otpServiceMock->shouldReceive('generateAndSendOtp');
-
-        for ($i = 0; $i < 3; $i++) {
-            $this->post(route('register.step2.store'), [
-                'email' => "test{$i}@example.com",
-                'mobile_number' => '9876543210',
-                'address' => '123 Main St',
-                'city' => 'Anytown',
-                'state' => $state->id,
-                'pincode' => '12345',
-            ]);
-        }
+        $otpServiceMock->shouldReceive('hasTooManyAttempts')->andReturn(true);
 
         $response = $this->post(route('register.step2.store'), [
-            'email' => 'test3@example.com',
+            'email' => 'test@example.com',
             'mobile_number' => '9876543210',
             'address' => '123 Main St',
             'city' => 'Anytown',
@@ -190,6 +182,7 @@ class RegistrationTest extends TestCase
         $sessionData = [
             'step1' => ['full_name' => 'Test User', 'gender' => 'Male', 'photo' => 'photo.jpg', 'date_of_birth' => '1990-01-01', 'marital_status' => 'Single'],
             'step2' => ['mobile_number' => '1234567891', 'address' => '123 Main St', 'city' => 'Anytown', 'state' => $state->id, 'pincode' => '12345'],
+            'otp_verified' => true,
             'step3' => ['education_id' => $education->id, 'profession_id' => $profession->id, 'languages' => [$language->id], 'blood_group_id' => $bloodGroup->id],
         ];
 

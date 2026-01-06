@@ -5,46 +5,101 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use App\Services\OtpService;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
 
 class LoginController extends Controller
 {
+    protected $otpService;
+
+    public function __construct(OtpService $otpService)
+    {
+        $this->otpService = $otpService;
+    }
+
     public function showLoginForm()
     {
         return view('auth.login');
     }
 
-    public function login(Request $request)
+    public function requestOtp(Request $request)
     {
-        $credentials = $request->validate([
-            'mobile_number' => ['required'],
-            'password' => ['required'],
+        $request->validate(['mobile_number' => 'required|digits:10']);
+
+        if ($this->otpService->hasTooManyAttempts($request->mobile_number)) {
+            return back()->withErrors(['mobile_number' => 'Too many OTP requests. Please try again later.']);
+        }
+
+        $user = User::where('mobile_number', $request->mobile_number)->first();
+
+        if (!$user) {
+            return back()->withErrors(['mobile_number' => 'The provided mobile number does not match our records.']);
+        }
+
+        $this->otpService->generateAndSendOtp($user);
+
+        return Redirect::route('login.otp.show')->with('mobile_number', $request->mobile_number);
+    }
+
+    public function showOtpForm()
+    {
+        if (!session('mobile_number')) {
+            return Redirect::route('login');
+        }
+        return view('auth.otp');
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'otp' => 'required|digits:6',
         ]);
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
+        $mobileNumber = session('mobile_number');
+        if (!$mobileNumber) {
+            return Redirect::route('login')->withErrors(['otp' => 'Something went wrong. Please try again.']);
+        }
 
-            $user = Auth::user();
+        if ($this->otpService->verifyOtp($mobileNumber, $request->otp)) {
+            $user = User::where('mobile_number', $mobileNumber)->first();
+            Auth::login($user);
+            $request->session()->regenerate();
 
             if ($user->hasRole('Devotee')) {
                 return redirect()->route('my-profile.show');
             }
-
             return redirect()->intended('dashboard');
         }
 
-        return back()->withErrors([
-            'mobile_number' => 'The provided credentials do not match our records.',
-        ]);
+        return back()->withErrors(['otp' => 'The provided OTP is invalid or has expired.']);
     }
+
+    public function resendOtp(Request $request)
+    {
+        $mobileNumber = session('mobile_number');
+
+        if (!$mobileNumber) {
+            return Redirect::route('login')->withErrors(['otp' => 'Something went wrong. Please try again.']);
+        }
+
+        $user = User::where('mobile_number', $mobileNumber)->first();
+
+        if ($user) {
+            $this->otpService->generateAndSendOtp($user);
+            return back()->with('success', 'A new OTP has been sent to your mobile number and email.');
+        }
+
+        return Redirect::route('login')->withErrors(['otp' => 'Could not find a user with that mobile number.']);
+    }
+
 
     public function logout(Request $request)
     {
         Auth::logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
-
         return redirect('/');
     }
 }

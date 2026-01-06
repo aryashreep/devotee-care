@@ -9,6 +9,9 @@ Route::prefix('register')->name('register.')->group(function () {
     Route::post('step-1', [RegisterController::class, 'storeStep1'])->name('step1.store');
     Route::get('step-2', [RegisterController::class, 'showStep2'])->name('step2.show');
     Route::post('step-2', [RegisterController::class, 'storeStep2'])->name('step2.store');
+    Route::get('otp', [RegisterController::class, 'showOtpForm'])->name('otp.show');
+    Route::post('otp', [RegisterController::class, 'verifyOtp'])->name('otp.verify');
+    Route::post('otp/resend', [RegisterController::class, 'resendOtp'])->name('otp.resend');
     Route::get('step-3', [RegisterController::class, 'showStep3'])->name('step3.show');
     Route::post('step-3', [RegisterController::class, 'storeStep3'])->name('step3.store');
     Route::get('step-4', [RegisterController::class, 'showStep4'])->name('step4.show');
@@ -19,7 +22,10 @@ Route::prefix('register')->name('register.')->group(function () {
 });
 
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('login', [LoginController::class, 'login']);
+Route::post('login', [LoginController::class, 'requestOtp'])->name('login.request-otp');
+Route::get('login/otp', [LoginController::class, 'showOtpForm'])->name('login.otp.show');
+Route::post('login/otp', [LoginController::class, 'verifyOtp'])->name('login.otp.verify');
+Route::post('login/otp/resend', [LoginController::class, 'resendOtp'])->name('login.otp.resend');
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::get('/', function () {

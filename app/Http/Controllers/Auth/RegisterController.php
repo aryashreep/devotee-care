@@ -16,9 +16,18 @@ use App\Models\BloodGroup;
 use App\Models\State;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use App\Services\OtpService;
+use Illuminate\Support\Facades\Redirect;
 
 class RegisterController extends Controller
 {
+    protected $otpService;
+
+    public function __construct(OtpService $otpService)
+    {
+        $this->otpService = $otpService;
+    }
+
     public function showStep1()
     {
         return view('auth.register.step-1');
@@ -33,7 +42,6 @@ class RegisterController extends Controller
             'date_of_birth' => 'required|date',
             'marital_status' => 'required|in:Single,Married,Divorced',
             'marriage_anniversary_date' => 'nullable|date',
-            'password' => 'required|string|min:9|confirmed|regex:/^(?=.*[A-Z])(?=.*[0-9]).*$/',
         ]);
 
         if ($request->hasFile('photo')) {
@@ -71,15 +79,63 @@ class RegisterController extends Controller
             'country' => 'nullable|string|max:255',
         ]);
 
+        if ($this->otpService->hasTooManyAttempts($request->mobile_number)) {
+            return back()->withErrors(['mobile_number' => 'Too many OTP requests. Please try again later.']);
+        }
+
         $request->session()->put('step2', $validatedData);
 
-        return redirect()->route('register.step3.show');
+        // This is a temporary user to send the OTP
+        $user = new User($validatedData);
+
+        $this->otpService->generateAndSendOtp($user);
+
+        return redirect()->route('register.otp.show');
+    }
+
+    public function showOtpForm()
+    {
+        if (!session('step2')) {
+            return Redirect::route('register.step2.show');
+        }
+        return view('auth.register.otp');
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $request->validate(['otp' => 'required|digits:6']);
+
+        $step2Data = session('step2');
+        if (!$step2Data || !isset($step2Data['mobile_number'])) {
+            return Redirect::route('register.step2.show')->withErrors(['otp' => 'Something went wrong. Please try again.']);
+        }
+
+        if ($this->otpService->verifyOtp($step2Data['mobile_number'], $request->otp)) {
+            session()->put('otp_verified', true);
+            return redirect()->route('register.step3.show');
+        }
+
+        return back()->withErrors(['otp' => 'The provided OTP is invalid or has expired.']);
+    }
+
+    public function resendOtp(Request $request)
+    {
+        $step2Data = session('step2');
+
+        if (!$step2Data || !isset($step2Data['mobile_number'])) {
+            return Redirect::route('register.step2.show')->withErrors(['otp' => 'Something went wrong. Please try again.']);
+        }
+
+        $user = new User($step2Data);
+        $this->otpService->generateAndSendOtp($user);
+
+        return back()->with('success', 'A new OTP has been sent to your mobile number and email.');
     }
 
     public function showStep3(Request $request)
     {
-        if (!$request->session()->has('step2')) {
-            return redirect()->route('register.step2.show');
+        if (!$request->session()->has('otp_verified')) {
+            return redirect()->route('register.otp.show');
         }
         $educations = Education::all();
         $professions = Profession::all();
@@ -90,8 +146,8 @@ class RegisterController extends Controller
 
     public function storeStep3(Request $request)
     {
-        if (!$request->session()->has('step2')) {
-            return redirect()->route('register.step2.show');
+        if (!$request->session()->has('otp_verified')) {
+            return redirect()->route('register.otp.show');
         }
         $validatedData = $request->validate([
             'education_id' => 'required|exists:education,id',
@@ -170,7 +226,8 @@ class RegisterController extends Controller
         $userData['name'] = $userData['full_name'];
         unset($userData['full_name']);
 
-        $userData['password'] = Hash::make($userData['password']);
+        // Since we are not asking for a password, we can generate a random one.
+        $userData['password'] = Hash::make(str()->random(16));
 
         $user = User::create($userData);
 

@@ -42,12 +42,15 @@ class RegisterController extends Controller
             'date_of_birth' => 'required|date',
             'marital_status' => 'required|in:Single,Married,Divorced',
             'marriage_anniversary_date' => 'nullable|date',
+            'password' => 'required|string|min:9|confirmed|regex:/^(?=.*[A-Z])(?=.*[0-9]).*$/',
         ]);
 
         if ($request->hasFile('photo')) {
             $path = $request->file('photo')->store('photos', 'public');
             $validatedData['photo'] = $path;
         }
+
+        $validatedData['password'] = Hash::make($validatedData['password']);
 
         $request->session()->put('step1', $validatedData);
 
@@ -86,7 +89,9 @@ class RegisterController extends Controller
         $request->session()->put('step2', $validatedData);
 
         // This is a temporary user to send the OTP
+        $step1Data = $request->session()->get('step1', []);
         $user = new User($validatedData);
+        $user->name = $step1Data['full_name'] ?? 'Devotee';
 
         if (!$this->otpService->generateAndSendOtp($user)) {
             return back()->withErrors(['mobile_number' => 'We could not send an OTP to your number. Please try again.']);
@@ -122,6 +127,7 @@ class RegisterController extends Controller
 
     public function resendOtp(Request $request)
     {
+        $step1Data = session('step1');
         $step2Data = session('step2');
 
         if (!$step2Data || !isset($step2Data['mobile_number'])) {
@@ -129,6 +135,7 @@ class RegisterController extends Controller
         }
 
         $user = new User($step2Data);
+        $user->name = $step1Data['full_name'] ?? 'Devotee';
         if (!$this->otpService->generateAndSendOtp($user)) {
             return back()->withErrors(['otp' => 'We could not send a new OTP to your number. Please try again.']);
         }

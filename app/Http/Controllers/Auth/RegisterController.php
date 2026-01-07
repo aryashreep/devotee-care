@@ -88,7 +88,9 @@ class RegisterController extends Controller
         // This is a temporary user to send the OTP
         $user = new User($validatedData);
 
-        $this->otpService->generateAndSendOtp($user);
+        if (!$this->otpService->generateAndSendOtp($user)) {
+            return back()->withErrors(['mobile_number' => 'We could not send an OTP to your number. Please try again.']);
+        }
 
         return redirect()->route('register.otp.show');
     }
@@ -127,7 +129,9 @@ class RegisterController extends Controller
         }
 
         $user = new User($step2Data);
-        $this->otpService->generateAndSendOtp($user);
+        if (!$this->otpService->generateAndSendOtp($user)) {
+            return back()->withErrors(['otp' => 'We could not send a new OTP to your number. Please try again.']);
+        }
 
         return back()->with('success', 'A new OTP has been sent to your mobile number and email.');
     }

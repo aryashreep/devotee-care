@@ -38,7 +38,9 @@ class LoginController extends Controller
             return back()->withErrors(['mobile_number' => 'The provided mobile number does not match our records.']);
         }
 
-        $this->otpService->generateAndSendOtp($user);
+        if (!$this->otpService->generateAndSendOtp($user)) {
+            return back()->withErrors(['mobile_number' => 'We could not send an OTP to your number. Please try again.']);
+        }
 
         return Redirect::route('login.otp.show')->with('mobile_number', $request->mobile_number);
     }
@@ -87,7 +89,9 @@ class LoginController extends Controller
         $user = User::where('mobile_number', $mobileNumber)->first();
 
         if ($user) {
-            $this->otpService->generateAndSendOtp($user);
+            if (!$this->otpService->generateAndSendOtp($user)) {
+                return back()->withErrors(['otp' => 'We could not send a new OTP to your number. Please try again.']);
+            }
             return back()->with('success', 'A new OTP has been sent to your mobile number and email.');
         }
 

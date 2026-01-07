@@ -57,7 +57,7 @@ class FullRegistrationTest extends TestCase
         $otpServiceMock = Mockery::mock(OtpService::class);
         $this->app->instance(OtpService::class, $otpServiceMock);
         $otpServiceMock->shouldReceive('hasTooManyAttempts')->once()->andReturn(false);
-        $otpServiceMock->shouldReceive('generateAndSendOtp')->once();
+        $otpServiceMock->shouldReceive('generateAndSendOtp')->once()->andReturn(true);
 
         // Step 2: Contact Details
         $response = $this->withSession(session()->all())->post(route('register.step2.store'), [

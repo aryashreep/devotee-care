@@ -58,7 +58,7 @@ class RegistrationTest extends TestCase
         $this->app->instance(OtpService::class, $otpServiceMock);
 
         $otpServiceMock->shouldReceive('hasTooManyAttempts')->once()->andReturn(false);
-        $otpServiceMock->shouldReceive('generateAndSendOtp')->once();
+        $otpServiceMock->shouldReceive('generateAndSendOtp')->once()->andReturn(true);
 
         // Step 2
         $response = $this->withSession(['step1' => session('step1')])->post(route('register.step2.store'), [
@@ -135,7 +135,7 @@ class RegistrationTest extends TestCase
         $otpServiceMock = Mockery::mock(OtpService::class);
         $this->app->instance(OtpService::class, $otpServiceMock);
 
-        $otpServiceMock->shouldReceive('generateAndSendOtp')->once();
+        $otpServiceMock->shouldReceive('generateAndSendOtp')->once()->andReturn(true);
 
         $response = $this->post(route('register.otp.resend'));
 

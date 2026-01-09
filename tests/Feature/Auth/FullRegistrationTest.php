@@ -50,6 +50,8 @@ class FullRegistrationTest extends TestCase
             'date_of_birth' => '1992-02-02',
             'marital_status' => 'Married',
             'marriage_anniversary_date' => '2015-11-20',
+            'password' => 'Password123',
+            'password_confirmation' => 'Password123',
         ]);
         $response->assertRedirect(route('register.step2.show'));
 
@@ -117,7 +119,7 @@ class FullRegistrationTest extends TestCase
             'disclaimer' => true,
         ]);
 
-        $response->assertRedirect(route('login'));
+        $response->assertRedirect(route('login.form'));
         $response->assertSessionHas('success');
 
         $user = User::where('mobile_number', '9876543210')->first();

@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 
 Route::prefix('register')->name('register.')->group(function () {
     Route::get('step-1', [RegisterController::class, 'showStep1'])->name('step1.show');
@@ -21,8 +23,14 @@ Route::prefix('register')->name('register.')->group(function () {
     Route::get('autocomplete/spiritual-master', [RegisterController::class, 'autocompleteSpiritualMaster'])->name('autocomplete.spiritualMaster');
 });
 
-Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::get('login', [LoginController::class, 'showLoginForm'])->name('login.form');
 Route::post('login', [LoginController::class, 'requestOtp'])->name('login.request-otp');
+Route::post('login/password', [LoginController::class, 'loginWithPassword'])->name('login.password');
+
+Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
 Route::get('login/otp', [LoginController::class, 'showOtpForm'])->name('login.otp.show');
 Route::post('login/otp', [LoginController::class, 'verifyOtp'])->name('login.otp.verify');
 Route::post('login/otp/resend', [LoginController::class, 'resendOtp'])->name('login.otp.resend');
@@ -32,7 +40,7 @@ Route::get('/', function () {
     if (auth()->check()) {
         return redirect()->route('dashboard');
     }
-    return redirect()->route('login');
+    return redirect()->route('login.form');
 });
 
 use App\Http\Controllers\UserController;

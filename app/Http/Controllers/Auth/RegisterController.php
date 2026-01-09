@@ -256,7 +256,7 @@ class RegisterController extends Controller
 
         $request->session()->flush();
 
-        return redirect()->route('login')->with('success', 'Hare Krishna! It is a great pleasure to hear that the account creation was successful. I wish you all the best as you begin your service. Please proceed by logging in with your registered details. 🙏');
+        return redirect()->route('login.form')->with('success', 'Hare Krishna! It is a great pleasure to hear that the account creation was successful. I wish you all the best as you begin your service. Please proceed by logging in with your registered details. 🙏');
     }
 
     public function autocompleteSpiritualMaster(Request $request)

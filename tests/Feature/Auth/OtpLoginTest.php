@@ -27,7 +27,7 @@ class OtpLoginTest extends TestCase
             return $arg->id === $user->id;
         }))->andReturn(true);
 
-        $response = $this->post(route('login.request-otp'), [
+        $response = $this->from(route('login.form'))->post(route('login.request-otp'), [
             'mobile_number' => '1234567890',
         ]);
 

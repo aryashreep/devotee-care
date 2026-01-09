@@ -50,6 +50,8 @@ class RegistrationTest extends TestCase
             'photo' => UploadedFile::fake()->image('photo.jpg'),
             'date_of_birth' => '1990-01-01',
             'marital_status' => 'Single',
+            'password' => 'Password123',
+            'password_confirmation' => 'Password123',
         ]);
         $response->assertRedirect(route('register.step2.show'));
 
@@ -106,7 +108,7 @@ class RegistrationTest extends TestCase
             'disclaimer' => true,
         ]);
 
-        $response->assertRedirect(route('login'));
+        $response->assertRedirect(route('login.form'));
         $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('users', [

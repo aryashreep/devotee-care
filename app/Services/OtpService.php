@@ -5,12 +5,13 @@ namespace App\Services;
 use App\Models\LoginOtp;
 use App\Models\User;
 use App\Mail\OtpMail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Http;
 
 class OtpService
 {
-    public function generateAndSendOtp(User $user)
+    public function generateAndSendOtp(User $user): bool
     {
         $otp = random_int(100000, 999999);
 
@@ -27,17 +28,38 @@ class OtpService
 
         // Send OTP via Interakt WhatsApp API
         if (config('services.interakt.api_key')) {
-            Http::withHeaders([
-                'Authorization' => 'Basic ' . config('services.interakt.api_key'),
-            ])->post(config('services.interakt.api_url'), [
-                'phoneNumber' => $user->mobile_number,
-                'countryCode' => '+91', // Assuming Indian numbers for now
-                'traits' => [
-                    'name' => $user->name,
-                    'otp' => $otp,
-                ],
-            ]);
+            try {
+                $response = Http::withHeaders([
+                    'Authorization' => 'Basic ' . config('services.interakt.api_key'),
+                    'Content-Type' => 'application/json',
+                ])->post(config('services.interakt.api_url'), [
+                    'countryCode' => '+91',
+                    'phoneNumber' => $user->mobile_number,
+                    'type' => 'Template',
+                    'template' => [
+                        'name' => config('services.interakt.template_name'),
+                        'languageCode' => config('services.interakt.language_code'),
+                        'bodyValues' => [
+                            $user->name,
+                            (string) $otp,
+                        ]
+                    ]
+                ]);
+
+                if ($response->successful()) {
+                    Log::info('WhatsApp OTP sent successfully to ' . $user->mobile_number);
+                    return true;
+                } else {
+                    Log::error('Failed to send WhatsApp OTP to ' . $user->mobile_number . '. Response: ' . $response->body());
+                    return false;
+                }
+            } catch (\Exception $e) {
+                Log::error('Exception while sending WhatsApp OTP to ' . $user->mobile_number . '. Error: ' . $e->getMessage());
+                return false;
+            }
         }
+
+        return true; // If email was sent successfully and WhatsApp is not configured
     }
 
     public function verifyOtp(string $mobileNumber, string $otp): bool

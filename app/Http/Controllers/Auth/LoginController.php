@@ -38,7 +38,9 @@ class LoginController extends Controller
             return back()->withErrors(['mobile_number' => 'The provided mobile number does not match our records.']);
         }
 
-        $this->otpService->generateAndSendOtp($user);
+        if (!$this->otpService->generateAndSendOtp($user)) {
+            return back()->withErrors(['mobile_number' => 'We could not send an OTP to your number. Please try again.']);
+        }
 
         return Redirect::route('login.otp.show')->with('mobile_number', $request->mobile_number);
     }
@@ -46,7 +48,7 @@ class LoginController extends Controller
     public function showOtpForm()
     {
         if (!session('mobile_number')) {
-            return Redirect::route('login');
+            return Redirect::route('login.form');
         }
         return view('auth.otp');
     }
@@ -81,17 +83,19 @@ class LoginController extends Controller
         $mobileNumber = session('mobile_number');
 
         if (!$mobileNumber) {
-            return Redirect::route('login')->withErrors(['otp' => 'Something went wrong. Please try again.']);
+            return Redirect::route('login.form')->withErrors(['otp' => 'Something went wrong. Please try again.']);
         }
 
         $user = User::where('mobile_number', $mobileNumber)->first();
 
         if ($user) {
-            $this->otpService->generateAndSendOtp($user);
+            if (!$this->otpService->generateAndSendOtp($user)) {
+                return back()->withErrors(['otp' => 'We could not send a new OTP to your number. Please try again.']);
+            }
             return back()->with('success', 'A new OTP has been sent to your mobile number and email.');
         }
 
-        return Redirect::route('login')->withErrors(['otp' => 'Could not find a user with that mobile number.']);
+        return Redirect::route('login.form')->withErrors(['otp' => 'Could not find a user with that mobile number.']);
     }
 
 
@@ -101,5 +105,28 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect('/');
+    }
+
+    public function loginWithPassword(Request $request)
+    {
+        $credentials = $request->validate([
+            'mobile_number' => 'required|digits:10',
+            'password' => 'required|string',
+        ]);
+
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+
+            $user = Auth::user();
+            if ($user->hasRole('Devotee')) {
+                return redirect()->route('my-profile.show');
+            }
+
+            return redirect()->intended('dashboard');
+        }
+
+        return back()->withErrors([
+            'mobile_number' => 'The provided credentials do not match our records.',
+        ]);
     }
 }

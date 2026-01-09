@@ -31,7 +31,7 @@
                 </div>
             </div>
 
-            <form method="POST" action="{{ route('login.request-otp') }}">
+            <form id="login-form" method="POST" action="{{ route('login.request-otp') }}">
                 @csrf
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="mobile_number">
@@ -42,8 +42,36 @@
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                     @enderror
                 </div>
+
+                <div class="mb-6 hidden" id="password-field">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+                        Password
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline @error('password') is-invalid @enderror" id="password" name="password" type="password" placeholder="******************">
+                    @error('password')
+                    <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <a class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800" href="{{ route('password.request') }}">
+                            Forgot Password?
+                        </a>
+                    </div>
+                    <div class="flex rounded-md shadow-sm">
+                        <button type="button" id="password-btn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                            Password
+                        </button>
+                        <button type="button" id="otp-btn" class="px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-r-md hover:bg-blue-600 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                            OTP
+                        </button>
+                    </div>
+                </div>
+
+
                 <div class="flex items-center justify-center">
-                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full" type="submit">
+                    <button id="submit-btn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full" type="submit">
                         Request OTP
                     </button>
                 </div>
@@ -55,4 +83,36 @@
         </div>
     </div>
 </div>
+
+<script>
+    const passwordBtn = document.getElementById('password-btn');
+    const otpBtn = document.getElementById('otp-btn');
+    const passwordField = document.getElementById('password-field');
+    const submitBtn = document.getElementById('submit-btn');
+    const loginForm = document.getElementById('login-form');
+    const mobileNumberInput = document.getElementById('mobile_number');
+    const passwordInput = document.getElementById('password');
+
+    passwordBtn.addEventListener('click', () => {
+        passwordBtn.classList.add('bg-blue-500', 'text-white');
+        passwordBtn.classList.remove('bg-white', 'text-gray-700');
+        otpBtn.classList.add('bg-white', 'text-gray-700');
+        otpBtn.classList.remove('bg-blue-500', 'text-white');
+        passwordField.classList.remove('hidden');
+        submitBtn.textContent = 'Login';
+        loginForm.action = "{{ route('login.password') }}";
+        passwordInput.required = true;
+    });
+
+    otpBtn.addEventListener('click', () => {
+        otpBtn.classList.add('bg-blue-500', 'text-white');
+        otpBtn.classList.remove('bg-white', 'text-gray-700');
+        passwordBtn.classList.add('bg-white', 'text-gray-700');
+        passwordBtn.classList.remove('bg-blue-500', 'text-white');
+        passwordField.classList.add('hidden');
+        submitBtn.textContent = 'Request OTP';
+        loginForm.action = "{{ route('login.request-otp') }}";
+        passwordInput.required = false;
+    });
+</script>
 @endsection

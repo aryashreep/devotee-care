@@ -50,6 +50,8 @@ class FullRegistrationTest extends TestCase
             'date_of_birth' => '1992-02-02',
             'marital_status' => 'Married',
             'marriage_anniversary_date' => '2015-11-20',
+            'password' => 'Password123',
+            'password_confirmation' => 'Password123',
         ]);
         $response->assertRedirect(route('register.step2.show'));
 
@@ -57,7 +59,7 @@ class FullRegistrationTest extends TestCase
         $otpServiceMock = Mockery::mock(OtpService::class);
         $this->app->instance(OtpService::class, $otpServiceMock);
         $otpServiceMock->shouldReceive('hasTooManyAttempts')->once()->andReturn(false);
-        $otpServiceMock->shouldReceive('generateAndSendOtp')->once();
+        $otpServiceMock->shouldReceive('generateAndSendOtp')->once()->andReturn(true);
 
         // Step 2: Contact Details
         $response = $this->withSession(session()->all())->post(route('register.step2.store'), [
@@ -117,7 +119,7 @@ class FullRegistrationTest extends TestCase
             'disclaimer' => true,
         ]);
 
-        $response->assertRedirect(route('login'));
+        $response->assertRedirect(route('login.form'));
         $response->assertSessionHas('success');
 
         $user = User::where('mobile_number', '9876543210')->first();

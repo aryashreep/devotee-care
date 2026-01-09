@@ -50,6 +50,8 @@ class RegistrationTest extends TestCase
             'photo' => UploadedFile::fake()->image('photo.jpg'),
             'date_of_birth' => '1990-01-01',
             'marital_status' => 'Single',
+            'password' => 'Password123',
+            'password_confirmation' => 'Password123',
         ]);
         $response->assertRedirect(route('register.step2.show'));
 
@@ -58,7 +60,7 @@ class RegistrationTest extends TestCase
         $this->app->instance(OtpService::class, $otpServiceMock);
 
         $otpServiceMock->shouldReceive('hasTooManyAttempts')->once()->andReturn(false);
-        $otpServiceMock->shouldReceive('generateAndSendOtp')->once();
+        $otpServiceMock->shouldReceive('generateAndSendOtp')->once()->andReturn(true);
 
         // Step 2
         $response = $this->withSession(['step1' => session('step1')])->post(route('register.step2.store'), [
@@ -106,7 +108,7 @@ class RegistrationTest extends TestCase
             'disclaimer' => true,
         ]);
 
-        $response->assertRedirect(route('login'));
+        $response->assertRedirect(route('login.form'));
         $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('users', [
@@ -135,7 +137,7 @@ class RegistrationTest extends TestCase
         $otpServiceMock = Mockery::mock(OtpService::class);
         $this->app->instance(OtpService::class, $otpServiceMock);
 
-        $otpServiceMock->shouldReceive('generateAndSendOtp')->once();
+        $otpServiceMock->shouldReceive('generateAndSendOtp')->once()->andReturn(true);
 
         $response = $this->post(route('register.otp.resend'));
 

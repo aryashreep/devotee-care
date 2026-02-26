@@ -42,6 +42,20 @@
                 @enderror
             </div>
 
+
+            <div class="mb-4">
+                <label for="password" class="block text-sm font-medium text-gray-700">Password *</label>
+                <input type="password" name="password" id="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                <p class="text-xs text-gray-500 mt-1">Use at least 12 chars with upper/lowercase, number and symbol.</p>
+                @error('password')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="mb-4">
+                <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Confirm Password *</label>
+                <input type="password" name="password_confirmation" id="password_confirmation" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+            </div>
             <div class="mb-4">
                 <label for="address" class="block text-sm font-medium text-gray-700">Address *</label>
                 <input type="text" name="address" id="address" value="{{ old('address') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
@@ -86,6 +100,16 @@
                 <input type="text" name="pincode" id="pincode" value="{{ old('pincode') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
                 @error('pincode')
                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <input type="text" name="website_url" class="hidden" tabindex="-1" autocomplete="off">
+
+            <div class="mb-4">
+                <label for="captcha_answer" class="block text-sm font-medium text-gray-700">Security Check: Enter <span class="font-bold">{{ $challenge }}</span> *</label>
+                <input type="number" name="captcha_answer" id="captcha_answer" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                @error('captcha_answer')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
             </div>
 

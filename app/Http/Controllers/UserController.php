@@ -98,7 +98,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'string|email|max:255|unique:users,email,' . $user->id,
-            'mobile_number' => 'required|string|max:15',
+            'mobile_number' => ['required', 'regex:/^[6-9][0-9]{9}$/'],
             'gender' => 'required|in:Male,Female',
             'date_of_birth' => 'required|date',
             'marital_status' => 'required|in:Single,Married,Divorced',
@@ -173,7 +173,7 @@ class UserController extends Controller
             'marital_status' => 'required|string|max:255',
             'marriage_anniversary_date' => 'nullable|date',
             'email' => 'nullable|email|max:255|unique:users,email,' . $user->id,
-            'mobile_number' => 'required|string|digits:10|unique:users,mobile_number,' . $user->id,
+            'mobile_number' => ['required', 'regex:/^[6-9][0-9]{9}$/', 'unique:users,mobile_number,' . $user->id],
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:255',
             'state' => 'required|string|max:255',

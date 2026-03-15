@@ -46,7 +46,7 @@
             <div class="mb-4">
                 <label for="password" class="block text-sm font-medium text-gray-700">Password *</label>
                 <input type="password" name="password" id="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
-                <p class="text-xs text-gray-500 mt-1">Use at least 12 chars with upper/lowercase, number and symbol.</p>
+                <p class="text-xs text-gray-500 mt-1">Use at least 9 chars with uppercase, lowercase, and number.</p>
                 @error('password')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror

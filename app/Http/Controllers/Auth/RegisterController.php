@@ -66,7 +66,7 @@ class RegisterController extends Controller
         $validatedData = $request->validate([
             'email' => 'nullable|email|max:255|unique:users',
             'mobile_number' => ['required', 'regex:/^[6-9][0-9]{9}$/', 'unique:users'],
-            'password' => ['required', 'confirmed', Password::min(12)->letters()->mixedCase()->numbers()->symbols()],
+            'password' => ['required', 'confirmed', Password::min(9)->letters()->mixedCase()->numbers()],
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:255',
             'state' => 'required|exists:states,id',

@@ -25,7 +25,7 @@ class BhaktiSadanSeeder extends Seeder
             ['name' => 'Hoskote'],
             ['name' => 'HSR layout'],
             ['name' => 'Hulimavu'],
-            ['name' => 'ISKCON Seshadripuram'],
+            ['name' => 'ISKCON Sri Jagannath Mandir'],
             ['name' => 'IVF (Iskcon Vaishnavi Forum)'],
             ['name' => 'IYF (Iskcon Youth Forum)'],
             ['name' => 'JP Nagar 3rd Phase'],

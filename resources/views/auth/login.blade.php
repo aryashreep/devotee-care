@@ -10,7 +10,7 @@
         <div class="w-full md:w-1/2 p-8">
             <div class="text-center mb-6">
                 <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-20 h-20 mx-auto mb-2">
-                <h2 class="text-xl font-semibold">ISKCON Seshadripuram</h2>
+                <h2 class="text-xl font-semibold">ISKCON Sri Jagannath Mandir</h2>
                 <p class="text-center text-gray-600 mb-4">Devotee Care Management System</p>
             </div>
 

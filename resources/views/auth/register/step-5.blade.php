@@ -36,7 +36,7 @@
             <div class="mb-6">
                 <label class="inline-flex items-center">
                     <input type="checkbox" name="disclaimer" class="form-checkbox" required>
-                    <span class="ml-2">I hereby declare that the information furnished above is true and correct to the best of my knowledge. I voluntarily wish to be a part of ISKCON Seshadripuram’s spiritual and seva initiatives.</span>
+                    <span class="ml-2">I hereby declare that the information furnished above is true and correct to the best of my knowledge. I voluntarily wish to be a part of ISKCON Sri Jagannath Mandir’s spiritual and seva initiatives.</span>
                 </label>
                 @error('disclaimer')
                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>

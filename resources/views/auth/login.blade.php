@@ -5,11 +5,8 @@
 @section('content')
 <div class="flex items-center justify-center min-h-screen bg-gray-100">
     <div class="flex w-full max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden">
-        <!-- Left side with image -->
-        <div class="hidden md:block md:w-1/2 bg-cover" style="background-position: bottom; background-image: url('{{ asset('images/krishnasembrace.jpg') }}')">
-        </div>
+        <div class="hidden md:block md:w-1/2 bg-cover" style="background-position: bottom; background-image: url('{{ asset('images/krishnasembrace.jpg') }}')"></div>
 
-        <!-- Right side with form -->
         <div class="w-full md:w-1/2 p-8">
             <div class="text-center mb-6">
                 <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-20 h-20 mx-auto mb-2">
@@ -23,29 +20,36 @@
             </div>
             @endif
 
-            <div class="text-center mb-6">
-                <div class="w-24 h-24 rounded-full bg-gray-200 mx-auto flex items-center justify-center">
-                    <svg class="w-12 h-12 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                    </svg>
-                </div>
-            </div>
-
-            <form method="POST" action="{{ route('login.request-otp') }}">
+            <form method="POST" action="{{ route('login.attempt') }}">
                 @csrf
+                <input type="text" name="company_name" class="hidden" tabindex="-1" autocomplete="off">
+
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="mobile_number">
-                        Mobile Number
-                    </label>
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('mobile_number') is-invalid @enderror" id="mobile_number" name="mobile_number" type="text" placeholder="Mobile Number" required autofocus>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="mobile_number">Mobile Number</label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 @error('mobile_number') border-red-500 @enderror" id="mobile_number" name="mobile_number" type="text" value="{{ old('mobile_number') }}" placeholder="10-digit mobile number" required autofocus>
                     @error('mobile_number')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                     @enderror
                 </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Password</label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 @error('password') border-red-500 @enderror" id="password" name="password" type="password" placeholder="Password" required>
+                    @error('password')
+                    <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="captcha_answer">Security Check: Enter <span class="font-bold">{{ $captchaChallenge }}</span></label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 @error('captcha_answer') border-red-500 @enderror" id="captcha_answer" name="captcha_answer" type="number" required>
+                    @error('captcha_answer')
+                    <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <div class="flex items-center justify-center">
-                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full" type="submit">
-                        Request OTP
-                    </button>
+                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full" type="submit">Login Securely</button>
                 </div>
             </form>
 

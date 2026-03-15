@@ -2,83 +2,57 @@
 
 namespace Tests\Feature\Auth;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use App\Models\Role;
 use App\Models\User;
-use App\Services\OtpService;
-use Mockery;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
 
 class OtpLoginTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function user_can_login_with_valid_otp()
+    public function test_user_can_login_with_mobile_number_and_password(): void
     {
+        $role = Role::create(['name' => 'Devotee']);
         $user = User::factory()->create([
-            'mobile_number' => '1234567890',
+            'mobile_number' => '9876543210',
+            'password' => Hash::make('StrongPass!123'),
+        ]);
+        $user->roles()->attach($role);
+
+        $this->get(route('login'));
+
+        $response = $this->post(route('login.attempt'), [
+            'mobile_number' => '9876543210',
+            'password' => 'StrongPass!123',
+            'captcha_answer' => session('login_captcha_challenge'),
+            'company_name' => '',
         ]);
 
-        $otpServiceMock = Mockery::mock(OtpService::class);
-        $this->app->instance(OtpService::class, $otpServiceMock);
-
-        $otpServiceMock->shouldReceive('hasTooManyAttempts')->once()->with('1234567890')->andReturn(false);
-        $otpServiceMock->shouldReceive('generateAndSendOtp')->once()->with(Mockery::on(function ($arg) use ($user) {
-            return $arg->id === $user->id;
-        }));
-
-        $response = $this->post(route('login.request-otp'), [
-            'mobile_number' => '1234567890',
-        ]);
-
-        $response->assertRedirect(route('login.otp.show'));
-        $response->assertSessionHas('mobile_number', '1234567890');
-
-        $otpServiceMock->shouldReceive('verifyOtp')->once()->with('1234567890', '123456')->andReturn(true);
-
-        $response = $this->post(route('login.otp.verify'), [
-            'otp' => '123456',
-        ]);
-
-        $response->assertRedirect(route('dashboard'));
+        $response->assertRedirect(route('my-profile.show'));
         $this->assertAuthenticatedAs($user);
     }
 
-    /** @test */
-    public function user_can_resend_otp()
+    public function test_login_rejects_honeypot_submission(): void
     {
-        $user = User::factory()->create([
-            'mobile_number' => '1234567890',
+        Role::create(['name' => 'Devotee']);
+        User::factory()->create([
+            'mobile_number' => '9876543210',
+            'password' => Hash::make('StrongPass!123'),
         ]);
 
-        $otpServiceMock = Mockery::mock(OtpService::class);
-        $this->app->instance(OtpService::class, $otpServiceMock);
+        $this->get(route('login'));
 
-        $this->withSession(['mobile_number' => '1234567890']);
-
-        $otpServiceMock->shouldReceive('generateAndSendOtp')->once()->with(Mockery::on(function ($arg) use ($user) {
-            return $arg->id === $user->id;
-        }));
-
-        $response = $this->post(route('login.otp.resend'));
-
-        $response->assertRedirect();
-        $response->assertSessionHas('success', 'A new OTP has been sent to your mobile number and email.');
-    }
-
-    /** @test */
-    public function rate_limiting_is_enforced()
-    {
-        $user = User::factory()->create([
-            'mobile_number' => '1234567890',
+        $response = $this->from(route('login'))->post(route('login.attempt'), [
+            'mobile_number' => '9876543210',
+            'password' => 'StrongPass!123',
+            'captcha_answer' => session('login_captcha_challenge'),
+            'company_name' => 'bot-data',
         ]);
 
-        $otpServiceMock = Mockery::mock(OtpService::class);
-        $this->app->instance(OtpService::class, $otpServiceMock);
-        $otpServiceMock->shouldReceive('hasTooManyAttempts')->andReturn(true);
-
-        $response = $this->post(route('login.request-otp'), ['mobile_number' => '1234567890']);
-
-        $response->assertSessionHasErrors('mobile_number');
+        $response->assertRedirect(route('login'));
+        $response->assertSessionHasErrors('company_name');
+        $this->assertGuest();
     }
 }

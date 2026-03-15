@@ -40,7 +40,7 @@ class LoginController extends Controller
             ]);
         }
 
-        if (!Auth::attempt($request->only('mobile_number', 'password'), true)) {
+        if (!Auth::attempt($request->only('mobile_number', 'password'))) {
             throw ValidationException::withMessages([
                 'mobile_number' => 'The provided credentials do not match our records.',
             ]);

@@ -91,6 +91,11 @@
                             <span class="mx-3">View My Profile</span>
                         </a>
                     @endif
+                    <div class="px-6 mt-4">
+                        <p class="text-sm text-gray-300">
+                            <b>Help? <a href="https://wa.me/918147450705" target="_blank" rel="noopener noreferrer" class="text-green-400 hover:text-green-300">WhatsApp us! (+91 8147450705)</a></b>
+                        </p>
+                    </div>
                 @endauth
             </nav>
             <div class="absolute bottom-0 w-full">

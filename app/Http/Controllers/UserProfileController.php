@@ -35,7 +35,7 @@ class UserProfileController extends Controller
             'date_of_birth' => 'required|date',
             'marital_status' => 'required|string|max:255',
             'marriage_anniversary_date' => 'nullable|date',
-            'email' => 'nullable|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
             'mobile_number' => 'required|string|digits:10|unique:users,mobile_number,' . $user->id,
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:255',

@@ -27,8 +27,8 @@
             @csrf
 
             <div class="mb-4">
-                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                <input type="email" name="email" id="email" value="{{ old('email') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                <label for="email" class="block text-sm font-medium text-gray-700">Email *</label>
+                <input type="email" name="email" id="email" value="{{ old('email') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required>
                 @error('email')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
@@ -118,6 +118,12 @@
                 <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                     Next
                 </button>
+            </div>
+
+            <div class="mt-4 text-center">
+                <p class="text-sm text-gray-600">
+                    <b>Help? <a href="https://wa.me/918147450705" target="_blank" rel="noopener noreferrer" class="text-green-600 hover:text-green-700">WhatsApp us! (+91 8147450705)</a></b>
+                </p>
             </div>
         </form>
     </div>

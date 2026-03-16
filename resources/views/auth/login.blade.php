@@ -56,7 +56,7 @@
             <div class="mt-4 text-center">
                 <p class="text-sm text-gray-600"><b>Don't have an account? <a href="{{ route('register.step1.show') }}" class="text-blue-500 hover:text-blue-700">Sign up</a></b></p>
                 <p class="text-sm text-gray-600 mt-2">
-                    <b>Help? <a href="https://wa.me/918147450705" target="_blank" rel="noopener noreferrer" class="text-green-600 hover:text-green-700">WhatsApp us! (+91 8147450705)</a></b>
+                    <b>Help? <a href="https://wa.me/918147450705" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:text-blue-700">WhatsApp us!</a></b>
                 </p>
             </div>
         </div>

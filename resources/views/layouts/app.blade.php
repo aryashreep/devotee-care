@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+
 <body class="bg-gray-100 font-sans leading-normal tracking-normal">
     <header class="bg-white shadow-md w-full">
         <div class="flex justify-between items-center py-4 px-6">
@@ -15,7 +17,9 @@
             </div>
             <div class="flex items-center">
                 <button id="sidebar-toggle" class="text-gray-600 hover:text-gray-800 md:hidden">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
                 </button>
                 <div class="flex items-center ml-auto">
                     <button class="text-gray-600 hover:text-gray-800 mr-4">
@@ -27,7 +31,9 @@
                                 {{ substr(auth()->user()->name, 0, 1) }}
                             </div>
                             <span class="mr-2">{{ auth()->user()->name }}</span>
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
                         </button>
                         <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 hidden">
                             <div class="px-4 py-2 text-white bg-blue-500 font-bold rounded-t-md">Account</div>
@@ -47,55 +53,55 @@
         <div id="sidebar" class="bg-gray-800 text-white w-64 min-h-screen fixed md:relative -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
             <nav class="mt-4">
                 @auth
-                    @if (!auth()->user()->hasRole('Devotee') && (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Management')))
-                        <h2 class="px-6 text-gray-500 uppercase tracking-wide font-bold text-xs">Content</h2>
-                        <a href="{{ route('users.index') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('users.*') ? 'bg-blue-600 text-white' : '' }}">
-                            <i class="fas fa-users mr-3"></i>
-                            <span class="mx-3">Users</span>
+                @if (!auth()->user()->hasRole('Devotee') && (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Management')))
+                <h2 class="px-6 text-gray-500 uppercase tracking-wide font-bold text-xs">Content</h2>
+                <a href="{{ route('users.index') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('users.*') ? 'bg-blue-600 text-white' : '' }}">
+                    <i class="fas fa-users mr-3"></i>
+                    <span class="mx-3">Users</span>
+                </a>
+                @endif
+                @if (!auth()->user()->hasRole('Devotee') && (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Management') || auth()->user()->hasRole('Finance') || auth()->user()->hasRole('Bhakti Sadan Leader')))
+                <div class="mt-4">
+                    <h2 class="px-6 text-gray-500 uppercase tracking-wide font-bold text-xs">Masters</h2>
+                    <div class="mt-2 space-y-1">
+                        <a href="{{ route('educations.index') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('educations.*') ? 'bg-blue-600 text-white' : '' }}">
+                            <span class="mx-3">Education</span>
                         </a>
-                    @endif
-                    @if (!auth()->user()->hasRole('Devotee') && (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Management') || auth()->user()->hasRole('Finance') || auth()->user()->hasRole('Bhakti Sadan Leader')))
-                        <div class="mt-4">
-                            <h2 class="px-6 text-gray-500 uppercase tracking-wide font-bold text-xs">Masters</h2>
-                            <div class="mt-2 space-y-1">
-                                <a href="{{ route('educations.index') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('educations.*') ? 'bg-blue-600 text-white' : '' }}">
-                                    <span class="mx-3">Education</span>
-                                </a>
-                                <a href="{{ route('professions.index') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('professions.*') ? 'bg-blue-600 text-white' : '' }}">
-                                    <span class="mx-3">Profession</span>
-                                </a>
-                                <a href="{{ route('bhakti-sadans.index') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('bhakti-sadans.*') ? 'bg-blue-600 text-white' : '' }}">
-                                    <span class="mx-3">Bhakti Sadan</span>
-                                </a>
-                                <a href="{{ route('sevas.index') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('sevas.*') ? 'bg-blue-600 text-white' : '' }}">
-                                    <span class="mx-3">Seva</span>
-                                </a>
-                                <a href="{{ route('shiksha-levels.index') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('shiksha-levels.*') ? 'bg-blue-600 text-white' : '' }}">
-                                    <span class="mx-3">Shiksha Level</span>
-                                </a>
-                                <a href="{{ route('languages.index') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('languages.*') ? 'bg-blue-600 text-white' : '' }}">
-                                    <span class="mx-3">Languages</span>
-                                </a>
-                                <a href="{{ route('blood-groups.index') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('blood-groups.*') ? 'bg-blue-600 text-white' : '' }}">
-                                    <span class="mx-3">Blood Group</span>
-                                </a>
-                            </div>
-                        </div>
-                    @endif
+                        <a href="{{ route('professions.index') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('professions.*') ? 'bg-blue-600 text-white' : '' }}">
+                            <span class="mx-3">Profession</span>
+                        </a>
+                        <a href="{{ route('bhakti-sadans.index') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('bhakti-sadans.*') ? 'bg-blue-600 text-white' : '' }}">
+                            <span class="mx-3">Bhakti Sadan</span>
+                        </a>
+                        <a href="{{ route('sevas.index') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('sevas.*') ? 'bg-blue-600 text-white' : '' }}">
+                            <span class="mx-3">Seva</span>
+                        </a>
+                        <a href="{{ route('shiksha-levels.index') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('shiksha-levels.*') ? 'bg-blue-600 text-white' : '' }}">
+                            <span class="mx-3">Shiksha Level</span>
+                        </a>
+                        <a href="{{ route('languages.index') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('languages.*') ? 'bg-blue-600 text-white' : '' }}">
+                            <span class="mx-3">Languages</span>
+                        </a>
+                        <a href="{{ route('blood-groups.index') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('blood-groups.*') ? 'bg-blue-600 text-white' : '' }}">
+                            <span class="mx-3">Blood Group</span>
+                        </a>
+                    </div>
+                </div>
+                @endif
                 @endauth
                 <h2 class="px-6 mt-4 text-gray-500 uppercase tracking-wide font-bold text-xs">Settings</h2>
                 @auth
-                    @if (Route::has('my-profile.show'))
-                        <a href="{{ route('my-profile.show') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('my-profile.show') ? 'bg-blue-600 text-white' : '' }}">
-                            <i class="fas fa-user-circle mr-3"></i>
-                            <span class="mx-3">View My Profile</span>
-                        </a>
-                    @endif
-                    <div class="px-6 mt-4">
-                        <p class="text-sm text-gray-300">
-                            <b>Help? <a href="https://wa.me/918147450705" target="_blank" rel="noopener noreferrer" class="text-green-400 hover:text-green-300">WhatsApp us! (+91 8147450705)</a></b>
-                        </p>
-                    </div>
+                @if (Route::has('my-profile.show'))
+                <a href="{{ route('my-profile.show') }}" class="flex items-center py-2 px-6 text-gray-400 hover:bg-blue-600 hover:text-white {{ request()->routeIs('my-profile.show') ? 'bg-blue-600 text-white' : '' }}">
+                    <i class="fas fa-user-circle mr-3"></i>
+                    <span class="mx-3">View My Profile</span>
+                </a>
+                @endif
+                <div class="px-6 mt-4">
+                    <p class="text-sm text-gray-300">
+                        <b>Help? <a href="https://wa.me/918147450705" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:text-blue-700">WhatsApp us!</a></b>
+                    </p>
+                </div>
                 @endauth
             </nav>
             <div class="absolute bottom-0 w-full">
@@ -116,7 +122,7 @@
         </div>
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const sidebarToggle = document.getElementById('sidebar-toggle');
             const sidebar = document.getElementById('sidebar');
             const userMenuButton = document.querySelector('.relative button');
@@ -140,4 +146,5 @@
     @stack('styles')
     @stack('scripts')
 </body>
+
 </html>

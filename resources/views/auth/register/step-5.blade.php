@@ -49,6 +49,12 @@
                     Submit
                 </button>
             </div>
+
+            <div class="mt-4 text-center">
+                <p class="text-sm text-gray-600">
+                    <b>Help? <a href="https://wa.me/918147450705" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:text-blue-700">WhatsApp us!</a></b>
+                </p>
+            </div>
         </form>
     </div>
 </div>

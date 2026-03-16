@@ -12,6 +12,14 @@
                     'verifyRoute' => route('register.otp.verify'),
                     'resendRoute' => route('register.otp.resend')
                 ])
+                <div class="mt-4 text-center">
+                    <p class="text-sm text-gray-600">
+                        <b>Already have an account? <a href="{{ route('login') }}" class="text-blue-500 hover:text-blue-700">Login</a></b>
+                    </p>
+                    <p class="text-sm text-gray-600 mt-2">
+                        <b>Help? <a href="https://wa.me/918147450705" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:text-blue-700">WhatsApp us!</a></b>
+                    </p>
+                </div>
             </div>
         </div>
     </div>

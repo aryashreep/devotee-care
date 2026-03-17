@@ -54,7 +54,7 @@ class RegistrationTest extends TestCase
 
         $this->post(route('register.step2.store'), [
             'email' => 'fulltest@example.com',
-            'mobile_number' => '9876543210',
+            'mobile_number' => '9112233445',
             'password' => 'SecurePass!1234',
             'password_confirmation' => 'SecurePass!1234',
             'address' => '456 Park Ave',
@@ -97,7 +97,7 @@ class RegistrationTest extends TestCase
             'disclaimer' => true,
         ])->assertRedirect(route('login'));
 
-        $user = User::where('mobile_number', '9876543210')->first();
+        $user = User::where('mobile_number', '9112233445')->first();
         $this->assertNotNull($user);
         $this->assertTrue(Hash::check('SecurePass!1234', $user->password));
         $this->assertTrue($user->roles->contains('name', 'Devotee'));

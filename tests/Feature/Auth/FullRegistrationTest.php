@@ -42,11 +42,12 @@ class FullRegistrationTest extends TestCase
             'photo' => UploadedFile::fake()->image('photo.jpg'),
             'date_of_birth' => '1990-01-01',
             'marital_status' => 'Single',
-        ]);
+        ])->assertRedirect(route('register.step2.show'));
 
         $this->get(route('register.step2.show'));
         $this->post(route('register.step2.store'), [
-            'mobile_number' => '9123456789',
+            'email' => 'test_unique@example.com',
+            'mobile_number' => '9123654780',
             'password' => 'SecurePass!1234',
             'password_confirmation' => 'SecurePass!1234',
             'address' => '123 Main St',
@@ -56,14 +57,16 @@ class FullRegistrationTest extends TestCase
             'country' => 'India',
             'captcha_answer' => session('register_captcha_challenge'),
             'website_url' => '',
-        ]);
+        ])->assertRedirect(route('register.step3.show'));
 
         $this->post(route('register.step3.store'), [
             'education_id' => $education->id,
             'profession_id' => $profession->id,
             'blood_group_id' => $bloodGroup->id,
             'languages' => [$language->id],
-        ]);
+        ])->assertRedirect(route('register.step4.show'));
+
+        $this->get(route('register.step4.show'));
 
         $response = $this->post(route('register.step4.store'), [
             'initiated' => '1',
@@ -73,6 +76,7 @@ class FullRegistrationTest extends TestCase
             'life_membership' => '0',
             'services' => [$seva->id],
         ]);
+
 
         $response->assertSessionHasErrors(['initiated_name', 'spiritual_master']);
     }

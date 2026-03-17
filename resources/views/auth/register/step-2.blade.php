@@ -66,10 +66,10 @@
 
             <div class="mb-4">
                 <label for="state" class="block text-sm font-medium text-gray-700">State *</label>
-                <select name="state" id="state" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
-                    <option value="">Select State</option>
+                <select name="state" id="state" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm select2" required>
+                    <option value=""></option>
                     @foreach($states as $state)
-                    <option value="{{ $state->id }}">{{ $state->name }}</option>
+                    <option value="{{ $state->id }}" {{ old('state') == $state->id ? 'selected' : '' }}>{{ $state->name }}</option>
                     @endforeach
                 </select>
                 @error('state')
@@ -79,8 +79,11 @@
 
             <div class="mb-4">
                 <label for="city" class="block text-sm font-medium text-gray-700">City *</label>
-                <select name="city" id="city" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
-                    <option value="">Select City</option>
+                <select name="city" id="city" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm select2" required>
+                    <option value=""></option>
+                    @if(old('city'))
+                        <option value="{{ old('city') }}" selected>{{ old('city') }}</option>
+                    @endif
                 </select>
                 @error('city')
                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -134,15 +137,19 @@
 @endsection
 
 @push('scripts')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     $(document).ready(function() {
-        $('#state').select2();
-        $('#city').select2();
+        $('.select2').each(function() {
+            var placeholder = $(this).attr('id') == 'state' ? 'Select State' : 'Select City';
+            $(this).select2({
+                placeholder: placeholder,
+                allowClear: true,
+                width: '100%'
+            });
+        });
 
-        $('#state').on('change', function() {
-            var stateId = $(this).val();
+        function loadCities(stateId, selectedCity = null) {
             if (stateId) {
                 $.ajax({
                     url: '/api/states/' + stateId + '/cities',
@@ -150,16 +157,33 @@
                     dataType: 'json',
                     success: function(data) {
                         $('#city').empty();
-                        $('#city').append('<option value="">Select City</option>');
+                        $('#city').append('<option value=""></option>');
                         $.each(data, function(key, value) {
-                            $('#city').append('<option value="' + value.name + '">' + value.name + '</option>');
+                            var selected = (selectedCity && selectedCity == value.name) ? 'selected' : '';
+                            $('#city').append('<option value="' + value.name + '" ' + selected + '>' + value.name + '</option>');
                         });
+                        $('#city').trigger('change');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error: ' + status + ' - ' + error);
                     }
                 });
             } else {
                 $('#city').empty();
-                $('#city').append('<option value="">Select City</option>');
+                $('#city').append('<option value=""></option>');
+                $('#city').trigger('change');
             }
+        }
+
+        // Handle page load for old values
+        var initialStateId = $('#state').val();
+        var initialCity = "{{ old('city') }}";
+        if (initialStateId) {
+            loadCities(initialStateId, initialCity);
+        }
+
+        $('#state').on('change', function() {
+            loadCities($(this).val());
         });
     });
 </script>

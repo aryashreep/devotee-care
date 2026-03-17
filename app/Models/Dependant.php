@@ -17,6 +17,18 @@ class Dependant extends Model
         'dob',
     ];
 
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'dob' => 'date',
+        ];
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

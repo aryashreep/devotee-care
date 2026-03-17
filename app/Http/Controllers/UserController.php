@@ -123,12 +123,37 @@ class UserController extends Controller
             'life_member_no' => 'required_if:life_membership,1|nullable|string|max:255',
             'temple' => 'required_if:life_membership,1|nullable|string|max:255',
             'services' => 'required|array',
+            'dependants' => 'nullable|array',
+            'dependants.*.id' => 'nullable|exists:dependants,id',
+            'dependants.*.name' => 'required|string|max:255',
+            'dependants.*.age' => 'required|integer|min:0',
+            'dependants.*.gender' => 'required|in:Male,Female',
+            'dependants.*.dob' => 'required|date',
         ]);
 
         $user->update($request->all());
         $user->languages()->sync($request->languages);
         $user->shikshaLevels()->sync($request->shiksha_levels);
         $user->sevas()->sync($request->services);
+
+        if ($request->has('dependants')) {
+            $dependantIds = [];
+            foreach ($request->dependants as $dependantData) {
+                if (isset($dependantData['id']) && !empty($dependantData['id'])) {
+                    $dependant = \App\Models\Dependant::find($dependantData['id']);
+                    if ($dependant && $dependant->user_id === $user->id) {
+                        $dependant->update($dependantData);
+                        $dependantIds[] = $dependant->id;
+                    }
+                } else {
+                    $dependant = $user->dependants()->create($dependantData);
+                    $dependantIds[] = $dependant->id;
+                }
+            }
+            $user->dependants()->whereNotIn('id', $dependantIds)->delete();
+        } else {
+            $user->dependants()->delete();
+        }
 
         return redirect()->route('users.show', $user)->with('success', 'User updated successfully.');
     }

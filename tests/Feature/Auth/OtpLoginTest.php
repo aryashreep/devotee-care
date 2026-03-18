@@ -16,7 +16,7 @@ class OtpLoginTest extends TestCase
     {
         $role = Role::create(['name' => 'Devotee']);
         $user = User::factory()->create([
-            'mobile_number' => '9876543210',
+            'mobile_number' => '9886543210',
             'password' => Hash::make('StrongPass!123'),
         ]);
         $user->roles()->attach($role);
@@ -24,7 +24,7 @@ class OtpLoginTest extends TestCase
         $this->get(route('login'));
 
         $response = $this->post(route('login.attempt'), [
-            'mobile_number' => '9876543210',
+            'mobile_number' => '9886543210',
             'password' => 'StrongPass!123',
             'captcha_answer' => session('login_captcha_challenge'),
             'company_name' => '',
@@ -38,14 +38,14 @@ class OtpLoginTest extends TestCase
     {
         Role::create(['name' => 'Devotee']);
         User::factory()->create([
-            'mobile_number' => '9876543210',
+            'mobile_number' => '9886543210',
             'password' => Hash::make('StrongPass!123'),
         ]);
 
         $this->get(route('login'));
 
         $response = $this->from(route('login'))->post(route('login.attempt'), [
-            'mobile_number' => '9876543210',
+            'mobile_number' => '9886543210',
             'password' => 'StrongPass!123',
             'captcha_answer' => session('login_captcha_challenge'),
             'company_name' => 'bot-data',

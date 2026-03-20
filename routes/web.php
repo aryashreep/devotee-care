@@ -24,7 +24,11 @@ Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::get('/', function () {
     if (auth()->check()) {
-        return redirect()->route('dashboard');
+        $user = auth()->user();
+        if ($user->hasRole('Admin') || $user->hasRole('Management') || $user->hasRole('Finance') || $user->hasRole('Bhakti Sadan Leader') || $user->hasRole('Bhakti Sadan Leader Assistance')) {
+            return redirect()->route('dashboard');
+        }
+        return redirect()->route('my-profile.show');
     }
     return redirect()->route('login');
 });

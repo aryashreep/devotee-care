@@ -51,11 +51,11 @@ class LoginController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
-        if ($user->hasRole('Devotee')) {
-            return redirect()->route('my-profile.show');
+        if ($user->hasRole('Admin') || $user->hasRole('Management') || $user->hasRole('Finance') || $user->hasRole('Bhakti Sadan Leader') || $user->hasRole('Bhakti Sadan Leader Assistance')) {
+            return redirect()->intended('dashboard');
         }
 
-        return redirect()->intended('dashboard');
+        return redirect()->route('my-profile.show');
     }
 
     public function logout(Request $request)

@@ -14,7 +14,6 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(RoleSeeder::class);
-        $this->call(AdminUserSeeder::class);
         $this->call(LanguageSeeder::class);
         $this->call(BloodGroupSeeder::class);
         $this->call(LocationSeeder::class);
@@ -23,5 +22,6 @@ class DatabaseSeeder extends Seeder
         $this->call(ProfessionSeeder::class);
         $this->call(SevaSeeder::class);
         $this->call(ShikshaLevelSeeder::class);
+        $this->call(AdminUserSeeder::class);
     }
 }

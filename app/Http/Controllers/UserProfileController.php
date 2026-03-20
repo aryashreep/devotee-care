@@ -11,6 +11,7 @@ use App\Models\Seva;
 use App\Models\ShikshaLevel;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class UserProfileController extends Controller
 {
@@ -45,9 +46,11 @@ class UserProfileController extends Controller
             'education_id' => 'required|exists:education,id',
             'profession_id' => 'required|exists:professions,id',
             'blood_group_id' => 'required|exists:blood_groups,id',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'languages' => 'required|array',
             'initiated' => 'required|boolean',
-            'spiritual_master_name' => 'required_if:initiated,1|nullable|string|max:255',
+            'initiated_name' => 'required_if:initiated,1|nullable|string|max:255',
+            'spiritual_master' => 'required_if:initiated,1|nullable|string|max:255',
             'rounds' => 'required_if:initiated,0|nullable|integer|min:0|max:108',
             'shiksha_levels' => 'nullable|array',
             'second_initiation' => 'required|boolean',
@@ -64,10 +67,17 @@ class UserProfileController extends Controller
             'dependants.*.dob' => 'required|date',
         ]);
 
+        if ($request->hasFile('photo')) {
+            if ($user->photo && Storage::disk('public')->exists($user->photo)) {
+                Storage::disk('public')->delete($user->photo);
+            }
+            $validatedData['photo'] = $request->file('photo')->store('photos', 'public');
+        }
+
         $user->update($validatedData);
         $user->languages()->sync($request->languages);
-        $user->shikshaLevels()->sync($request->shiksha_levels);
-        $user->sevas()->sync($request->services);
+        $user->shikshaLevels()->sync($request->shiksha_levels ?? []);
+        $user->sevas()->sync($request->services ?? []);
 
         if ($request->has('dependants')) {
             $dependantIds = [];

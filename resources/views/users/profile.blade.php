@@ -71,7 +71,7 @@
                 ? route('profile.update', $user)
                 : route('my-profile.update');
         @endphp
-        <form id="edit-profile-form" action="{{ $actionRoute }}" method="POST">
+        <form id="edit-profile-form" action="{{ $actionRoute }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             <div id="my-details-edit-content" class="tab-content">

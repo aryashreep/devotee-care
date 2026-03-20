@@ -13,6 +13,7 @@ use App\Models\Language;
 use App\Models\BloodGroup;
 use App\Models\ShikshaLevel;
 use App\Models\Seva;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -95,7 +96,7 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
             'mobile_number' => ['required', 'regex:/^[6-9][0-9]{9}$/'],
@@ -111,6 +112,7 @@ class UserController extends Controller
             'education_id' => 'required|exists:education,id',
             'profession_id' => 'required|exists:professions,id',
             'blood_group_id' => 'required|exists:blood_groups,id',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'languages' => 'required|array',
             'initiated' => 'required|boolean',
             'initiated_name' => 'required_if:initiated,1|nullable|string|max:255',
@@ -131,10 +133,17 @@ class UserController extends Controller
             'dependants.*.dob' => 'required|date',
         ]);
 
-        $user->update($request->all());
+        if ($request->hasFile('photo')) {
+            if ($user->photo && Storage::disk('public')->exists($user->photo)) {
+                Storage::disk('public')->delete($user->photo);
+            }
+            $validatedData['photo'] = $request->file('photo')->store('photos', 'public');
+        }
+
+        $user->update($validatedData);
         $user->languages()->sync($request->languages);
-        $user->shikshaLevels()->sync($request->shiksha_levels);
-        $user->sevas()->sync($request->services);
+        $user->shikshaLevels()->sync($request->shiksha_levels ?? []);
+        $user->sevas()->sync($request->services ?? []);
 
         if ($request->has('dependants')) {
             $dependantIds = [];
@@ -207,6 +216,7 @@ class UserController extends Controller
             'education_id' => 'required|exists:education,id',
             'profession_id' => 'required|exists:professions,id',
             'blood_group_id' => 'required|exists:blood_groups,id',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'languages' => 'required|array',
             'initiated' => 'required|boolean',
             'initiated_name' => 'required_if:initiated,1|nullable|string|max:255',
@@ -227,10 +237,17 @@ class UserController extends Controller
             'dependants.*.dob' => 'required|date',
         ]);
 
+        if ($request->hasFile('photo')) {
+            if ($user->photo && Storage::disk('public')->exists($user->photo)) {
+                Storage::disk('public')->delete($user->photo);
+            }
+            $validatedData['photo'] = $request->file('photo')->store('photos', 'public');
+        }
+
         $user->update($validatedData);
         $user->languages()->sync($request->languages);
-        $user->shikshaLevels()->sync($request->shiksha_levels);
-        $user->sevas()->sync($request->services);
+        $user->shikshaLevels()->sync($request->shiksha_levels ?? []);
+        $user->sevas()->sync($request->services ?? []);
 
         if ($request->has('dependants')) {
             $dependantIds = [];

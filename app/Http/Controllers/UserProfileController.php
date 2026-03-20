@@ -9,6 +9,7 @@ use App\Models\Language;
 use App\Models\Profession;
 use App\Models\Seva;
 use App\Models\ShikshaLevel;
+use App\Models\State;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -24,8 +25,9 @@ class UserProfileController extends Controller
         $languages = Language::all();
         $shikshaLevels = ShikshaLevel::all();
         $sevas = Seva::all();
+        $states = State::all();
 
-        return view('users.profile', compact('user', 'educations', 'professions', 'bloodGroups', 'bhaktiSadans', 'languages', 'shikshaLevels', 'sevas'));
+        return view('users.profile', compact('user', 'educations', 'professions', 'bloodGroups', 'bhaktiSadans', 'languages', 'shikshaLevels', 'sevas', 'states'));
     }
 
     public function update(Request $request, User $user)
@@ -40,7 +42,7 @@ class UserProfileController extends Controller
             'mobile_number' => 'required|string|digits:10|unique:users,mobile_number,' . $user->id,
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:255',
-            'state' => 'required|string|max:255',
+            'state' => 'required|exists:states,id',
             'pincode' => 'required|string|max:255',
             'country' => 'nullable|string|max:255',
             'education_id' => 'required|exists:education,id',

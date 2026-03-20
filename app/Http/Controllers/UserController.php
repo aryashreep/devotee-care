@@ -13,6 +13,7 @@ use App\Models\Language;
 use App\Models\BloodGroup;
 use App\Models\ShikshaLevel;
 use App\Models\Seva;
+use App\Models\State;
 use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
@@ -106,7 +107,7 @@ class UserController extends Controller
             'marriage_anniversary_date' => 'nullable|date',
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:255',
-            'state' => 'required|string|max:255',
+            'state' => 'required|exists:states,id',
             'pincode' => 'required|string|max:255',
             'country' => 'nullable|string|max:255',
             'education_id' => 'required|exists:education,id',
@@ -192,8 +193,9 @@ class UserController extends Controller
         $languages = Language::all();
         $shikshaLevels = ShikshaLevel::all();
         $sevas = Seva::all();
+        $states = State::all();
 
-        return view('users.profile', compact('user', 'educations', 'professions', 'bloodGroups', 'bhaktiSadans', 'languages', 'shikshaLevels', 'sevas'));
+        return view('users.profile', compact('user', 'educations', 'professions', 'bloodGroups', 'bhaktiSadans', 'languages', 'shikshaLevels', 'sevas', 'states'));
     }
 
     public function updateProfile(Request $request)
@@ -210,7 +212,7 @@ class UserController extends Controller
             'mobile_number' => ['required', 'regex:/^[6-9][0-9]{9}$/', 'unique:users,mobile_number,' . $user->id],
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:255',
-            'state' => 'required|string|max:255',
+            'state' => 'required|exists:states,id',
             'pincode' => 'required|string|max:255',
             'country' => 'nullable|string|max:255',
             'education_id' => 'required|exists:education,id',

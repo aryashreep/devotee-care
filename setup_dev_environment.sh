@@ -98,7 +98,15 @@ echo "--- Running database migrations and seeders... ---"
 php artisan migrate:fresh --seed --force || error_exit "Failed to run migrations."
 echo "--- Database is set up and seeded. ---"
 
-# 10. Clear Caches
+# 10. Create Storage Link
+echo "--- Creating storage link... ---"
+php artisan storage:link || echo "Storage link already exists."
+
+# 11. Build Assets
+echo "--- Building assets... ---"
+npm run build || error_exit "Failed to build assets."
+
+# 12. Clear Caches
 echo "--- Clearing application caches... ---"
 php artisan optimize:clear || error_exit "Failed to clear caches."
 echo "--- Caches cleared. ---"

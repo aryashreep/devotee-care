@@ -34,7 +34,7 @@ class RegisterController extends Controller
         ]);
 
         if ($request->hasFile('photo')) {
-            $path = $request->file('photo')->store('photos', 'public');
+            $path = $request->file('photo')->store('temp_photos', 'public');
             $validatedData['photo'] = $path;
         }
 
@@ -182,6 +182,21 @@ class RegisterController extends Controller
         $step2 = $request->session()->get('step2');
         $step3 = $request->session()->get('step3');
         $step4 = $request->session()->get('step4');
+
+        // Move photo from temp to permanent storage
+        if (isset($step1['photo']) && \Storage::disk('public')->exists($step1['photo'])) {
+            $tempPath = $step1['photo'];
+            $fileName = basename($tempPath);
+            $newPath = 'photos/' . $fileName;
+
+            // Ensure photos directory exists
+            if (!\Storage::disk('public')->exists('photos')) {
+                \Storage::disk('public')->makeDirectory('photos');
+            }
+
+            \Storage::disk('public')->move($tempPath, $newPath);
+            $step1['photo'] = $newPath;
+        }
 
         $userData = array_merge($step1, $step2, $step3, $step4);
         $userData['name'] = $userData['full_name'];

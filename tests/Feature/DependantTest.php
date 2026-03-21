@@ -7,6 +7,7 @@ use App\Models\Dependant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\Role;
+use App\Models\State;
 
 class DependantTest extends TestCase
 {
@@ -54,6 +55,8 @@ class DependantTest extends TestCase
             'dob' => '2010-01-01',
         ]);
 
+        $state = State::factory()->create();
+
         $response = $this->actingAs($admin)->put("/users/{$user->id}/profile", [
             'name' => 'User Name',
             'gender' => 'Male',
@@ -63,7 +66,7 @@ class DependantTest extends TestCase
             'mobile_number' => '9886543210',
             'address' => 'Address',
             'city' => 'City',
-            'state' => 'State',
+            'state' => $state->id,
             'pincode' => '123456',
             'education_id' => \App\Models\Education::factory()->create()->id,
             'profession_id' => \App\Models\Profession::factory()->create()->id,
@@ -118,6 +121,8 @@ class DependantTest extends TestCase
             'dob' => '2010-01-01',
         ]);
 
+        $state = State::factory()->create();
+
         $response = $this->actingAs($user)->put("/profile", [
             'name' => 'User Name',
             'gender' => 'Male',
@@ -127,7 +132,7 @@ class DependantTest extends TestCase
             'mobile_number' => '9886543210',
             'address' => 'Address',
             'city' => 'City',
-            'state' => 'State',
+            'state' => $state->id,
             'pincode' => '123456',
             'education_id' => \App\Models\Education::factory()->create()->id,
             'profession_id' => \App\Models\Profession::factory()->create()->id,

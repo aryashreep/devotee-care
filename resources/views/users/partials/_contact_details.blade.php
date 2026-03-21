@@ -18,7 +18,7 @@
     </div>
     <div>
         <p class="text-gray-700 font-bold">State:</p>
-        <p>{{ $user->state }}</p>
+        <p>{{ $user->stateModel->name ?? $user->state }}</p>
     </div>
     <div>
         <p class="text-gray-700 font-bold">Pincode:</p>
@@ -49,7 +49,12 @@
     </div>
     <div>
         <label for="state" class="block text-sm font-medium text-gray-700">State</label>
-        <input type="text" name="state" id="state" value="{{ old('state', $user->state) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+        <select name="state" id="state" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+            <option value="">Select State</option>
+            @foreach($states as $state)
+                <option value="{{ $state->id }}" {{ old('state', $user->state) == $state->id ? 'selected' : '' }}>{{ $state->name }}</option>
+            @endforeach
+        </select>
     </div>
     <div>
         <label for="pincode" class="block text-sm font-medium text-gray-700">Pincode</label>
